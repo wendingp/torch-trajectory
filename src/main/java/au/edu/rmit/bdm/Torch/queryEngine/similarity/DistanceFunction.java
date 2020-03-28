@@ -6,5 +6,5 @@ package au.edu.rmit.bdm.Torch.queryEngine.similarity;
  * @date 12/11/2017
  */
 public interface DistanceFunction<T, U> {
-    double apply(T t, U u);
+    double apply(T t, U u); // TODO meaning?
 }

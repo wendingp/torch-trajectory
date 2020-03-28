@@ -23,9 +23,9 @@ T-Torch is able to efficiently answer two typical types of queries now:
 ## Features of framework
 * T-Torch performs trajectory search over the mapped trajectories.
   * Optimized map-matching algorithms over Graphhopper
-  * Ligtweight data storage
+  * Lightweight data storage
 * Fast search with
-  * Compressiable index
+  * Compressible index
   * Various similarity measures
 * Trajectory visualization on real road network
   * http://115.146.93.77:8080/TTorchServer/
@@ -53,40 +53,40 @@ After setup, call start() method to convert raw trajectories to mapped trajector
    trajectoryID [[latitude1,longtitude1],[latitude2,longtitude2],...]
 ```
  1. The format of trajectory data should be the same as it in sample data-set, and there is a **\t** character separating trajectory id and content of it
- 2. It is your part to take care of data cleansing, as low quality trajectories leads to low projection rate, and high length trajectories (over 200) could affect query time.
+ 2. It is your part to take care of data cleaning, as low quality trajectories leads to low projection rate, and high length trajectories (over 200) could affect query time.
 
 
 ### 2. Query
 After map-matching, we could perform trajectory retrieval over mapped trajectories. T-Torch provides high level class *Engine* containing simple APIs for query processing. 
 To get the engine ready( loading or building necessary indexes to support different types of query), 
 only a line of code is required: 
-```
+```java
    Engine engine = Engine.getBuilder().build();
 ``` 
 
 #### 1) Range query
-```
+```java
    QueryResult ret = engine.findInRange(50, 50, 50);
 ```
 The range query is used to retrieve trajectories passing through a specified rectangular area. To define the rectangular area, three arguments are needed. 
 Latitude and longitude defines the middle point, with radius( in meters) together representing the rectangular area.
 
 #### 2) Path query
-```
+```java
    QueryResult ret = engine.findOnPath(query);
 ```
 The Path query<sup>[2]</sup> is used to retrieve trajectories having at least one common edge with the query.
 The argument it takes is a "path" represented by a list of *Coordinate*.
 
 #### 3) Strict path query
-```
+```java
    QueryResult ret = engine.findOnStrictPath(query)
 ```
 The strict path query<sup>[2]</sup> is used to retrieve trajectories strictly passing through the entire query from beginning to end.
 The argument it takes is a "path" represented by a list of *Coordinate*.
 
 #### 4) Top-k trajectory similarity search
-```
+```java
    QueryResult ret = engine.findTopK(query, 3);
 ```
 The top-k query returns
@@ -95,7 +95,7 @@ First argument is a "query trajectory" represented by a list of *Coordinate*,
 and the second is number of top results to return.
 
 ### 3. QueryResult
-```
+```java
    if (ret.mappingSucceed){
       List<Trajectory<TrajEntry>> l = ret.getResultTrajectory();
       String mapVformat = ret.getMapVFormat();
