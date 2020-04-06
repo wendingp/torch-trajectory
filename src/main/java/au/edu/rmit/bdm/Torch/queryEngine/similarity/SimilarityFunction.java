@@ -197,45 +197,30 @@ public class SimilarityFunction<T extends TrajEntry> {
         return dpInts[T1.size()][T2.size()];
     }
 
-    public double Hausdorff(List<T> t1, List<T> t2) {
-        double[][] dist_matrix = new double[t2.size()][t1.size()];
-        ArrayList<Double> minDistances1 = new ArrayList();
-        ArrayList<Double> minDistances2 = new ArrayList();
-
-        int i;
-        for (i = 0; i < dist_matrix.length; ++i) {
-            for (int j = 0; j < dist_matrix[0].length; ++j) {
-                dist_matrix[i][j] = distFunc.apply(t1.get(j), t2.get(i));
+    public double Hausdorff(List<T> t1, List<T> t2) { // refactored to O(mn)
+        double[][] distMatrix = new double[t2.size()][t1.size()]; // t2 then t1 ?
+        for (int i = 0; i < distMatrix.length; ++i) {
+            for (int j = 0; j < distMatrix[0].length; ++j) {
+                distMatrix[i][j] = distFunc.apply(t1.get(j), t2.get(i));
             }
         }
 
-        int j;
-        double min;
-        for (i = 0; i < dist_matrix.length; ++i) {
-            min = Double.MAX_VALUE;
-            for (j = 0; j < dist_matrix[0].length; ++j) {
-                if (dist_matrix[i][j] < min) {
-                    min = dist_matrix[i][j];
-                }
+        double maxMinDistance = Double.MIN_VALUE;
+        for (int i = 0; i < distMatrix.length; ++i) {
+            double rowMin = Double.MAX_VALUE;
+            for (int j = 0; j < distMatrix[0].length; ++j) {
+                rowMin = Math.min(rowMin, distMatrix[i][j]);
             }
-            minDistances1.add(min);
+            maxMinDistance = Math.max(maxMinDistance, rowMin);
         }
-
-        for (i = 0; i < dist_matrix[0].length; ++i) {
-            min = Double.MAX_VALUE;
-            for (j = 0; j < dist_matrix.length; ++j) {
-                if (dist_matrix[j][i] < min) {
-                    min = dist_matrix[j][i];
-                }
+        for (int i = 0; i < distMatrix[0].length; ++i) {
+            double colMin = Double.MAX_VALUE;
+            for (int j = 0; j < distMatrix.length; ++j) {
+                colMin = Math.min(colMin, distMatrix[j][i]);
             }
-            minDistances2.add(min);
+            maxMinDistance = Math.max(maxMinDistance, colMin);
         }
-
-        Collections.sort(minDistances1);
-        Collections.sort(minDistances2);
-        double value1 = minDistances1.get(minDistances1.size() - 1);
-        double value2 = minDistances2.get(minDistances2.size() - 1);
-        return Math.max(value1, value2);
+        return maxMinDistance;
     }
 
     public double Frechet(List<T> t1, List<T> t2) {
@@ -278,15 +263,10 @@ public class SimilarityFunction<T extends TrajEntry> {
         return a;
     }
 
-    private double max(double a, double b, double c) {
-        if (a < b) a = b;
-        if (a < c) a = c;
-        return a;
-    }
-
     public enum MeasureType {
         DTW, LCSS, EDR, LORS, Hausdorff, Frechet, // actually used here
         ERP, ED, // implemented
-        EDwP, APM, OWD, LIP, STLCSS, // TODO
+        // TODO
+        EDwP, APM, OWD, LIP, MD, STLCSS, STLC, STED, STLIP
     }
 }
