@@ -11,7 +11,7 @@ public class GeoUtil {
 
     private static Logger logger = LoggerFactory.getLogger(GeoUtil.class);
 
-    public static double distance(TrajEntry v1, TrajEntry v2){
+    public static double distance(TrajEntry v1, TrajEntry v2) {
         return distance(v1.getLat(), v2.getLat(), v1.getLng(), v2.getLng());
     }
 
@@ -60,7 +60,7 @@ public class GeoUtil {
     /**
      * increase the value of the current latitude.
      *
-     * @param lat the latitude to be increased
+     * @param lat    the latitude to be increased
      * @param meters specify how much in meters should the latitude increase
      * @return new latitude.
      */
@@ -73,14 +73,14 @@ public class GeoUtil {
         return ret;
     }
 
-    public static double decreaseLat(double lat, double meters){
+    public static double decreaseLat(double lat, double meters) {
         return increaseLat(lat, -meters);
     }
 
     /**
      * increase the value of the current longitude.
      *
-     * @param lat the longitude to be increased
+     * @param lat    the longitude to be increased
      * @param meters specify how much in meters should the longitude increase
      * @return new latitude.
      */
@@ -90,11 +90,42 @@ public class GeoUtil {
         ret = lon + coef / Math.cos(lat * 0.018);
         if (ret > 180) ret -= 360;
         if (ret < -180) ret += 360;
-
         return ret;
     }
 
-    public static double decreaseLng(double lat, double lng, double meters){
+    public static double decreaseLng(double lat, double lng, double meters) {
         return increaseLng(lat, lng, -meters);
+    }
+
+    public static double min(double... vals) {
+        double min = Double.MAX_VALUE;
+        for (double val : vals) {
+            min = Math.min(min, val);
+        }
+        return min;
+    }
+
+    public static double max(double... vals) {
+        double max = Double.MIN_VALUE;
+        for (double val : vals) {
+            max = Math.max(max, val);
+        }
+        return max;
+    }
+
+    public static int min(int... vals) {
+        int min = Integer.MAX_VALUE;
+        for (int val : vals) {
+            min = Math.min(min, val);
+        }
+        return min;
+    }
+
+    public static int max(int... vals) {
+        int max = Integer.MIN_VALUE;
+        for (int val : vals) {
+            max = Math.max(max, val);
+        }
+        return max;
     }
 }
