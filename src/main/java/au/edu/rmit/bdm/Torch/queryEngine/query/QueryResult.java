@@ -29,7 +29,7 @@ public class QueryResult {
     public final int retSize;
     public final String failReason;
 
-    private QueryResult(String queryType, List<? extends TrajEntry> raw, String failReason){
+    private QueryResult(String queryType, List<? extends TrajEntry> raw, String failReason) {
         this.mappingSucceed = false;
         this.failReason = failReason;
         this.queryType = queryType;
@@ -44,7 +44,7 @@ public class QueryResult {
 
     }
 
-    private QueryResult(String queryType, List<Trajectory<TrajEntry>> ret, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery){
+    private QueryResult(String queryType, List<Trajectory<TrajEntry>> ret, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery) {
         this.mappingSucceed = true;
         failReason = null;
         this.queryType = queryType;
@@ -59,7 +59,7 @@ public class QueryResult {
         isResolved = true;
     }
 
-    private QueryResult(String queryType, int[] ids, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery){
+    private QueryResult(String queryType, int[] ids, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery) {
         this.mappingSucceed = true;
         failReason = null;
         this.queryType = queryType;
@@ -72,7 +72,7 @@ public class QueryResult {
         isResolved = false;
     }
 
-    QueryResult(List<Trajectory<TrajEntry>> ret){
+    QueryResult(List<Trajectory<TrajEntry>> ret) {
         isResolved = true;
         this.mappingSucceed = false;
         failReason = null;
@@ -98,19 +98,19 @@ public class QueryResult {
         isResolved = false;
     }
 
-    public static QueryResult genResolvedRet(String queryType, List<Trajectory<TrajEntry>> ret, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery){
+    public static QueryResult genResolvedRet(String queryType, List<Trajectory<TrajEntry>> ret, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery) {
         return new QueryResult(queryType, ret, rawQuery, mappedQuery);
     }
 
-    public static QueryResult genUnresolvedRet(String queryType, int[] ids, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery){
+    public static QueryResult genUnresolvedRet(String queryType, int[] ids, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery) {
         return new QueryResult(queryType, ids, rawQuery, mappedQuery);
     }
 
-    public static QueryResult genUnresolvedRet(String queryType, TimeInterval[] intervals, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery){
+    public static QueryResult genUnresolvedRet(String queryType, TimeInterval[] intervals, List<TrajEntry> rawQuery, List<TrajEntry> mappedQuery) {
         return new QueryResult(queryType, intervals, rawQuery, mappedQuery);
     }
 
-    public static QueryResult genFailedRet(String queryType, List<? extends TrajEntry> raw, String reason){
+    public static QueryResult genFailedRet(String queryType, List<? extends TrajEntry> raw, String reason) {
         return new QueryResult(queryType, raw, reason);
     }
 
@@ -118,9 +118,9 @@ public class QueryResult {
      * Get raw query.txt.
      *
      * @return raw query.txt
-     *         or null if the queryType is RangeQuery
+     * or null if the queryType is RangeQuery
      */
-    public List<TrajEntry> getRawQuery(){
+    public List<TrajEntry> getRawQuery() {
         return rawQuery;
     }
 
@@ -128,8 +128,8 @@ public class QueryResult {
      * Get mapped query.txt.
      *
      * @return mapped query.txt.
-     *         or null if the query.txt is of type RangeQuery.
-     *         or null if the mapping process fails.
+     * or null if the query.txt is of type RangeQuery.
+     * or null if the mapping process fails.
      */
     public List<TrajEntry> getMappedQuery() {
         return mappedQuery;
@@ -141,43 +141,42 @@ public class QueryResult {
      *
      * @return qualified trajectories.
      */
-    public List<Trajectory<TrajEntry>> getResultTrajectory(){
+    public List<Trajectory<TrajEntry>> getResultTrajectory() {
         return resolvedRet;
     }
 
     /**
      * Get a string of JSON format<p>
-     *
+     * <p>
      * key-value map:
-     *
+     * <p>
      * - key: queryType
-     * @see Torch.QueryType for possible query.txt types as value
      *
+     * @return A string of JSON format
+     * @see Torch.QueryType for possible query.txt types as value
+     * <p>
      * - key: mappingSucceed:
      * value: Boolean value indicates if the process of converting raw trajectory to map-matched trajectory succeeds.
-     *
+     * <p>
      * - key: raw
      * Query in mapV format.
      * Or null if the query.txt is of type rangeQuery
-     *
+     * <p>
      * - key: mapped
      * mapmatched query.txt in mapV format.
      * Or null if the query.txt is of type rangeQuery
-     *
+     * <p>
      * - key: retSize
      * value: integer indicates number of qualified trajectories found
-     *
+     * <p>
      * - key: resolvedRet
      * value: array of qualified trajectories in mapV format
-     *
-     * @return A string of JSON format
      */
-    public String toJSON(int maximum){
-
+    public String toJSON(int maximum) {
         return Formater.toMapVJSON(this, maximum);
     }
 
-    public String toJSON(){
+    public String toJSON() {
         return Formater.toMapVJSON(this);
     }
 
@@ -185,9 +184,9 @@ public class QueryResult {
      * Get raw query.txt in mapV format
      *
      * @return raw query.txt in mapV format
-     *         or null if the query.txt type is RangeQuery
+     * or null if the query.txt type is RangeQuery
      */
-    public String getRawQueryjMapVformat(){
+    public String getRawQueryjMapVformat() {
         if (rawQuery == null) return null;
         return Formater.toMapVJSON(rawQuery);
     }
@@ -196,16 +195,16 @@ public class QueryResult {
      * Get mapped query.txt in mapV format
      *
      * @return mapped query.txt in mapV format
-     *         or null if the query.txt type is RangeQuery
-     *         or null if the raw query.txt is not properly projected.
+     * or null if the query.txt type is RangeQuery
+     * or null if the raw query.txt is not properly projected.
      */
-    public String getMappedQueryMapVformat(){
+    public String getMappedQueryMapVformat() {
         if (queryType.equals(Torch.QueryType.RangeQ)) return null;
         if (!mappingSucceed) return null;
         return Formater.toMapVJSON(mappedQuery);
     }
 
-    public String getRetMapVformat(){
+    public String getRetMapVformat() {
         if (resolvedRet.isEmpty()) return "[]";
         return Formater.toMapVJSON(resolvedRet);
     }

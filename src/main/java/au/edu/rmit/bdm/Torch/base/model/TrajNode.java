@@ -9,14 +9,14 @@ import java.util.List;
  * However, algorithm from raw trajectory nodes to graph vertices for other kind of information requires further research and experiment.
  * This function is expected to be developed in future.
  */
-public class TrajNode extends Coordinate{
+public class TrajNode extends Coordinate {
 
     public int id;
     private long _time = -1;
     List<String> _bundle = new ArrayList<>(3);
 
     public TrajNode(double lat, double lng) {
-        super(lat,lng);
+        super(lat, lng);
     }
 
     public TrajNode(double lat, double lng, long time) {
@@ -24,11 +24,11 @@ public class TrajNode extends Coordinate{
         _time = time;
     }
 
-    public void addExtraInfo(String extra){
+    public void addExtraInfo(String extra) {
         _bundle.add(extra);
     }
 
-    public void setTime(long time){
+    public void setTime(long time) {
         _time = time;
     }
 

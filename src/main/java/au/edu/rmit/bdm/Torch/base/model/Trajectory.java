@@ -14,18 +14,20 @@ public class Trajectory<T extends TrajEntry> extends LinkedList<T> {
     public boolean hasTime;
     public List<TorEdge> edges = new ArrayList<>();
 
-    public Trajectory(){}
-    public Trajectory(String id, boolean hasTime){
+    public Trajectory() {
+    }
+
+    public Trajectory(String id, boolean hasTime) {
         this.hasTime = hasTime;
         this.id = id;
     }
 
-    public Trajectory(boolean hasTime){
+    public Trajectory(boolean hasTime) {
         this.hasTime = hasTime;
     }
 
 
-    public static Trajectory<TrajEntry> generate(String id, String trajContent){
+    public static Trajectory<TrajEntry> generate(String id, String trajContent) {
 
         Trajectory<TrajEntry> trajectory = new Trajectory<>(id, false);
 
@@ -33,7 +35,7 @@ public class Trajectory<T extends TrajEntry> extends LinkedList<T> {
         String[] trajTuples = trajContent.split("],\\[");
         String[] latLng;
 
-        for (int i = 0; i < trajTuples.length; i++){
+        for (int i = 0; i < trajTuples.length; i++) {
             latLng = trajTuples[i].split(",");
             Coordinate coordinate = new Coordinate(Double.parseDouble(latLng[0]), Double.parseDouble(latLng[1]));
             trajectory.add(coordinate);

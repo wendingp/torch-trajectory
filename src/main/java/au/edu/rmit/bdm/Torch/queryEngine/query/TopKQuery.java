@@ -10,27 +10,26 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-class TopKQuery extends QueryImpl{
+class TopKQuery extends QueryImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(TopKQuery.class);
     private TopKQueryIndex index;
 
-    TopKQuery(TopKQueryIndex index, Mapper mapper, TrajectoryResolver resolver){
+    TopKQuery(TopKQueryIndex index, Mapper mapper, TrajectoryResolver resolver) {
         super(mapper, resolver);
         this.index = index;
     }
 
     @Override
     public QueryResult execute(Object K) {
-
         if (!(K instanceof Integer))
             throw new IllegalStateException(
                     "parameter passed to windowQuery should be of type Integer, " +
                             "which indicates top k results to return");
         if (index.useEdge())
-            return topKusingEdge((int)K);
+            return topKUsingEdge((int) K);
         else
-            return topkusingVertex((int)K);
+            return topKUsingVertex((int) K);
     }
 
     @Override
@@ -42,21 +41,17 @@ class TopKQuery extends QueryImpl{
         index = (TopKQueryIndex) idx;
     }
 
-    private QueryResult topKusingEdge(int k) {
-
+    private QueryResult topKUsingEdge(int k) {
         List<String> trajIds = index.findTopK(k, null, LightEdge.copy(mapped.edges), resolver);
-
         logger.info("total qualified trajectories: {}", trajIds.size());
-        logger.info("top {} trajectory id set: {}",trajIds.size(),trajIds);
-
+        logger.info("top {} trajectory id set: {}", trajIds.size(), trajIds);
         return resolver.resolve(Torch.QueryType.TopK, trajIds, raw, mapped);
     }
 
 
-    private QueryResult topkusingVertex(int k) {
-
+    private QueryResult topKUsingVertex(int k) {
         List<String> trajIds = index.findTopK(k, mapped, null, resolver);
-        logger.info("top {} trajectory id set: {}",trajIds.size(),trajIds);
+        logger.info("top {} trajectory id set: {}", trajIds.size(), trajIds);
         return resolver.resolve(Torch.QueryType.TopK, trajIds, raw, mapped);
     }
 }

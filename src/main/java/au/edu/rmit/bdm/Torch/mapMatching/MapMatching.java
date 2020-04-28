@@ -20,31 +20,34 @@ import java.util.List;
 /**
  * An mapMatching object is for projecting raw trajectory data to graph.
  * There are options to customize your mapMatching object.
- * @see Builder
  *
+ * @see Builder
+ * <p>
  * Note that there will be only one MapMatching object for each application instance.
  * Do not share it between threads as it is not designed to do so.
- *
+ * <p>
  * Usage:
  * MapMatching mm = MapMatching.getBuilder().build("Resources/porto_raw_trajectory.txt","Resources/porto.osm.pbf");
  * mm.start();
  * @see #start()
  */
 public class MapMatching {
-    
+
     public static final String GRAPHNAME = "g";
     private static Logger logger = LoggerFactory.getLogger(MapMatching.class);
     private static Builder builder = new Builder();
     private MMProperties props;
     private TorGraph graph;
     private Mapper mapper;
-    public static Builder getBuilder(){
+
+    public static Builder getBuilder() {
         return builder;
     }
+
     private FileSetting setting;
 
-    private MapMatching(MMProperties props){
-        
+    private MapMatching(MMProperties props) {
+
         this.props = props;
 
         //check trajSrcPath file
@@ -55,7 +58,7 @@ public class MapMatching {
         }
 
         File PBFFile = new File(props.osmPath);
-        if (!PBFFile.exists()){
+        if (!PBFFile.exists()) {
             logger.error("{} does not exist", props.osmPath);
             System.exit(-1);
             throw new RuntimeException();
@@ -63,15 +66,15 @@ public class MapMatching {
 
         String baseDir = props.baseDir;
         setting = new FileSetting(baseDir);
-        
+
         //check output directory
         File dir = new File(setting.TorchBase);
         if (!dir.exists()) {
-            if (!dir.mkdirs()){
+            if (!dir.mkdirs()) {
                 logger.error("{} cannot make directory, possibly Torch do not have permission for it.", setting.TorchBase);
                 throw new RuntimeException();
             }
-        }else if (!dir.isDirectory()){
+        } else if (!dir.isDirectory()) {
             logger.error("{} already exists and it is not a directory", setting.TorchBase);
             throw new RuntimeException();
         }
@@ -84,7 +87,7 @@ public class MapMatching {
      *
      * @see Builder#setBatchSize(int)
      */
-    public void start(){
+    public void start() {
 
         MemoryUsage.start();
 
@@ -103,7 +106,7 @@ public class MapMatching {
 
         //readBatch trajectory data in batch from file
         List<Trajectory<TrajEntry>> rawTrajs = new LinkedList<>();
-        while ( !reader.readBatch(props.trajSrcPath, null, rawTrajs)) {
+        while (!reader.readBatch(props.trajSrcPath, null, rawTrajs)) {
 
             MemoryUsage.printCurrentMemUsage("[after loading trajectories]");
 
@@ -118,7 +121,6 @@ public class MapMatching {
         List<Trajectory<TowerVertex>> mappedTrajectories = mapper.batchMatch(rawTrajs);
         saver.asyncSave(mappedTrajectories, rawTrajs, true);
     }
-
 
 
 //    /**
@@ -156,7 +158,7 @@ public class MapMatching {
          * @param algorithm the algorithm used in map-matching
          * @see Torch.Algorithms
          */
-        public Builder setMapMatchingAlgorithm(String algorithm){
+        public Builder setMapMatchingAlgorithm(String algorithm) {
             props.mmAlg = algorithm;
             return this;
         }
@@ -166,7 +168,7 @@ public class MapMatching {
          *                As car and bike do not run on same roads
          * @see Torch.vehicleType
          */
-        public Builder setVehicleType(String vehicle){
+        public Builder setVehicleType(String vehicle) {
             props.vehicleType = vehicle;
             return this;
         }
@@ -176,7 +178,7 @@ public class MapMatching {
          *              It tells the range to compute shortest path information between src and its near points.
          * @see TorDijkstra#run(TowerVertex)
          */
-        public Builder setPrecomputationRange(int range){
+        public Builder setPrecomputationRange(int range) {
             props.preComputationRange = range;
             return this;
         }
@@ -187,12 +189,12 @@ public class MapMatching {
          *
          * @see TrajReader
          */
-        public Builder setBatchSize(int batchSize){
+        public Builder setBatchSize(int batchSize) {
             props.batchSize = batchSize;
             return this;
         }
-        
-        public Builder setBaseDir(String name){
+
+        public Builder setBaseDir(String name) {
             props.baseDir = name;
             return this;
         }
@@ -201,14 +203,13 @@ public class MapMatching {
          * construct an MapMatching object with required files.
          *
          * @param trajSrcPath raw trajectory file with following format
-         *                1    [[39.92123, 116.51172],[39.93883, 116.51135],[39.91034, 116.51627]]
-         *                1 represents the hash of current trajectory.
-         *                separated by \t character, a tuple of gps coordinates( lat, lng) that defines the trajectory.
-         *
-         * @param osmPath map data in format of *.osm.pbf
+         *                    1    [[39.92123, 116.51172],[39.93883, 116.51135],[39.91034, 116.51627]]
+         *                    1 represents the hash of current trajectory.
+         *                    separated by \t character, a tuple of gps coordinates( lat, lng) that defines the trajectory.
+         * @param osmPath     map data in format of *.osm.pbf
          * @return mapMatching object
          */
-        public MapMatching build(String trajSrcPath, String osmPath){
+        public MapMatching build(String trajSrcPath, String osmPath) {
 
             props.trajSrcPath = trajSrcPath;
             props.osmPath = osmPath;

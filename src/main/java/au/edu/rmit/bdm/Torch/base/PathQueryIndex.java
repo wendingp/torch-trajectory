@@ -5,8 +5,16 @@ import au.edu.rmit.bdm.Torch.queryEngine.model.LightEdge;
 import java.util.List;
 
 
-public interface PathQueryIndex extends Index{
-
+public interface PathQueryIndex extends Index {
+    /**
+     * @param path
+     * @return
+     */
     List<String> findByPath(List<LightEdge> path);
+
+    /**
+     * @param path
+     * @return
+     */
     List<String> findByStrictPath(List<LightEdge> path);
 }

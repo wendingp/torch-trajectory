@@ -78,7 +78,8 @@ public class SimilarityFunction<T extends TrajEntry> {
         for (int i = 0; i < t1.size(); ++i) {
             dist += Math.sqrt(distFunc.apply(t1.get(i), t2.get(i)));
         }
-        return dist / t1.size(); // should be average here
+        return dist / t1.size(); // TODO should be average here?
+//        return dist;
     }
 
     public double LongestCommonSubsequence(List<T> t1, List<T> t2, int theta) { // LCSS
@@ -299,6 +300,7 @@ public class SimilarityFunction<T extends TrajEntry> {
         DTW, LCSS, EDR, LORS, Hausdorff, Frechet, // actually used here
         ERP, ED, // implemented
         // TODO
-        EDwP, APM, OWD, LIP, MD, STLCSS, STLC, STED, STLIP
+        EDwP, APM, OWD, LIP,
+        MD, STLCSS, STLC, STED, STLIP
     }
 }

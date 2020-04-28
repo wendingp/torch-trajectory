@@ -15,25 +15,26 @@ import java.util.*;
 
 /**
  * The class models inverted list for edge or vertex.
- *
+ * <p>
  * key: an edge id or a vertex id
  * value: pairs( trajectory id -- position of that key in the trajectory)
- *
  */
 public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, TopKQueryIndex {
 
-    private static  final Logger logger = LoggerFactory.getLogger(EdgeInvertedIndex.class);
+    private static final Logger logger = LoggerFactory.getLogger(EdgeInvertedIndex.class);
 
-    public EdgeInvertedIndex(FileSetting setting){
+    public EdgeInvertedIndex(FileSetting setting) {
         super(setting);
     }
+
     /**
      * invertedIndex a list of trajectories
+     *
      * @param trajectories trajectories to be indexed
      */
-    public <T extends TrajEntry> void indexAll(List<Trajectory<T>> trajectories){
+    public <T extends TrajEntry> void indexAll(List<Trajectory<T>> trajectories) {
 
-        for (Trajectory<T> trajectory: trajectories)
+        for (Trajectory<T> trajectory : trajectories)
             index(trajectory);
     }
 
@@ -73,7 +74,7 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
             List<String> l = getKeys(edge.id);
             if (l != null) {
                 for (String trajId : l) {
-                    map.merge(trajId, 1, (a, b) -> a + b);
+                    map.merge(trajId, 1, Integer::sum);
                 }
             }
         }
@@ -89,17 +90,16 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
     }
 
     /**
-     * LEVI( Longest Overlapping Road Segments) algorithm.
+     * LEVI (Longest Overlapping Road Segments) algorithm.
      * Find top K trajectories that has the max score( similarity) against query.txt trajectory( represented by a list of edges).
      * Used in efficiency test.
      *
      * @param edgeQuery a list of edges representing a query.txt
-     * @param k number of results returned
-     *
+     * @param k         number of results returned
      * @return A list of results of type Integer meaning ids of trajectory.
      */
     @Override
-    public <T extends TrajEntry> List<String> findTopK(int k, List<T> pointQuery, List<LightEdge> edgeQuery, TrajectoryResolver resolver){
+    public <T extends TrajEntry> List<String> findTopK(int k, List<T> pointQuery, List<LightEdge> edgeQuery, TrajectoryResolver resolver) {
 
         // 1. compute upper bound for each candidate trajectory
 
@@ -118,7 +118,7 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
 
                 String trajId = String.valueOf(pair.trajid);
                 //calculate upper bound for each trajectory
-                candidateUpperBound.merge(trajId, queryEdge.length, (a, b) -> b + a);
+                candidateUpperBound.merge(trajId, queryEdge.length, Double::sum);
                 //re-construct every trajectory, need to reorder in the next steps
                 List<LightEdge> candidateEdges = candidates.computeIfAbsent(trajId, key -> new ArrayList<>());
                 candidateEdges.add(new LightEdge(queryEdge.id, queryEdge.length, pair.pos));
@@ -180,16 +180,16 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
      * LEVI stands for longest overlapped road segments.<p>
      * It is LCSS algorithm twitched for computing similarity between two sequences over edges.
      *
-     * @param qEdges          edges representing query.txt trajectory
-     * @param cEdges          edges representing sub candidate trajectory
-     * @param theta           For instance, theta is 5. If the 3rd edge in query.txt trajectory matches the 11th edge in candidate trajectory,
-     *                        it won't count because the position between than is larger than theta.
-     * @param restDistance     a list containing the sum of rest edges length in total
-     *                         example:
-     *                         if the query.txt contains 3 edges, which are 3 meters, 1 meters and 2 meters respectively in length.
-     *                         Then the restDistance contains [3, 2, 0], which means that if it getList to the first one, then the rest is 3( 2 + 1).
-     *                         If it getList to the second, then the rest is 2. And if it getList to dataStructure 3, then the rest is 0.
-     * @param bestKthSofar     score for the min score element in the heap.
+     * @param qEdges       edges representing query.txt trajectory
+     * @param cEdges       edges representing sub candidate trajectory
+     * @param theta        For instance, theta is 5. If the 3rd edge in query.txt trajectory matches the 11th edge in candidate trajectory,
+     *                     it won't count because the position between than is larger than theta.
+     * @param restDistance a list containing the sum of rest edges length in total
+     *                     example:
+     *                     if the query.txt contains 3 edges, which are 3 meters, 1 meters and 2 meters respectively in length.
+     *                     Then the restDistance contains [3, 2, 0], which means that if it getList to the first one, then the rest is 3( 2 + 1).
+     *                     If it getList to the second, then the rest is 2. And if it getList to dataStructure 3, then the rest is 0.
+     * @param bestKthSofar score for the min score element in the heap.
      * @return similarity score computed using LEVI sim measure.
      */
 

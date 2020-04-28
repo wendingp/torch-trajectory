@@ -18,7 +18,7 @@ public abstract class TrajectoryPool {
     private DBManager db;
     String tableName;
 
-    TrajectoryPool(boolean isMem, FileSetting setting){
+    TrajectoryPool(boolean isMem, FileSetting setting) {
 
         this.isMem = isMem;
         if (!isMem) {
@@ -56,16 +56,14 @@ public abstract class TrajectoryPool {
         }
     }
 
-    public int[] get(String trajId){
-
+    public int[] get(String trajId) {
         int[] ret;
-
-        if (isMem){
+        if (isMem) {
             String[] trajectory = memPool.get(trajId);
             ret = new int[trajectory.length];
             for (int i = 0; i < ret.length; i++)
                 ret[i] = Integer.valueOf(trajectory[i]);
-        }else{
+        } else {
             String[] temp = db.get(tableName, trajId).split(",");
             ret = new int[temp.length];
             for (int i = 0; i < temp.length; i++)

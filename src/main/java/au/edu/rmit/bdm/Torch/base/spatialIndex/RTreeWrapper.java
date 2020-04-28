@@ -18,8 +18,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * divide trajectories into envelope and use R tree to dataStructure them
- *
+ * divide trajectories into envelope and use R-tree to dataStructure them
  */
 //todo
 public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
@@ -30,15 +29,15 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
     private FileSetting setting;
 
     /*
-     * This is the threashold for number of points in MBR( Envelope)
+     * This is the threshold for number of points in MBR (Envelope)
      * If a trajectory contains more than 10 points,
-     * it will be sliced into multiple MBR( Envelope)
+     * it will be sliced into multiple MBR (Envelope)
      */
     private static final int POINT_NUMBER_IN_MBR = 10;
 
     private RTree<String, Geometry> rTree;
 
-    public RTreeWrapper(FileSetting setting){
+    public RTreeWrapper(FileSetting setting) {
         this.setting = setting;
         this.rTree = RTree.star().maxChildren(6).create();
     }
@@ -171,8 +170,7 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
             for (float lat1 : qlat) {
                 for (float lon2 : rlon) {
                     for (float lat2 : rlat) {
-                        double distance = GeoUtil.distance(lat1, lat2, lon1, lon2);
-                        if (distance < minDistance) minDistance = distance;
+                        minDistance = Math.min(minDistance, GeoUtil.distance(lat1, lat2, lon1, lon2));
                     }
                 }
             }
@@ -180,7 +178,8 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
         return minDistance;
     }
 
-    private void calUpperBound(rx.Observable<Entry<Integer, Geometry>> results, Map<Integer, Double> idScores, final double pointNumber) {
+    private void calUpperBound(rx.Observable<Entry<Integer, Geometry>> results, Map<Integer, Double> idScores,
+                               final double pointNumber) {
         results.forEach(entry -> {
             idScores.merge(entry.value(), pointNumber, (a, b) -> b + a);
         });
@@ -196,7 +195,7 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
         load();
     }
 
-    private void load(){
+    private void load() {
 
         logger.info("build rtree");
         Serializer<String, Geometry> serializer = Serializers.flatBuffers().javaIo();
@@ -209,13 +208,8 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
         }
     }
 
-    public <T extends TrajEntry> void indexAll(List<Trajectory<T>> trajectories){
-
-        Iterator<Trajectory<T>> trajectoryIterator = trajectories.iterator();
-
-        while (trajectoryIterator.hasNext()) {
-
-            Trajectory<T> trajectory = trajectoryIterator.next();
+    public <T extends TrajEntry> void indexAll(List<Trajectory<T>> trajectories) {
+        for (Trajectory<T> trajectory : trajectories) {
             T pre = trajectory.get(0);
 
             double minLat = pre.getLat(), minLng = pre.getLng(), maxLat = pre.getLat(), maxLng = pre.getLng();
@@ -226,7 +220,6 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
                 pre = trajectory.get(i);
                 length += dist;
                 if (length >= MAX_LENGTH) {
-
                     rTree = rTree.add(trajectory.id, Geometries.rectangleGeographic(minLng, minLat, maxLng, maxLat));
 
                     if (counter++ % 100000 == 0)
@@ -249,7 +242,7 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
         }
     }
 
-    public void Save(){
+    public void Save() {
         logger.info("start to serialize dataStructure file to disk");
 
         File rtree = new File(setting.RTREE_INDEX);
