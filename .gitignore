@@ -10,7 +10,7 @@ target
 # Torch_nantong
 .DS_Store
 .idea
-# Torch/
+/Torch
 porto/
 .project
 .settings
