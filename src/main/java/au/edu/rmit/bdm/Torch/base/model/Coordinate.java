@@ -1,11 +1,11 @@
 package au.edu.rmit.bdm.Torch.base.model;
 
-public class Coordinate implements TrajEntry{
+public class Coordinate implements TrajEntry {
 
     public final double lat;
     public final double lng;
 
-    public Coordinate(double lat, double lng){
+    public Coordinate(double lat, double lng) {
         this.lat = lat;
         this.lng = lng;
     }
@@ -16,12 +16,12 @@ public class Coordinate implements TrajEntry{
     }
 
     @Override
-    public double getLat(){
+    public double getLat() {
         return lat;
     }
 
     @Override
-    public double getLng(){
+    public double getLng() {
         return lng;
     }
 

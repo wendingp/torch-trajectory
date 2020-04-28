@@ -5,7 +5,8 @@ import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 
 import static au.edu.rmit.bdm.Torch.base.helper.GeoUtil.min;
 

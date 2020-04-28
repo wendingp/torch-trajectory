@@ -13,7 +13,7 @@ import java.io.*;
 import java.util.*;
 
 import static au.edu.rmit.bdm.Torch.base.Torch.SEPARATOR_1;
-import static au.edu.rmit.bdm.Torch.base.helper.FileUtil.*;
+import static au.edu.rmit.bdm.Torch.base.helper.FileUtil.ensureExistence;
 
 public abstract class InvertedIndex implements Index {
     private static Logger logger = LoggerFactory.getLogger(InvertedIndex.class);

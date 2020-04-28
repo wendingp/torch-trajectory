@@ -33,20 +33,20 @@ public class FileSetting {
     public String DB_URL;
     public String TRAJECTORY_VERTEX_TABLE = "vertex";
     public String TRAJECTORY_EDGE_TABLE = "edge";
-    public String EDGENAME_ID_TABLE= "edgename";
+    public String EDGENAME_ID_TABLE = "edgename";
 
     public String RAW_TRAJECTORY_INDEX;
 
     public String GRID_INDEX;
     public String RTREE_INDEX;
 
-    public FileSetting(String baseDir){
+    public FileSetting(String baseDir) {
         map.put(baseDir, this);
 
         hopperURI = baseDir + "/HopperMeta";
         metaURI = baseDir + "/meta";
         TorchBase = baseDir + "/Torch";
-        ID_VERTEX_LOOKUP = TorchBase +"/id_vertex.txt";
+        ID_VERTEX_LOOKUP = TorchBase + "/id_vertex.txt";
         ID_EDGE_LOOKUP = TorchBase + "/id_edge.txt";
         ID_EDGE_RAW = TorchBase + "/id_edge_raw.txt";
 
@@ -61,10 +61,11 @@ public class FileSetting {
         TRAJECTORY_START_END_TIME_PARTIAL = TorchBase + "/trajectory_time_partial.txt";
 
         //for Torch_Porto.db
-        DB_URL = DB_PREFIX+ TorchBase +"/db/"+ baseDir + ".db";
+        DB_URL = DB_PREFIX + TorchBase + "/db/" + baseDir + ".db";
 
         RAW_TRAJECTORY_INDEX = TorchBase + "/raw_trajectories";
-        GRID_INDEX = TorchBase + "/grid_vertex.idx";RTREE_INDEX = TorchBase + "/rtree_raw.idx";
+        GRID_INDEX = TorchBase + "/grid_vertex.idx";
+        RTREE_INDEX = TorchBase + "/rtree_raw.idx";
 
         modifyForWinOS();
     }
@@ -93,26 +94,26 @@ public class FileSetting {
         modifyForWinOS();
     }
 
-    private void modifyForWinOS(){
+    private void modifyForWinOS() {
         boolean isWindow = System.getProperty("os.name").contains("win");
         if (!isWindow) return;
 
-        prefix = prefix.replace("/","\\");
-        hopperURI = hopperURI.replace("/","\\");
-        metaURI = metaURI.replace("/","\\");
-        ID_VERTEX_LOOKUP = ID_VERTEX_LOOKUP.replace("/","\\");
-        ID_EDGE_LOOKUP = ID_EDGE_LOOKUP.replace("/","\\");
-        ID_EDGE_RAW = ID_EDGE_RAW.replace("/","\\");
-        EDGE_INVERTED_INDEX = EDGE_INVERTED_INDEX.replace("/","\\");
-        VERTEX_INVERTED_INDEX = VERTEX_INVERTED_INDEX.replace("/","\\");
-        TRAJECTORY_VERTEX_REPRESENTATION_PATH = TRAJECTORY_VERTEX_REPRESENTATION_PATH.replace("/","\\");
-        TRAJECTORY_EDGE_REPRESENTATION_PATH = TRAJECTORY_EDGE_REPRESENTATION_PATH.replace("/","\\");
-        TRAJECTORY_VERTEX_REPRESENTATION_PATH_PARTIAL = TRAJECTORY_VERTEX_REPRESENTATION_PATH_PARTIAL.replace("/","\\");
-        TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL = TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL.replace("/","\\");
-        TRAJECTORY_START_END_TIME_PARTIAL = TRAJECTORY_START_END_TIME_PARTIAL.replace("/","\\");
-        GRID_INDEX = GRID_INDEX.replace("/","\\");
-        RTREE_INDEX = RTREE_INDEX.replace("/","\\");
-        RAW_TRAJECTORY_INDEX = RAW_TRAJECTORY_INDEX.replace("/","\\");
+        prefix = prefix.replace("/", "\\");
+        hopperURI = hopperURI.replace("/", "\\");
+        metaURI = metaURI.replace("/", "\\");
+        ID_VERTEX_LOOKUP = ID_VERTEX_LOOKUP.replace("/", "\\");
+        ID_EDGE_LOOKUP = ID_EDGE_LOOKUP.replace("/", "\\");
+        ID_EDGE_RAW = ID_EDGE_RAW.replace("/", "\\");
+        EDGE_INVERTED_INDEX = EDGE_INVERTED_INDEX.replace("/", "\\");
+        VERTEX_INVERTED_INDEX = VERTEX_INVERTED_INDEX.replace("/", "\\");
+        TRAJECTORY_VERTEX_REPRESENTATION_PATH = TRAJECTORY_VERTEX_REPRESENTATION_PATH.replace("/", "\\");
+        TRAJECTORY_EDGE_REPRESENTATION_PATH = TRAJECTORY_EDGE_REPRESENTATION_PATH.replace("/", "\\");
+        TRAJECTORY_VERTEX_REPRESENTATION_PATH_PARTIAL = TRAJECTORY_VERTEX_REPRESENTATION_PATH_PARTIAL.replace("/", "\\");
+        TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL = TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL.replace("/", "\\");
+        TRAJECTORY_START_END_TIME_PARTIAL = TRAJECTORY_START_END_TIME_PARTIAL.replace("/", "\\");
+        GRID_INDEX = GRID_INDEX.replace("/", "\\");
+        RTREE_INDEX = RTREE_INDEX.replace("/", "\\");
+        RAW_TRAJECTORY_INDEX = RAW_TRAJECTORY_INDEX.replace("/", "\\");
     }
 
 }

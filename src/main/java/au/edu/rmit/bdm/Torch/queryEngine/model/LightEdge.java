@@ -16,19 +16,19 @@ public class LightEdge {
         this.position = position;
     }
 
-    public static List<LightEdge> copy(List<TorEdge> edges){
+    public static List<LightEdge> copy(List<TorEdge> edges) {
         List<LightEdge> l = new ArrayList<>(edges.size());
         for (TorEdge edge : edges)
             l.add(copy(edge));
         return l;
     }
 
-    public static LightEdge copy(TorEdge edge){
+    public static LightEdge copy(TorEdge edge) {
         return new LightEdge(edge.id, edge.getLength(), edge.getPosition());
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.valueOf(id);
     }
 

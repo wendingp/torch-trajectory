@@ -16,20 +16,24 @@ public interface Torch {
      *
      * @see MapMatching.Builder#setMapMatchingAlgorithm(String) ;
      */
-    interface Algorithms{
+    interface Algorithms {
 
-        /** * * * * * * * * * * * *
+        /**
+         * * * * * * * * * * * *
          * map matching algorithm *
-         * * * * * * * * * * * * */
+         * * * * * * * * * * * *
+         */
 
         //hidden markov model
         String HMM = "HMM1";
         String HMM_PRECOMPUTED = "HMM2";
 
 
-        /** * * * * * * * * * * **
-         *   similarity measure  *
-         * * * * * * * * * * * * */
+        /**
+         * * * * * * * * * * **
+         * similarity measure  *
+         * * * * * * * * * * * *
+         */
 
 //        String EUCLIDEAN_DISTANCE = "ED";     // Euclidean Distance
         String LCSS = "LCSS";                 // Longest Common Sub-Sequence
@@ -39,7 +43,7 @@ public interface Torch {
         String Frechet = "F";
     }
 
-    interface QueryType{
+    interface QueryType {
 
         String RangeQ = "RQ";
         String PathQ = "PQ";
@@ -52,14 +56,14 @@ public interface Torch {
      *
      * @see MapMatching.Builder#setVehicleType(String)
      */
-    interface vehicleType{
+    interface vehicleType {
         String CAR = "car";
         String FOOT = "foot";
         String BIKE = "bike";
         String MOTOCYCLE = "moto";
     }
 
-    interface Index{
+    interface Index {
         String LEVI = "levi";
         String EDGE_INVERTED_INDEX = "eii";
     }

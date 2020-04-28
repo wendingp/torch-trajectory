@@ -14,7 +14,7 @@ public class NameEdgeIdLookup {
         db = new DBManager(setting);
     }
 
-    public int[] get(String edgeName){
+    public int[] get(String edgeName) {
         String content = db.get(setting.EDGENAME_ID_TABLE, edgeName);
         if (content == null)
             return new int[0];

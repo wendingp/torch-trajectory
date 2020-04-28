@@ -2,26 +2,29 @@ package au.edu.rmit.bdm.Torch.mapMatching;
 
 import au.edu.rmit.bdm.Torch.base.FileSetting;
 import au.edu.rmit.bdm.Torch.base.Torch;
-import au.edu.rmit.bdm.Torch.mapMatching.algorithm.TorGraph;
 import au.edu.rmit.bdm.Torch.base.invertedIndex.EdgeInvertedIndex;
 import au.edu.rmit.bdm.Torch.base.invertedIndex.InvertedIndex;
 import au.edu.rmit.bdm.Torch.base.invertedIndex.VertexInvertedIndex;
 import au.edu.rmit.bdm.Torch.base.model.TorEdge;
+import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
+import au.edu.rmit.bdm.Torch.base.model.Trajectory;
+import au.edu.rmit.bdm.Torch.mapMatching.algorithm.TorGraph;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TowerVertex;
-import au.edu.rmit.bdm.Torch.base.model.*;
 import com.github.davidmoten.geo.GeoHash;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static au.edu.rmit.bdm.Torch.base.helper.FileUtil.*;
+import static au.edu.rmit.bdm.Torch.base.helper.FileUtil.ensureExistence;
 
 /**
  * The class is for saving relevant information to disk.

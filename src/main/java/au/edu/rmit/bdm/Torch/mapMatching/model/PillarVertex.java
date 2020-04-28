@@ -17,9 +17,9 @@ public class PillarVertex extends TorVertex {
         this.edge = edge;
     }
 
-    public static PillarVertex generateMiddle(TorVertex v1, TorVertex v2, TorEdge edge){
-        double newPillarLat = (v1.lat + v2.lat)/ 2;
-        double newPillarLng = (v1.lng + v2.lng)/ 2;
+    public static PillarVertex generateMiddle(TorVertex v1, TorVertex v2, TorEdge edge) {
+        double newPillarLat = (v1.lat + v2.lat) / 2;
+        double newPillarLng = (v1.lng + v2.lng) / 2;
 
         return new PillarVertex(newPillarLat, newPillarLng, edge);
     }

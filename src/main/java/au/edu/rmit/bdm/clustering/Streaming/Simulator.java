@@ -29,12 +29,12 @@ class Simulator {
 
         //preload the list
         String line;
-        while ((line = reader.readLine()) !=null){
+        while ((line = reader.readLine()) != null) {
             Tuple t = Tuple.genFromCSV(line);
-            if (t.timestemp >= startFrom){
+            if (t.timestemp >= startFrom) {
                 preT = t;
                 break;
-            }else{
+            } else {
                 cachedList.addLast(t);
             }
         }
@@ -43,15 +43,15 @@ class Simulator {
         cur.set(this.startFrom);
     }
 
-    public void start(){
+    public void start() {
         ExecutorService thread = Executors.newSingleThreadExecutor();
-        thread.execute(()->{
+        thread.execute(() -> {
             boolean isEmpty = false;
             long startTime = System.currentTimeMillis();
 
-            while (!isEmpty){
+            while (!isEmpty) {
 
-                while ((System.currentTimeMillis() - startTime) / 1000 < cur.intValue() - startFrom + 1){
+                while ((System.currentTimeMillis() - startTime) / 1000 < cur.intValue() - startFrom + 1) {
                     try {
                         Thread.sleep(50);
                     } catch (InterruptedException e) {
@@ -79,9 +79,9 @@ class Simulator {
 
     private boolean update() throws IOException {
 
-        if (cur.intValue()*speedupFactor - window + 1 > 0) {
-            int discardTo = cur.intValue()*speedupFactor - window;
-            while (cachedList.getFirst()!=null && cachedList.getFirst().timestemp <= discardTo) {
+        if (cur.intValue() * speedupFactor - window + 1 > 0) {
+            int discardTo = cur.intValue() * speedupFactor - window;
+            while (cachedList.getFirst() != null && cachedList.getFirst().timestemp <= discardTo) {
                 cachedList.removeFirst();
             }
         }
@@ -89,7 +89,7 @@ class Simulator {
         if (preT != null)
             cachedList.addLast(preT);
 
-        String line ;
+        String line;
         int counter = 0;
         while (true) {
             counter++;

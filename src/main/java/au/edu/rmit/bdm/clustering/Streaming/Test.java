@@ -6,9 +6,8 @@ import java.io.*;
 import java.util.*;
 
 public class Test {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         genTrajEdges();
-
     }
 
     private static void genTrajEdges() throws IOException {
@@ -47,11 +46,11 @@ public class Test {
         writer.close();
     }
 
-        private static void genRecords() throws IOException {
+    private static void genRecords() throws IOException {
         Map<VerticesEdge, Integer> lookup = new HashMap<>();
         BufferedReader reader = new BufferedReader(new FileReader("Nantong/edges.txt"));
         String line;
-        while((line = reader.readLine())!=null){
+        while ((line = reader.readLine()) != null) {
             String[] tk = line.split(";");
             lookup.put(new VerticesEdge(Integer.valueOf(tk[1]), Integer.valueOf(tk[2])), Integer.valueOf(tk[0]));
         }
@@ -63,17 +62,17 @@ public class Test {
 
 
         String vertexLine, timeLine;
-        while ((vertexLine = vertexReader.readLine()) != null){
+        while ((vertexLine = vertexReader.readLine()) != null) {
             timeLine = timeReader.readLine();
             String temp[] = vertexLine.split("\t");
             int carId = Integer.valueOf(temp[0]);
             String[] vertexTK = temp[1].split(",");
             String[] timeTK = timeLine.split("\t")[1].split(",");
 
-            for (int i = 1; i < vertexTK.length; i++){
-                int edgeId = lookup.get(new VerticesEdge(Integer.valueOf(vertexTK[i-1]), Integer.valueOf(vertexTK[i])));
-                int time = Integer.valueOf(timeTK[i-1]);
-                if (!records.containsKey(time)){
+            for (int i = 1; i < vertexTK.length; i++) {
+                int edgeId = lookup.get(new VerticesEdge(Integer.valueOf(vertexTK[i - 1]), Integer.valueOf(vertexTK[i])));
+                int time = Integer.valueOf(timeTK[i - 1]);
+                if (!records.containsKey(time)) {
                     records.put(time, new LinkedList<>());
                 }
                 records.get(time).add(new CarIdEdge(carId, edgeId));
@@ -87,11 +86,11 @@ public class Test {
         list.sort(Map.Entry.comparingByKey());
         Iterator<Map.Entry<Integer, List<CarIdEdge>>> iter = list.iterator();
         BufferedWriter writer = new BufferedWriter(new FileWriter("time_car_edge.txt"));
-        while (iter.hasNext()){
+        while (iter.hasNext()) {
             Map.Entry<Integer, List<CarIdEdge>> entry = iter.next();
             int time = entry.getKey();
             List<CarIdEdge> l = entry.getValue();
-            for (CarIdEdge carIdEdge : l){
+            for (CarIdEdge carIdEdge : l) {
 
                 writer.write(time + "," + carIdEdge.carId + "," + carIdEdge.edge);
                 writer.newLine();

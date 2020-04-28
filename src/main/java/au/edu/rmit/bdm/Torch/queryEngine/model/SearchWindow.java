@@ -7,7 +7,7 @@ import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
 /**
  * SearchWindow class models a window used for window query.txt
  */
-public class SearchWindow implements Geometry{
+public class SearchWindow implements Geometry {
 
     public final Coordinate middle;
     public final double lowerLat;
@@ -15,13 +15,13 @@ public class SearchWindow implements Geometry{
     public final double leftLng;
     public final double rightLng;
 
-    public SearchWindow(Coordinate middle, double squareRadius ){
+    public SearchWindow(Coordinate middle, double squareRadius) {
 
         this.middle = middle;
 
-        upperLat =GeoUtil.increaseLat(middle.getLat(), squareRadius);
+        upperLat = GeoUtil.increaseLat(middle.getLat(), squareRadius);
         lowerLat = GeoUtil.increaseLat(middle.getLat(), -squareRadius);
-        leftLng = GeoUtil.increaseLng(middle.getLat(),middle.getLng(), -squareRadius);
+        leftLng = GeoUtil.increaseLng(middle.getLat(), middle.getLng(), -squareRadius);
         rightLng = GeoUtil.increaseLng(middle.getLat(), middle.getLng(), squareRadius);
     }
 

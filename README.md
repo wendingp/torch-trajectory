@@ -96,10 +96,10 @@ and the second is number of top results to return.
 
 ### 3. QueryResult
 ```java
-   if (ret.mappingSucceed){
+   if (ret.mappingSucceed) {
       List<Trajectory<TrajEntry>> l = ret.getResultTrajectory();
       String mapVformat = ret.getMapVFormat();
-   }else{
+   } else {
        //do something
    }
 ```

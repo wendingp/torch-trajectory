@@ -1,13 +1,13 @@
 package au.edu.rmit.bdm.Torch.mapMatching.algorithm;
 
 import au.edu.rmit.bdm.Torch.base.FileSetting;
+import au.edu.rmit.bdm.Torch.base.Torch;
 import au.edu.rmit.bdm.Torch.base.helper.GeoUtil;
 import au.edu.rmit.bdm.Torch.base.helper.MemoryUsage;
-import au.edu.rmit.bdm.Torch.base.Torch;
+import au.edu.rmit.bdm.Torch.base.model.TorEdge;
 import au.edu.rmit.bdm.Torch.mapMatching.MMProperties;
 import au.edu.rmit.bdm.Torch.mapMatching.MapMatching;
 import au.edu.rmit.bdm.Torch.mapMatching.model.PillarVertex;
-import au.edu.rmit.bdm.Torch.base.model.TorEdge;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TorVertex;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TowerVertex;
 import com.github.davidmoten.geo.GeoHash;
@@ -26,7 +26,10 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A torGraph stores all information required for trajectory projection.

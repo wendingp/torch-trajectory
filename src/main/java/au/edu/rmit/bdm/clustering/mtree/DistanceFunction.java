@@ -6,10 +6,10 @@ package au.edu.rmit.bdm.clustering.mtree;
  * @param <DATA> The type of the data objects.
  */
 public interface DistanceFunction<DATA> {
-	
-	double calculate(DATA data1, DATA data2);
-	
-	int getID(DATA object);
-	
-	int[] getData(DATA data1);
+
+    double calculate(DATA data1, DATA data2);
+
+    int getID(DATA object);
+
+    int[] getData(DATA data1);
 }

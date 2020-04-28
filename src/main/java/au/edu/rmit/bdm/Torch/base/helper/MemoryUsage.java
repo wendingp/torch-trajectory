@@ -13,17 +13,17 @@ public class MemoryUsage {
     private static long memoryUsage = 0;
     private static boolean debug = true;
 
-    public static void start(){
+    public static void start() {
         if (!debug) return;
-        memoryUsage = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        memoryUsage = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
-    public static void printCurrentMemUsage(String location){
+    public static void printCurrentMemUsage(String location) {
         if (!debug) return;
 
-        long curUsedMem = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        long _memUsed = curUsedMem-memoryUsage;     //metric byte
-        double memUsed = _memUsed/ 1024. / 1024.;       //metric mega byte
+        long curUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long _memUsed = curUsedMem - memoryUsage;     //metric byte
+        double memUsed = _memUsed / 1024. / 1024.;       //metric mega byte
         logger.debug("current memory usage {} is {}", location, memUsed);
     }
 }

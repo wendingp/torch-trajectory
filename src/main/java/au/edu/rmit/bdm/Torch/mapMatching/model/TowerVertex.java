@@ -1,6 +1,8 @@
 package au.edu.rmit.bdm.Torch.mapMatching.model;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * An tower vertex is the vertex that is either at the joint position of the roads, or at the end of a road.
@@ -20,7 +22,6 @@ public class TowerVertex extends TorVertex {
     }
 
 
-
     public Iterator<TowerVertex> adjIterator() {
         return adjacentTowerVertices.keySet().iterator();
     }
@@ -36,8 +37,8 @@ public class TowerVertex extends TorVertex {
     }
 
     @Override
-    public String toString(){
-        return "{ "+ String.valueOf(id)+": " + lat + ", " + lng + '}';
+    public String toString() {
+        return "{ " + String.valueOf(id) + ": " + lat + ", " + lng + '}';
     }
 
     @Override

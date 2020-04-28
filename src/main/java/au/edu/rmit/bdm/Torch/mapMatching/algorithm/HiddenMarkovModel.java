@@ -1,22 +1,27 @@
 package au.edu.rmit.bdm.Torch.mapMatching.algorithm;
 
 import au.edu.rmit.bdm.Torch.base.model.TorEdge;
+import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
+import au.edu.rmit.bdm.Torch.base.model.Trajectory;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TowerVertex;
-import au.edu.rmit.bdm.Torch.base.model.*;
 import com.github.davidmoten.geo.GeoHash;
-import com.graphhopper.matching.*;
-import com.graphhopper.routing.*;
+import com.graphhopper.matching.EdgeMatch;
+import com.graphhopper.matching.MatchResult;
+import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.util.*;
+import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.GPXEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * HiddenMarkovModel is a map-matching algorithm.
- *
+ * <p>
  * It is a wrapper class of Graph-hopper HMM implementation.
  * This implementation is optimized for single trajectory map-matching, and
  * it is highly effective. In terms of matching a large set of trajectories,
@@ -32,7 +37,7 @@ public class HiddenMarkovModel implements Mapper {
     private com.graphhopper.matching.MapMatching hmm;
     private TorGraph torGraph;
 
-    HiddenMarkovModel(TorGraph torGraph, AlgorithmOptions options){
+    HiddenMarkovModel(TorGraph torGraph, AlgorithmOptions options) {
         hmm = new com.graphhopper.matching.MapMatching(torGraph.getGH(), options);
         this.torGraph = torGraph;
     }
@@ -44,14 +49,14 @@ public class HiddenMarkovModel implements Mapper {
 
         Trajectory<TowerVertex> mappedTrajectory = new Trajectory<>();
         Graph hopperGraph = torGraph.getGH().getGraphHopperStorage();
-        Map<String, TowerVertex> towerVertexes =  torGraph.towerVertexes;
-        Map<String,TorEdge> edges= torGraph.allEdges;
+        Map<String, TowerVertex> towerVertexes = torGraph.towerVertexes;
+        Map<String, TorEdge> edges = torGraph.allEdges;
 
         mappedTrajectory.hasTime = in.hasTime;
         mappedTrajectory.id = in.id;
 
         List<GPXEntry> queryTrajectory = new ArrayList<>(in.size());
-        for (TrajEntry entry: in)
+        for (TrajEntry entry : in)
             queryTrajectory.add(new GPXEntry(entry.getLat(), entry.getLng(), 0));
         MatchResult ret = hmm.doWork(queryTrajectory);
         List<EdgeMatch> matches = ret.getEdgeMatches();
@@ -64,30 +69,30 @@ public class HiddenMarkovModel implements Mapper {
         TowerVertex adjVertex;
         int preAdjId = -1;
 
-        for (EdgeMatch match : matches){
+        for (EdgeMatch match : matches) {
             EdgeIteratorState edge = match.getEdgeState();
 
             pre = edge.getBaseNode();
             int cur = edge.getAdjNode();
             adjVertex = towerVertexes.get(GeoHash.encodeHash(accessor.getLatitude(cur), accessor.getLongitude(cur)));
 
-            if (first){
+            if (first) {
                 preVertex = towerVertexes.get(GeoHash.encodeHash(accessor.getLatitude(pre), accessor.getLongitude(pre)));
                 mappedTrajectory.add(preVertex);
                 first = false;
-            }else{
+            } else {
                 assert (preAdjId == pre);
             }
 
             mappedTrajectory.add(adjVertex);
         }
 
-        for ( int i = 1; i < mappedTrajectory.size(); i++){
-            TorEdge edge = edges.get(TorEdge.getKey(mappedTrajectory.get(i-1), mappedTrajectory.get(i)));
+        for (int i = 1; i < mappedTrajectory.size(); i++) {
+            TorEdge edge = edges.get(TorEdge.getKey(mappedTrajectory.get(i - 1), mappedTrajectory.get(i)));
             if (edge == null)
-                edge = edges.get(TorEdge.getKey(mappedTrajectory.get(i), mappedTrajectory.get(i-1)));
-            if (edge == null){
-                System.err.println(mappedTrajectory.get(i-1).id);
+                edge = edges.get(TorEdge.getKey(mappedTrajectory.get(i), mappedTrajectory.get(i - 1)));
+            if (edge == null) {
+                System.err.println(mappedTrajectory.get(i - 1).id);
                 System.err.println(mappedTrajectory.get(i).id);
                 System.exit(1);
             }
@@ -102,11 +107,11 @@ public class HiddenMarkovModel implements Mapper {
     }
 
     @Override
-    public <T extends TrajEntry>List<Trajectory<TowerVertex>> batchMatch(List<Trajectory<T>> in) {
+    public <T extends TrajEntry> List<Trajectory<TowerVertex>> batchMatch(List<Trajectory<T>> in) {
 
         List<Trajectory<TowerVertex>> mappedTrajectories = new ArrayList<>(in.size());
 
-        for (Trajectory<T> raw : in){
+        for (Trajectory<T> raw : in) {
             Trajectory<TowerVertex> t = match(raw);
             mappedTrajectories.add(t);
         }

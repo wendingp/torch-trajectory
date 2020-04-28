@@ -15,7 +15,7 @@ public abstract class Mappers {
      * Create specified map-matching algorithm for algorithm raw trajectory.
      *
      * @param algorithm Specify which map-matching algorithm should be used to do trajectory projection.
-     * @param graph Graph used to project trajectory on.
+     * @param graph     Graph used to project trajectory on.
      * @return The map-matching algorithm.
      * @see Torch.Algorithms Valid options for first param.
      */

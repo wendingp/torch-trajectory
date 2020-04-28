@@ -2,7 +2,7 @@ package au.edu.rmit.bdm.clustering.trajectory.kpaths;
 
 import java.util.ArrayList;
 
-class Path implements Comparable<Path>{//queue is very slow
+class Path implements Comparable<Path> {//queue is very slow
     private ArrayList<Integer> pathIDs;
     private double score;
     private double lowerbound;// the sum weight
@@ -12,22 +12,22 @@ class Path implements Comparable<Path>{//queue is very slow
         this.lowerbound = lowerbound;
         this.score = Weight;
     }
-    
+
     public ArrayList<Integer> getPath() {
-    	return pathIDs;
+        return pathIDs;
     }
-    
+
     public double getLowerbound() {
-    	return lowerbound;
+        return lowerbound;
     }
-    
+
     public double getScore() {
-    	return score;
+        return score;
     }
-    
+
     @Override
     public int compareTo(Path other) {
-        return (int)(this.getLowerbound() - other.getLowerbound());
+        return (int) (this.getLowerbound() - other.getLowerbound());
     }
 }
 

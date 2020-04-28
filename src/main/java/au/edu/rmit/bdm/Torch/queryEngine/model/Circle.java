@@ -2,7 +2,7 @@ package au.edu.rmit.bdm.Torch.queryEngine.model;
 
 import au.edu.rmit.bdm.Torch.base.model.Coordinate;
 
-public class Circle implements Geometry{
+public class Circle implements Geometry {
     public final Coordinate center;
     public final int radius;            //meters
 

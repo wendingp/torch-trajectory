@@ -1,8 +1,8 @@
 package au.edu.rmit.bdm.Torch.base.spatialIndex;
 
 import au.edu.rmit.bdm.Torch.base.FileSetting;
-import au.edu.rmit.bdm.Torch.base.WindowQueryIndex;
 import au.edu.rmit.bdm.Torch.base.TopKQueryIndex;
+import au.edu.rmit.bdm.Torch.base.WindowQueryIndex;
 import au.edu.rmit.bdm.Torch.base.db.TrajVertexRepresentationPool;
 import au.edu.rmit.bdm.Torch.base.helper.GeoUtil;
 import au.edu.rmit.bdm.Torch.base.invertedIndex.VertexInvertedIndex;
@@ -10,7 +10,10 @@ import au.edu.rmit.bdm.Torch.base.model.Coordinate;
 import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
 import au.edu.rmit.bdm.Torch.base.model.Trajectory;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TowerVertex;
-import au.edu.rmit.bdm.Torch.queryEngine.model.*;
+import au.edu.rmit.bdm.Torch.queryEngine.model.Circle;
+import au.edu.rmit.bdm.Torch.queryEngine.model.Geometry;
+import au.edu.rmit.bdm.Torch.queryEngine.model.LightEdge;
+import au.edu.rmit.bdm.Torch.queryEngine.model.SearchWindow;
 import au.edu.rmit.bdm.Torch.queryEngine.query.TrajectoryResolver;
 import au.edu.rmit.bdm.Torch.queryEngine.similarity.SimilarityFunction;
 import org.slf4j.Logger;
@@ -18,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static au.edu.rmit.bdm.Torch.queryEngine.similarity.SimilarityFunction.*;
+import static au.edu.rmit.bdm.Torch.queryEngine.similarity.SimilarityFunction.MeasureType;
 
 /**
  * ﻿LEVI stands for Lightweight edge & vertex vertexInvertedIndex.<p>

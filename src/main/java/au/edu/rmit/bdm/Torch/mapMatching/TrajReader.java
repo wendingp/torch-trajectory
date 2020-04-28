@@ -22,11 +22,11 @@ public class TrajReader {
     private static LineNumberReader trajReader;
     private static BufferedReader dateReader = null;
 
-    public TrajReader(){
+    public TrajReader() {
         BATCH_SIZE = 100000;
     }
 
-    public TrajReader(MMProperties props){
+    public TrajReader(MMProperties props) {
         BATCH_SIZE = props.batchSize;
     }
 
@@ -34,9 +34,9 @@ public class TrajReader {
      * Read raw trajectories.
      * Trajectories that do not follow the format or contain illegal data will be discarded.
      *
-     * @param trajSrcPath File containing trajectories.
+     * @param trajSrcPath  File containing trajectories.
      * @param dateDataPath File containing timestamp of nodes in trajectories.
-     *                 This file could be null and if this is the case, the program will leave time field in trajectory model blank.
+     *                     This file could be null and if this is the case, the program will leave time field in trajectory model blank.
      * @return a list of trajectories.
      */
     public boolean readBatch(String trajSrcPath, File dateDataPath, List<Trajectory<TrajEntry>> trajectoryList) {
@@ -59,7 +59,7 @@ public class TrajReader {
 
             while (true) {
 
-                if ((trajLine = trajReader.readLine()) == null){
+                if ((trajLine = trajReader.readLine()) == null) {
                     trajReader.close();
                     if (hasDate) dateReader.close();
                     return true;
@@ -79,7 +79,7 @@ public class TrajReader {
                         dateContent = dateContent.substring(1, dateContent.length() - 1); //remove head "[" and tail "]"
                     }
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     logger.warn("trajectory id {} is excluded, either too short or contain illegal chars", trajId);
                     continue;
                 }
@@ -95,7 +95,7 @@ public class TrajReader {
                 Trajectory<TrajEntry> trajectory = new Trajectory<>(trajId, hasDate);
 
                 String[] latLng;
-                for (int i = 0; i < trajTuples.length; i++){
+                for (int i = 0; i < trajTuples.length; i++) {
 
                     double lat = 0.;
                     double lon = 0.;
@@ -103,7 +103,7 @@ public class TrajReader {
                         latLng = trajTuples[i].split(",");
                         lat = Double.parseDouble(latLng[1]);
                         lon = Double.parseDouble(latLng[0]);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         logger.warn("node of trajectory ID {} contains illegal gps location, that node will be excluded. " + trajId);
                         continue;
                     }

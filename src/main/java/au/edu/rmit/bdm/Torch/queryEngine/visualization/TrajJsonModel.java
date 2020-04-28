@@ -8,7 +8,7 @@ public class TrajJsonModel {
 
     Geometry geometry;
 
-    public TrajJsonModel(List<TrajEntry> path){
+    public TrajJsonModel(List<TrajEntry> path) {
         geometry = new Geometry(path);
     }
 }

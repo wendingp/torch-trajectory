@@ -1,18 +1,20 @@
 package au.edu.rmit.bdm.Torch.base.model;
 
-import au.edu.rmit.bdm.Torch.base.helper.GeoUtil;
 import au.edu.rmit.bdm.Torch.base.Torch;
+import au.edu.rmit.bdm.Torch.base.helper.GeoUtil;
 import au.edu.rmit.bdm.Torch.mapMatching.model.PillarVertex;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TorVertex;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TowerVertex;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * An edge models a segment of the road. it is defined by tower points on the two side.
  * An edge also have information such as direction, length... as the road has.
  */
-public class TorEdge{
+public class TorEdge {
 
     private static int idGenerator = 0;
 
@@ -24,12 +26,12 @@ public class TorEdge{
     /**
      * a sum of distance between each point with its adjacent points on edge.
      * metric: meters
-     * */
+     */
     private double length = Double.MIN_VALUE;
 
     /**
      * other points on the edge.
-     * */
+     */
     private List<PillarVertex> pillarVertexes = new LinkedList<>();
 
     public boolean isForward;
@@ -69,11 +71,11 @@ public class TorEdge{
         id = idGenerator;
     }
 
-    public TorEdge(int id){
+    public TorEdge(int id) {
         this.id = id;
     }
 
-    public TorEdge(int id, TowerVertex t1, TowerVertex t2, double len){
+    public TorEdge(int id, TowerVertex t1, TowerVertex t2, double len) {
         this.id = id;
         baseVertex = t1;
         adjVertex = t2;
@@ -85,7 +87,7 @@ public class TorEdge{
      * Several fields( e.g. latitudes, longitudes) will be filled in this process.
      *
      * @return an instance of string that contains information that are ready to be processed and stored on disk.
-     * */
+     */
     public String convertToDatabaseForm() {
         StringBuilder latStringBuilder = new StringBuilder();
         latStringBuilder.append(baseVertex.getLat());
@@ -144,7 +146,7 @@ public class TorEdge{
 
     /**
      * @see #length
-     * */
+     */
     public double getLength() {
         if (length == Double.MIN_VALUE) {
             TorVertex pre = baseVertex;
@@ -164,7 +166,7 @@ public class TorEdge{
 
 
     public static String getKey(TorVertex p1, TorVertex p2) {
-        return p1.hash +p2.hash;
+        return p1.hash + p2.hash;
     }
 
 
@@ -197,7 +199,7 @@ public class TorEdge{
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.valueOf(id);
     }
 }

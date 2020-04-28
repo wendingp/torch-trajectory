@@ -19,7 +19,6 @@ import java.util.*;
 /**
  * Vertex Grid Index( VGI) for LEVI
  * It is for indexing all the points on virtual graph into the grid.
- *
  */
 public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> implements Index {
 
@@ -47,14 +46,14 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
      * @param allPointMap key for TorVertex hash, value for instance of TorVertex itself.
      *                    note that the points is tower points, which means not only it have virtual points on trajectory,
      *                    but all points on virtual graph).
-     * @param lenOfTile  the granularity of a tile (meter)
+     * @param lenOfTile   the granularity of a tile (meter)
      */
     public VertexGridIndex(Map<Integer, TowerVertex> allPointMap, float lenOfTile) {
         this.allPointMap = allPointMap;
         this.tileLen = lenOfTile;
         tileInfo = new HashMap<>();
     }
-    
+
 
     /**
      * Attention: crossing 0 is not supported such as (-50,100) (50,-100), the answer may be incorrect
@@ -62,18 +61,18 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
     //todo
     @Override
     public boolean build(String path) {
-        
+
         logger.info("build spatial vertexGridIndex");
         //if (load(path)) return true;
-        
+
         _build();
         loaded = true;
         //saveUncompressed();
         logger.info("grid index build complete");
         return true;
     }
-    
-    private void _build(){
+
+    private void _build() {
 
         // find bounding box for all points
         lowerLat = Float.MAX_VALUE;
@@ -111,14 +110,14 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
         computeTileInfo();
     }
 
-    void computeTileInfo(){
+    void computeTileInfo() {
 
         int numTiles = horizontalTileNumber * verticalTileNumber;
-        for (int i = 1; i < numTiles; i++){
+        for (int i = 1; i < numTiles; i++) {
             int tileId = i;
             int temp = tileId % horizontalTileNumber;
             int col = temp == 0 ? horizontalTileNumber : temp;
-            int row = (tileId - col)/horizontalTileNumber;
+            int row = (tileId - col) / horizontalTileNumber;
 
 
             double upperLat = this.upperLat - deltaLat * row;
@@ -225,7 +224,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
-        
+
         try (BufferedWriter idWriter = new BufferedWriter((new OutputStreamWriter(new FileOutputStream(INDEX_FILE_GRID_ID, false), StandardCharsets.UTF_8)));
              BufferedWriter pointWriter = new BufferedWriter((new OutputStreamWriter(new FileOutputStream(INDEX_FILE_POINT, false), StandardCharsets.UTF_8)))) {
             //first write some arguments
@@ -272,11 +271,11 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
 
         //refine
         Iterator<Integer> iter = vertices.iterator();
-        while (iter.hasNext()){
+        while (iter.hasNext()) {
             Integer vertexId = iter.next();
             TowerVertex point = allPointMap.get(vertexId);
             if (point.lng > window.rightLng ||
-                    point.lng < window.leftLng||
+                    point.lng < window.leftLng ||
                     point.lat > window.upperLat ||
                     point.lat < window.lowerLat)
                 iter.remove();
@@ -285,11 +284,11 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
         return vertices;
     }
 
-    Collection<Integer> pointsInRange(Circle circle){
+    Collection<Integer> pointsInRange(Circle circle) {
         Collection<Integer> vertices = _pointsInWindow(new SearchWindow(circle.center, circle.radius));
         //refine
         Iterator<Integer> iter = vertices.iterator();
-        while (iter.hasNext()){
+        while (iter.hasNext()) {
             Integer vertexId = iter.next();
             TowerVertex point = allPointMap.get(vertexId);
             if (GeoUtil.distance(point, circle.center) > circle.radius)
@@ -339,7 +338,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
 
         int tileID = calculateTileID(vertex);
 
-        if (round == 0){
+        if (round == 0) {
             vertices.addAll(get(tileID));
             return;
         }
@@ -356,7 +355,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
             lowerRightPos = computeLowerRight(lowerRightPos);
         }
 
-        if (findAll){
+        if (findAll) {
             for (int left = upperLeftPos, right = upperRightPos; left <= lowerLeftPos; left += this.horizontalTileNumber, right += this.horizontalTileNumber) {
                 for (int cur = left; cur <= right; cur++) {
                     Collection<Integer> idList = get(cur);
@@ -364,7 +363,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
                         vertices.addAll(idList);
                 }
             }
-        }else {
+        } else {
             for (int i = upperLeftPos; i < upperRightPos; ++i) {
                 Collection<Integer> idList = get(i);
 

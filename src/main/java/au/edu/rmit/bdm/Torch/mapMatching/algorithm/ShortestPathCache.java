@@ -17,13 +17,14 @@ import java.util.*;
  * @see TorDijkstra
  * @see PrecomputedHiddenMarkovModel
  */
-class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEntry>{
+class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEntry> {
 
     Logger logger = LoggerFactory.getLogger(ShortestPathCache.class);
 
     /**
      * For each tower vertex, compute shortest path with its near tower vertices.
      * For each pillar vertex, compute the distance to base vertex on its edge.
+     *
      * @param graph TorGraph object containing all required data.
      */
     void init(TorGraph graph) {
@@ -33,18 +34,18 @@ class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEn
 
 
     /**
-     *       consider this situation:
-     *
-     *             A          B
-     *             |          |
-     *       T1------T2------------T3
-     *
-     *
-     *  Suppose A and B are the inputs. T1, T2 and T3 are three Tower vertices along the path.
-     *  The subroutine is to find tower points along the path.
-     *  In this case, a list containing T1, T2 and T3 will be returned.
-     *
-     *  note if two vertices are the same or they are far away from each other,
+     * consider this situation:
+     * <p>
+     * A          B
+     * |          |
+     * T1------T2------------T3
+     * <p>
+     * <p>
+     * Suppose A and B are the inputs. T1, T2 and T3 are three Tower vertices along the path.
+     * The subroutine is to find tower points along the path.
+     * In this case, a list containing T1, T2 and T3 will be returned.
+     * <p>
+     * note if two vertices are the same or they are far away from each other,
      *
      * @return a list of TowerVertices represents the path.
      */
@@ -57,7 +58,7 @@ class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEn
         }
 
         if (_p1.isTower)
-            return shortestPathBetweenTowerAndPillar((TowerVertex)_p1, (PillarVertex) _p2);
+            return shortestPathBetweenTowerAndPillar((TowerVertex) _p1, (PillarVertex) _p2);
 
         if (_p2.isTower) {
             List<TowerVertex> shortestPath = shortestPathBetweenTowerAndPillar((TowerVertex) _p2, (PillarVertex) _p1);
@@ -83,9 +84,9 @@ class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEn
             Double value = this.get(p1.hash).dist.get(p2.hash);
             return value == null ? Double.MAX_VALUE : value;
         }
-        if (p1.isTower) return minDisBetweenTowerPointAndPillarVertex((TowerVertex)p1, (PillarVertex) p2);
+        if (p1.isTower) return minDisBetweenTowerPointAndPillarVertex((TowerVertex) p1, (PillarVertex) p2);
         if (p2.isTower) return minDisBetweenTowerPointAndPillarVertex((TowerVertex) p2, (PillarVertex) p1);
-        return minDisBetweenPillarVertexes((PillarVertex)p1, (PillarVertex)p2);
+        return minDisBetweenPillarVertexes((PillarVertex) p1, (PillarVertex) p2);
     }
 
     /**
@@ -114,13 +115,13 @@ class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEn
         //initialize toBasePointDistance of LightPoint
         for (TorVertex vertex : graph.allPoints.values()) {
             if (!vertex.isTower) {
-                PillarVertex current = ((PillarVertex)vertex);
+                PillarVertex current = ((PillarVertex) vertex);
                 TorVertex pre;
 
                 double len = 0;
-                if (current.edge.isForward){
+                if (current.edge.isForward) {
                     pre = current.edge.adjVertex;
-                    for (int i = current.edge.getPillarVertexes().size()-1; i>=0; i--){
+                    for (int i = current.edge.getPillarVertexes().size() - 1; i >= 0; i--) {
                         TorVertex pVertex = current.edge.getPillarVertexes().get(i);
                         len += GeoUtil.distance(pre, pVertex);
                         if (pVertex == current) break;
@@ -223,7 +224,7 @@ class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEn
         Double distance = -1.;
 
         if (p2.edge.isForward) {
-             distance = this.get(p1.hash).dist.get(p2.edge.baseVertex.hash);
+            distance = this.get(p1.hash).dist.get(p2.edge.baseVertex.hash);
             if (distance != null) {
                 minDis = distance + p2.baseAndthisDist;
 
@@ -260,11 +261,10 @@ class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEn
             if ((flag == 1 && p1.edge.isForward)) {
                 shortestPath.add(p1.edge.baseVertex);
                 shortestPath.add(p1.edge.adjVertex);
-            } else if((flag == 2 && p1.edge.isBackward)) {
+            } else if ((flag == 2 && p1.edge.isBackward)) {
                 shortestPath.add(p1.edge.adjVertex);
                 shortestPath.add(p1.edge.baseVertex);
-            }
-            else if (flag == 1 && p1.edge.isBackward) {
+            } else if (flag == 1 && p1.edge.isBackward) {
                 //p1->p1.base->p1.adj->p2
                 Double dist = this.get(p1.edge.baseVertex.hash).dist.get(p1.edge.adjVertex.hash);
                 if (dist != null) {

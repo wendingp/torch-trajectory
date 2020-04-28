@@ -13,28 +13,24 @@ import au.edu.rmit.bdm.clustering.mtree.utils.Pair;
  */
 public class ComposedSplitFunction<DATA> implements SplitFunction<DATA> {
 
-	private PromotionFunction<DATA> promotionFunction;
-	private PartitionFunction<DATA> partitionFunction;
+    private PromotionFunction<DATA> promotionFunction;
+    private PartitionFunction<DATA> partitionFunction;
 
-	/**
-	 * The constructor of a {@link SplitFunction} composed by a
-	 * {@link PromotionFunction} and a {@link PartitionFunction}.
-	 */
-	public ComposedSplitFunction(
-			PromotionFunction<DATA> promotionFunction,
-			PartitionFunction<DATA> partitionFunction
-		)
-	{
-		this.promotionFunction = promotionFunction;
-		this.partitionFunction = partitionFunction;
-	}
+    /**
+     * The constructor of a {@link SplitFunction} composed by a
+     * {@link PromotionFunction} and a {@link PartitionFunction}.
+     */
+    public ComposedSplitFunction(PromotionFunction<DATA> promotionFunction, PartitionFunction<DATA> partitionFunction) {
+        this.promotionFunction = promotionFunction;
+        this.partitionFunction = partitionFunction;
+    }
 
-	
-	@Override
-	public SplitResult<DATA> process(Set<DATA> dataSet, DistanceFunction<? super DATA> distanceFunction) {
-		Pair<DATA> promoted = promotionFunction.process(dataSet, distanceFunction);
-		Pair<Set<DATA>> partitions = partitionFunction.process(promoted, dataSet, distanceFunction);
-		return new SplitResult<DATA>(promoted, partitions);
-	}
+
+    @Override
+    public SplitResult<DATA> process(Set<DATA> dataSet, DistanceFunction<? super DATA> distanceFunction) {
+        Pair<DATA> promoted = promotionFunction.process(dataSet, distanceFunction);
+        Pair<Set<DATA>> partitions = partitionFunction.process(promoted, dataSet, distanceFunction);
+        return new SplitResult<>(promoted, partitions);
+    }
 
 }

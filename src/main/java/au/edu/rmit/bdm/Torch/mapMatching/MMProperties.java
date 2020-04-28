@@ -12,9 +12,10 @@ public class MMProperties {
     public int preComputationRange = 1000;
     public String baseDir = "Torch";
 
-    public MMProperties(){}
+    public MMProperties() {
+    }
 
-    public MMProperties(MMProperties p){
+    public MMProperties(MMProperties p) {
         vehicleType = p.vehicleType;
         mmAlg = p.mmAlg;
         trajSrcPath = p.trajSrcPath;
@@ -23,6 +24,7 @@ public class MMProperties {
         preComputationRange = p.preComputationRange;
         baseDir = p.baseDir;
     }
+
     public void reset() {
         vehicleType = Torch.vehicleType.CAR;
         mmAlg = Torch.Algorithms.HMM_PRECOMPUTED;

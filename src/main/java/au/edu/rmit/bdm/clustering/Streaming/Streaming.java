@@ -13,7 +13,7 @@ public class Streaming {
      * @param windowSize sliding window in time dimension
      */
     public Streaming(int startFrom, int windowSize, int speedup) throws IOException {
-        simulator= new Simulator(startFrom, windowSize, speedup);
+        simulator = new Simulator(startFrom, windowSize, speedup);
 
     }
 
@@ -25,7 +25,7 @@ public class Streaming {
     public void updateIndexes() {
         edgeInvertedIndex = new HashMap<>();
         trajectories = new HashMap<>();
-        for (Tuple t : simulator.cachedList){
+        for (Tuple t : simulator.cachedList) {
             //update edge inverted index
             if (!edgeInvertedIndex.containsKey(t.edgeId))
                 edgeInvertedIndex.put(t.edgeId, new ArrayList<>());

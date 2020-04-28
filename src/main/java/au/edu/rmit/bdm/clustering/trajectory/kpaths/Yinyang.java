@@ -1,19 +1,11 @@
 package au.edu.rmit.bdm.clustering.trajectory.kpaths;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-
 import au.edu.rmit.bdm.Torch.base.FileSetting;
 import au.edu.rmit.bdm.clustering.trajectory.TrajectoryMtree;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /*
  * this class will mainly optimize the class process on assignment and refinement based on the Yinyang k-means

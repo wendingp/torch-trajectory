@@ -1,15 +1,15 @@
 package au.edu.rmit.bdm.Torch.mapMatching;
 
 import au.edu.rmit.bdm.Torch.base.FileSetting;
+import au.edu.rmit.bdm.Torch.base.Torch;
+import au.edu.rmit.bdm.Torch.base.helper.MemoryUsage;
+import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
+import au.edu.rmit.bdm.Torch.base.model.Trajectory;
 import au.edu.rmit.bdm.Torch.mapMatching.algorithm.Mapper;
 import au.edu.rmit.bdm.Torch.mapMatching.algorithm.Mappers;
 import au.edu.rmit.bdm.Torch.mapMatching.algorithm.TorDijkstra;
 import au.edu.rmit.bdm.Torch.mapMatching.algorithm.TorGraph;
-import au.edu.rmit.bdm.Torch.base.helper.MemoryUsage;
-import au.edu.rmit.bdm.Torch.base.Torch;
 import au.edu.rmit.bdm.Torch.mapMatching.model.TowerVertex;
-import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
-import au.edu.rmit.bdm.Torch.base.model.Trajectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

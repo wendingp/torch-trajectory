@@ -4,9 +4,12 @@ import au.edu.rmit.bdm.Torch.base.FileSetting;
 import au.edu.rmit.bdm.Torch.base.Torch;
 import au.edu.rmit.bdm.Torch.base.model.Coordinate;
 import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
-import au.edu.rmit.bdm.Torch.queryEngine.model.TimeInterval;
-import au.edu.rmit.bdm.Torch.queryEngine.query.*;
 import au.edu.rmit.bdm.Torch.queryEngine.model.SearchWindow;
+import au.edu.rmit.bdm.Torch.queryEngine.model.TimeInterval;
+import au.edu.rmit.bdm.Torch.queryEngine.query.Query;
+import au.edu.rmit.bdm.Torch.queryEngine.query.QueryPool;
+import au.edu.rmit.bdm.Torch.queryEngine.query.QueryProperties;
+import au.edu.rmit.bdm.Torch.queryEngine.query.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +20,15 @@ import java.util.Map;
  * Engine class contains high level APIs to query on trajectory data-set
  */
 public class Engine {
-    private QueryPool pool;
     private static final Logger logger = LoggerFactory.getLogger(Engine.class);
+    private QueryPool pool;
 
     private Engine(QueryProperties props) {
         pool = new QueryPool(props);
+    }
+
+    public static Builder getBuilder() {
+        return Builder.builder;
     }
 
     /**
@@ -123,10 +130,6 @@ public class Engine {
 
     public FileSetting getFileSettings() {
         return pool.getFileSettings();
-    }
-
-    public static Builder getBuilder() {
-        return Builder.builder;
     }
 
     /**
