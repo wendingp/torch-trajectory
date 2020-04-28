@@ -24,21 +24,20 @@ public interface Query {
      *
      * @param raw the query.txt trajectory
      * @return true if the query.txt trajectory mapped successfully, or no map-matching is required.
-     *         false if the query.txt trajectory cannot be mapped properly.
+     * false if the query.txt trajectory cannot be mapped properly.
      */
-     boolean prepare(List<? extends TrajEntry> raw);
+    boolean prepare(List<? extends TrajEntry> raw);
 
     /**
      * The API is for path query only.
      *
      * @param streetName The name of the street
      * @return True if at least one edge is found for the street.
-     *         False if no edge is found for the street
+     * False if no edge is found for the street
      */
-     boolean prepare(String streetName);
+    boolean prepare(String streetName);
 
     /**
-     *
      * @param idx
      */
     void updateIdx(Index idx);

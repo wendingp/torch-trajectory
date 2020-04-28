@@ -41,6 +41,7 @@ public class QueryPool extends HashMap<String, Query> {
 
     /**
      * initilize supported indexes for the 4 types of queries.
+     *
      * @param props
      */
     public QueryPool(QueryProperties props) {
@@ -136,7 +137,7 @@ public class QueryPool extends HashMap<String, Query> {
 
     private void initLEVI() {
 
-        if (LEVI!=null) return;
+        if (LEVI != null) return;
 
         VertexInvertedIndex vertexInvertedIndex = new VertexInvertedIndex(setting);
         VertexGridIndex vertexGridIndex = new VertexGridIndex(idVertexLookup, 100);
@@ -147,7 +148,7 @@ public class QueryPool extends HashMap<String, Query> {
         vertexInvertedIndex.loaded = true;
 
 
-        if (!vertexGridIndex.loaded){
+        if (!vertexGridIndex.loaded) {
             if (!vertexGridIndex.build(setting.GRID_INDEX))
                 throw new RuntimeException("some critical data is missing, system on exit...");
             vertexGridIndex.loaded = true;
@@ -157,31 +158,31 @@ public class QueryPool extends HashMap<String, Query> {
         this.LEVI = new LEVI(vertexInvertedIndex, vertexGridIndex, measureType, trajVertexRepresentationPool, idVertexLookup, setting);
     }
 
-    public void update(String queryType, Map<String,String> props) {
+    public void update(String queryType, Map<String, String> props) {
         Query q = get(queryType);
 
         if (props.containsKey("simFunc") && LEVI != null) {
 
             String simFunc = props.get("simFunc");
-            if (simFunc.equals("LORS")){
+            if (simFunc.equals("LORS")) {
                 q.updateIdx(convertIndex(Torch.Index.EDGE_INVERTED_INDEX));
-            }else{
+            } else {
                 q.updateIdx(convertIndex(Torch.Index.LEVI));
                 LEVI.updateMeasureType(convertMeasureType(props.get("simFunc")));
             }
         }
 
-        if (props.containsKey("epsilon")&& LEVI != null)
+        if (props.containsKey("epsilon") && LEVI != null)
             LEVI.updateEpsilon(Integer.valueOf(props.get("epsilon")));
     }
 
-    public void setTimeInterval(TimeInterval span, boolean contain){
+    public void setTimeInterval(TimeInterval span, boolean contain) {
         resolver.setTimeInterval(span, contain);
     }
 
-    private Index convertIndex(String indexType){
+    private Index convertIndex(String indexType) {
         Index index;
-        switch (indexType){
+        switch (indexType) {
             case Torch.Index.EDGE_INVERTED_INDEX:
                 if (!edgeInvertedIndex.loaded)
                     initEdgeInvertedIndex();

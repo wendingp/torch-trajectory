@@ -10,10 +10,10 @@ import java.util.Set;
  */
 public class QueryProperties {
 
-    public QueryProperties(){
+    public QueryProperties() {
         init();
     }
-    
+
     public String similarityMeasure;
     public String preferedIndex;
     public boolean useRaw;
@@ -35,7 +35,7 @@ public class QueryProperties {
         // if user does not specify what kind of query.txt will be used,
         // we initialize all supported queries.
         this.queryUsed.addAll(properties.queryUsed);
-        if (this.queryUsed.size() == 0){
+        if (this.queryUsed.size() == 0) {
             this.queryUsed.add(Torch.QueryType.TopK);
             this.queryUsed.add(Torch.QueryType.RangeQ);
             this.queryUsed.add(Torch.QueryType.PathQ);

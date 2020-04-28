@@ -12,7 +12,7 @@ class WindowQuery extends QueryImpl {
 
     private WindowQueryIndex index;
 
-    WindowQuery(WindowQueryIndex index, TrajectoryResolver resolver){
+    WindowQuery(WindowQueryIndex index, TrajectoryResolver resolver) {
         super(null, resolver);
         this.index = index;
     }
@@ -22,7 +22,7 @@ class WindowQuery extends QueryImpl {
         if (!(windowRange instanceof SearchWindow))
             throw new IllegalStateException(
                     "parameter passed to windowQuery should be of type SearchWindow, " +
-                    "which indicates the range to search within");
+                            "which indicates the range to search within");
 
         SearchWindow window = (SearchWindow) windowRange;
         List<String> trajIds = index.findInRange(window);

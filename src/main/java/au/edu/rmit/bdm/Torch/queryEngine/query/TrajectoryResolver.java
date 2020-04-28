@@ -33,13 +33,13 @@ public class TrajectoryResolver {
     public boolean contain;
     public boolean isNantong;
 
-    public TrajectoryResolver( TrajEdgeRepresentationPool trajectoryPool, Map<Integer, String[]> rawEdgeLookup, boolean resolveAll){
+    public TrajectoryResolver(TrajEdgeRepresentationPool trajectoryPool, Map<Integer, String[]> rawEdgeLookup, boolean resolveAll) {
         this.trajectoryPool = trajectoryPool;
         this.rawEdgeLookup = rawEdgeLookup;
         this.resolveAll = resolveAll;
     }
 
-    TrajectoryResolver(boolean resolveAll, boolean isNantong, FileSetting setting){
+    TrajectoryResolver(boolean resolveAll, boolean isNantong, FileSetting setting) {
         this.resolveAll = resolveAll;
         this.setting = setting;
         this.isNantong = isNantong;
@@ -49,7 +49,7 @@ public class TrajectoryResolver {
             timeSpanLookup = new HashMap<>();
             loadRawEdgeLookupTable();
             loadTimeSpanLookupTable();
-        }else{
+        } else {
             vertexLookup = new HashMap<>();
             trajVertexRepresentationPool = new TrajVertexRepresentationPool(false, setting);
             loadVertexLookup();
@@ -61,17 +61,17 @@ public class TrajectoryResolver {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(setting.ID_VERTEX_LOOKUP));
             String line;
-            while ((line = reader.readLine()) !=null){
+            while ((line = reader.readLine()) != null) {
                 String[] splits = line.split(";");
                 vertexLookup.put(Integer.parseInt(splits[0]), new Coordinate(Double.parseDouble(splits[1]), Double.parseDouble(splits[2])));
             }
 
         } catch (IOException e) {
-            logger.debug("cannot find/read file: " + setting.ID_VERTEX_LOOKUP );
+            logger.debug("cannot find/read file: " + setting.ID_VERTEX_LOOKUP);
         }
     }
 
-    QueryResult resolve (String queryType, List<String> trajIds, List<TrajEntry> rawQuery, Trajectory<TrajEntry> _mappedQuery) {
+    QueryResult resolve(String queryType, List<String> trajIds, List<TrajEntry> rawQuery, Trajectory<TrajEntry> _mappedQuery) {
 
         List<TrajEntry> mappedQuery = _mappedQuery;
         if (!queryType.equals(Torch.QueryType.RangeQ))
@@ -113,7 +113,7 @@ public class TrajectoryResolver {
         return ret;
     }
 
-    public boolean meetTimeConstrain(String trajId){
+    public boolean meetTimeConstrain(String trajId) {
         if (querySpan == null) return true;
 
         if (contain)
@@ -134,7 +134,7 @@ public class TrajectoryResolver {
             String[] lngs = tokens[1].split(",");
 
             for (int j = 0; j < lats.length; j++) {
-                l.add(new Coordinate(Double.parseDouble(lats[j]),Double.parseDouble(lngs[j])));
+                l.add(new Coordinate(Double.parseDouble(lats[j]), Double.parseDouble(lngs[j])));
             }
         }
         return l;
@@ -145,7 +145,6 @@ public class TrajectoryResolver {
         for (int i : ids) trajIds.add(String.valueOf(i));
         return resolveRet(trajIds);
     }
-
 
 
     private List<Trajectory<TrajEntry>> resolveRet(Collection<String> trajIds) {
@@ -182,7 +181,7 @@ public class TrajectoryResolver {
                 }
                 ret.add(t);
             }
-        }else{
+        } else {
             String[] tokens = null;
 
             ret = new ArrayList<>(trajIds.size());
@@ -200,13 +199,13 @@ public class TrajectoryResolver {
 
                 for (int i = 1; i < vertices.length; i++) {
 
-                    Coordinate from = vertexLookup.get(vertices[i-1]);
+                    Coordinate from = vertexLookup.get(vertices[i - 1]);
                     Coordinate to = vertexLookup.get(vertices[i]);
 
                     t.add(from);
                     double dist = GeoUtil.distance(from, to);
-                    int addNum = ((int)dist) / 50;
-                    if (addNum!=0){
+                    int addNum = ((int) dist) / 50;
+                    if (addNum != 0) {
                         double latIncrement = (to.lat - from.lat) / (addNum + 1);
                         double lngIncrement = (to.lng - from.lng) / (addNum + 1);
                         for (int j = 0; j < addNum; j++) {
@@ -215,7 +214,7 @@ public class TrajectoryResolver {
                         }
                     }
                 }
-                
+
                 ret.add(t);
             }
         }
@@ -226,14 +225,14 @@ public class TrajectoryResolver {
 
         logger.info("load raw edge lookup table");
 
-        try(FileReader fr = new FileReader(setting.ID_EDGE_RAW);
-            BufferedReader reader = new BufferedReader(fr)){
+        try (FileReader fr = new FileReader(setting.ID_EDGE_RAW);
+             BufferedReader reader = new BufferedReader(fr)) {
             String line;
             String[] tokens;
             int id;
             String lats;
             String lngs;
-            while((line = reader.readLine())!=null){
+            while ((line = reader.readLine()) != null) {
                 tokens = line.split(";");
                 id = Integer.parseInt(tokens[0]);
                 lats = tokens[1];
@@ -242,7 +241,7 @@ public class TrajectoryResolver {
                 rawEdgeLookup.put(id, new String[]{lats, lngs});
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("some critical data is missing, system on exit...");
         }
     }
@@ -251,17 +250,17 @@ public class TrajectoryResolver {
 
         logger.info("load time querySpan lookup table");
 
-        try(FileReader fr = new FileReader(setting.TRAJECTORY_START_END_TIME_PARTIAL);
-            BufferedReader reader = new BufferedReader(fr)){
+        try (FileReader fr = new FileReader(setting.TRAJECTORY_START_END_TIME_PARTIAL);
+             BufferedReader reader = new BufferedReader(fr)) {
             String line;
             String[] tokens;
             String id;
             String[] span;
             String start;
             String end;
-            while((line = reader.readLine())!=null){
+            while ((line = reader.readLine()) != null) {
                 tokens = line.split(Torch.SEPARATOR_2);
-                id= tokens[0];
+                id = tokens[0];
                 span = tokens[1].split(" \\| ");
                 start = span[0];
                 end = span[1];
@@ -269,7 +268,7 @@ public class TrajectoryResolver {
                 timeSpanLookup.put(id, buildInterval(id, start, end));
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("some critical data is missing, system on exit...");
         }
 
