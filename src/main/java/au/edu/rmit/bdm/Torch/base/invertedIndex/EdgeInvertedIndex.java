@@ -99,7 +99,8 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
      * @return A list of results of type Integer meaning ids of trajectory.
      */
     @Override
-    public <T extends TrajEntry> List<String> findTopK(int k, List<T> pointQuery, List<LightEdge> edgeQuery, TrajectoryResolver resolver) {
+    public <T extends TrajEntry> List<String> findTopK(int k, List<T> pointQuery, List<LightEdge> edgeQuery,
+                                                       TrajectoryResolver resolver) {
 
         // 1. compute upper bound for each candidate trajectory
 
@@ -193,7 +194,8 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
      * @return similarity score computed using LEVI sim measure.
      */
 
-    private double lors(List<? extends LightEdge> qEdges, List<? extends LightEdge> cEdges, int theta, double[] restDistance, double bestKthSofar) {
+    private double lors(List<? extends LightEdge> qEdges, List<? extends LightEdge> cEdges, int theta,
+                        double[] restDistance, double bestKthSofar) {
 
         if (qEdges == null || cEdges == null || qEdges.size() == 0 || cEdges.size() == 0)
             return 0;

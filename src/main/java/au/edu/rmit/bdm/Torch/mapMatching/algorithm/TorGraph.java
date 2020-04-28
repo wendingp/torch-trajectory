@@ -30,8 +30,9 @@ import java.util.*;
 
 /**
  * A torGraph stores all information required for trajectory projection.
- *
+ * <p>
  * Note that it is highly recommended to use T-Torch high level API.
+ *
  * @see MapMatching
  */
 public class TorGraph {
@@ -72,7 +73,7 @@ public class TorGraph {
     //value -- id
     public final Map<String, Integer> edgeIdLookup;
 
-    private TorGraph(){
+    private TorGraph() {
         this.towerVertexes = new HashMap<>();
         this.allPoints = new HashMap<>();
         this.allEdges = new HashMap<>();
@@ -84,7 +85,7 @@ public class TorGraph {
         pool = new ShortestPathCache();
     }
 
-    public static TorGraph newInstance(String instance_name, FileSetting setting){
+    public static TorGraph newInstance(String instance_name, FileSetting setting) {
         if (instances.containsKey(instance_name)) {
             logger.error("trying to create another graph instance that has the same name with existed one");
             throw new RuntimeException("trying to create another graph instance that has the same name with existed one");
@@ -96,8 +97,8 @@ public class TorGraph {
         return graph;
     }
 
-    public static TorGraph getInstance(String instance_name){
-        if (!instances.containsKey(instance_name)){
+    public static TorGraph getInstance(String instance_name) {
+        if (!instances.containsKey(instance_name)) {
             logger.error("trying to a graph instance that does not exists");
             throw new RuntimeException("trying to a graph instance that does not exists");
         }
@@ -109,12 +110,12 @@ public class TorGraph {
      * T-Torch use graph-hopper module to parse and build graph data from .osm file.
      * The method calls graph hopper subroutine.
      *
-     * @param OSMPath the path to .osm file
+     * @param OSMPath        the path to .osm file
      * @param hopperDataPath the directory for which output goes
-     * @param vehicle vehicle type where the trajectory data generated
+     * @param vehicle        vehicle type where the trajectory data generated
      * @return this
      */
-    public TorGraph initGH(String hopperDataPath, String OSMPath, String vehicle){
+    public TorGraph initGH(String hopperDataPath, String OSMPath, String vehicle) {
 
         if (hopper != null) {
             logger.error("Torch currently do not support re-initialize graph-hopper in the application lifeCycle");
@@ -141,31 +142,32 @@ public class TorGraph {
     /**
      * build torGraph.
      */
-    public TorGraph build(MMProperties props){
+    public TorGraph build(MMProperties props) {
 
-        if (hopper == null)
+        if (hopper == null) {
             throw new IllegalStateException("please invoke " +
                     "'TorGraph initGH(String targetPath, String OSMPath,FlagEncoder vehicle)' first");
+        }
         if (isBuilt) {
             logger.warn("trying to build graph twice.");
             return this;
         }
 
         isBuilt = true;
-
         buildTorGraph();
         initLookUpTable();
 
-        if (props.mmAlg.equals(Torch.Algorithms.HMM_PRECOMPUTED))
+        if (props.mmAlg.equals(Torch.Algorithms.HMM_PRECOMPUTED)) {
             buildShortestPathCache(props.preComputationRange);
-
+        }
         return this;
     }
 
-    public  TorGraph buildFromDiskData(){
-        if (hopper == null)
+    public TorGraph buildFromDiskData() {
+        if (hopper == null) {
             throw new IllegalStateException("please invoke " +
                     "'TorGraph initGH(String targetPath, String OSMPath,FlagEncoder vehicle)' first");
+        }
         if (isBuilt) {
             logger.warn("trying to build graph twice.");
             return this;
@@ -174,15 +176,15 @@ public class TorGraph {
         idVertexLookup = new HashMap<>();
 
         //read id vertex lookup table
-        try(FileReader fr = new FileReader(setting.ID_VERTEX_LOOKUP);
-            BufferedReader reader = new BufferedReader(fr)) {
+        try (FileReader fr = new FileReader(setting.ID_VERTEX_LOOKUP);
+             BufferedReader reader = new BufferedReader(fr)) {
 
             String line;
             String[] tokens;
             Integer id;
             Double lat;
             Double lng;
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 tokens = line.split(";");
                 id = Integer.parseInt(tokens[0]);
                 lat = Double.parseDouble(tokens[1]);
@@ -193,13 +195,13 @@ public class TorGraph {
                 idVertexLookup.put(id, temp);
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new IllegalStateException("id vertex lookup table is missing!");
         }
 
         //read id edge lookup table
-        try(FileReader fr = new FileReader(setting.ID_EDGE_LOOKUP);
-            BufferedReader reader = new BufferedReader(fr)){
+        try (FileReader fr = new FileReader(setting.ID_EDGE_LOOKUP);
+             BufferedReader reader = new BufferedReader(fr)) {
 
             String line;
             String[] tokens;
@@ -210,7 +212,7 @@ public class TorGraph {
             TowerVertex t1, t2;
 
 
-            while((line = reader.readLine()) != null && line.length() != 0){
+            while ((line = reader.readLine()) != null && line.length() != 0) {
                 try {
                     tokens = line.split(";");
                     edgeId = Integer.parseInt(tokens[0]);
@@ -219,11 +221,12 @@ public class TorGraph {
                     len = Double.parseDouble(tokens[3]);
                     t1 = idVertexLookup.get(vertexId1);
                     t2 = idVertexLookup.get(vertexId2);
-                    allEdges.put(t1.hash+ t2.hash, new TorEdge(edgeId, t1, t2, len));
-                }catch (Exception e){}
+                    allEdges.put(t1.hash + t2.hash, new TorEdge(edgeId, t1, t2, len));
+                } catch (Exception e) {
+                }
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new IllegalStateException("id edge lookup table is missing!");
         }
 
@@ -234,7 +237,7 @@ public class TorGraph {
     /**
      * buildTorGraph a virtual graph from osm data loaded by graph-hopper
      */
-    private void buildTorGraph(){
+    private void buildTorGraph() {
 
         logger.info("building virtual graph.");
 
@@ -300,7 +303,7 @@ public class TorGraph {
                             tVertex.addAdjPoint(baseVertex, edge.getLength());
                         }
                         edge.isForward = true;
-                        }
+                    }
 
                     if (i == size - 1) break;
 
@@ -325,7 +328,7 @@ public class TorGraph {
 
             if (edge.isForward) {
                 TorVertex pre = edge.baseVertex;
-                List<TorVertex> pillarPoints = (List<TorVertex>)(Object)edge.getPillarVertexes();
+                List<TorVertex> pillarPoints = (List<TorVertex>) (Object) edge.getPillarVertexes();
                 pillarPoints.add(edge.adjVertex);
                 for (int i = 0; i < pillarPoints.size(); ++i) {
                     double dis = GeoUtil.distance(pre, pillarPoints.get(i));
@@ -342,7 +345,7 @@ public class TorGraph {
 
             if (edge.isBackward) {
                 TorVertex pre = edge.adjVertex;
-                List<TorVertex> pillarPoints = (List<TorVertex>)(Object)edge.getPillarVertexes();
+                List<TorVertex> pillarPoints = (List<TorVertex>) (Object) edge.getPillarVertexes();
                 pillarPoints.add(0, edge.baseVertex);
                 for (int i = pillarPoints.size() - 1; i >= 0; --i) {
                     double dis = GeoUtil.distance(pre, pillarPoints.get(i));
@@ -383,12 +386,12 @@ public class TorGraph {
                 vehicle = new MotorcycleFlagEncoder();
                 break;
             default:
-                throw new IllegalStateException("lookup Torch.vehicle for vehicle options");
+                throw new IllegalArgumentException("lookup Torch.vehicle for vehicle options");
         }
         return vehicle;
     }
 
-    private TorGraph initLookUpTable(){
+    private TorGraph initLookUpTable() {
         Map<String, TorEdge> edges = allEdges;
         Collection<TowerVertex> vertices = towerVertexes.values();
 
@@ -408,7 +411,7 @@ public class TorGraph {
     /**
      * Instantiate ShortestPathCache for precomputed map-matching algorithm.
      */
-     private void buildShortestPathCache(int precomputationRange) {
+    private void buildShortestPathCache(int precomputationRange) {
 
         this.preComputationRange = precomputationRange;
 

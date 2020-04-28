@@ -25,18 +25,18 @@ import static au.edu.rmit.bdm.Torch.base.helper.FileUtil.*;
 
 /**
  * The class is for saving relevant information to disk.
- *
+ * <p>
  * These includes:
- *      ~ vertexId -- GPS Coordinate table
- *
- *      ~ edgeId -- edgeInfo table
- *      ~ edgeId -- vertexId table
- *
- *      ~ map-matched trajectory represented by vertices
- *      ~ map-matched trajectory represented by edges
- *
- *      ~ edge inverted invertedIndex( trajectory ids)
- *      ~ vertex inverted invertedIndex( trajectory ids)
+ * ~ vertexId -- GPS Coordinate table
+ * <p>
+ * ~ edgeId -- edgeInfo table
+ * ~ edgeId -- vertexId table
+ * <p>
+ * ~ map-matched trajectory represented by vertices
+ * ~ map-matched trajectory represented by edges
+ * <p>
+ * ~ edge inverted invertedIndex( trajectory ids)
+ * ~ vertex inverted invertedIndex( trajectory ids)
  */
 public class TorSaver {
 
@@ -48,7 +48,7 @@ public class TorSaver {
     public InvertedIndex vertexInvertedIndex;
 
 
-    public TorSaver(TorGraph graph, FileSetting setting){
+    public TorSaver(TorGraph graph, FileSetting setting) {
         this.setting = setting;
         this.graph = graph;
         edgeInvertedList = new EdgeInvertedIndex(setting);
@@ -59,20 +59,19 @@ public class TorSaver {
      * Once a batch of trajectories have been mapped, we saveUncompressed it using a separate thread.
      *
      * @param mappedTrajectories trajectories to be saved
-     * @param saveAll false -- asyncSave trajectory data only
-     *                true -- asyncSave everything( It should only be set to true if it is the last batch.)
-     *                As the method is expected to be called multiple times to write different batches of trajectories,
-     *                other information should only be saved once.
-     *
-     *
+     * @param saveAll            false -- asyncSave trajectory data only
+     *                           true -- asyncSave everything( It should only be set to true if it is the last batch.)
+     *                           As the method is expected to be called multiple times to write different batches of trajectories,
+     *                           other information should only be saved once.
      */
-    public synchronized void asyncSave(final List<Trajectory<TowerVertex>> mappedTrajectories,final List<Trajectory<TrajEntry>> rawTrajectories, final boolean saveAll) {
-
-        if (!graph.isBuilt)
+    public synchronized void asyncSave(final List<Trajectory<TowerVertex>> mappedTrajectories,
+                                       final List<Trajectory<TrajEntry>> rawTrajectories, final boolean saveAll) {
+        if (!graph.isBuilt) {
             throw new IllegalStateException("should be called after TorGraph initialization");
+        }
 
         ExecutorService thread = Executors.newSingleThreadExecutor();
-        thread.execute(() -> _save(mappedTrajectories,rawTrajectories, saveAll));
+        thread.execute(() -> _save(mappedTrajectories, rawTrajectories, saveAll));
         thread.shutdown();
 
         try {
@@ -82,7 +81,7 @@ public class TorSaver {
         }
     }
 
-    private void _save(final List<Trajectory<TowerVertex>> mappedTrajectories,final List<Trajectory<TrajEntry>> rawTrajectories, final boolean saveAll) {
+    private void _save(final List<Trajectory<TowerVertex>> mappedTrajectories, final List<Trajectory<TrajEntry>> rawTrajectories, final boolean saveAll) {
 
         saveMappedTrajectories(mappedTrajectories);  // for purpose of debugging
         //trajectoryMap.saveAll(rawTrajectories);
@@ -101,9 +100,8 @@ public class TorSaver {
 
     private void saveMeta() {
         ensureExistence(setting.metaURI);
-        try(FileWriter fw = new FileWriter(setting.metaURI);
-            BufferedWriter writer = new BufferedWriter(fw))
-        {
+        try (FileWriter fw = new FileWriter(setting.metaURI);
+             BufferedWriter writer = new BufferedWriter(fw)) {
             writer.write(graph.vehicleType);
             writer.newLine();
             writer.write(graph.OSMPath);
@@ -113,7 +111,7 @@ public class TorSaver {
         }
     }
 
-    private void saveIdVertexLookupTable(){
+    private void saveIdVertexLookupTable() {
 
 
         Graph hopperGraph = graph.getGH().getGraphHopperStorage().getBaseGraph();
@@ -123,9 +121,9 @@ public class TorSaver {
 
         ensureExistence(setting.ID_VERTEX_LOOKUP);
 
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(setting.ID_VERTEX_LOOKUP, false))){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(setting.ID_VERTEX_LOOKUP, false))) {
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < numNodes; i++){
+            for (int i = 0; i < numNodes; i++) {
                 builder.append(i).append(";")
                         .append(nodeAccess.getLatitude(i)).append(";")
                         .append(nodeAccess.getLongitude(i));
@@ -135,13 +133,13 @@ public class TorSaver {
                 builder.setLength(0);
             }
             writer.flush();
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
 
-    private void saveEdges(){
+    private void saveEdges() {
 
         Collection<TorEdge> allEdges = graph.allEdges.values();
 
@@ -150,13 +148,13 @@ public class TorSaver {
 
         ensureExistence(setting.ID_EDGE_RAW);
 
-        try(BufferedWriter rawWriter = new BufferedWriter(new FileWriter(setting.ID_EDGE_RAW));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(setting.ID_EDGE_LOOKUP))) {
+        try (BufferedWriter rawWriter = new BufferedWriter(new FileWriter(setting.ID_EDGE_RAW));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(setting.ID_EDGE_LOOKUP))) {
 
             StringBuilder builder = new StringBuilder();
             Set<Integer> visited = new HashSet<>();
 
-            for (TorEdge edge : edges){
+            for (TorEdge edge : edges) {
 
                 if (visited.contains(edge.id)) continue;
                 visited.add(edge.id);
@@ -165,9 +163,9 @@ public class TorSaver {
                 rawWriter.newLine();
 
                 builder.append(edge.id).append(Torch.SEPARATOR_1)
-                       .append(graph.vertexIdLookup.get(edge.baseVertex.hash)).append(Torch.SEPARATOR_1)
-                       .append(graph.vertexIdLookup.get(edge.adjVertex.hash)).append(Torch.SEPARATOR_1)
-                       .append(edge.getLength());
+                        .append(graph.vertexIdLookup.get(edge.baseVertex.hash)).append(Torch.SEPARATOR_1)
+                        .append(graph.vertexIdLookup.get(edge.adjVertex.hash)).append(Torch.SEPARATOR_1)
+                        .append(edge.getLength());
 
                 writer.write(builder.toString());
                 writer.newLine();
@@ -177,12 +175,12 @@ public class TorSaver {
             rawWriter.flush();
             writer.flush();
 
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void saveMappedTrajectories(List<Trajectory<TowerVertex>> mappedTrajectories){
+    private void saveMappedTrajectories(List<Trajectory<TowerVertex>> mappedTrajectories) {
 
         if (!append) ensureExistence(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH);
 
@@ -191,7 +189,7 @@ public class TorSaver {
         edgeInvertedList.indexAll(mappedTrajectories);
 
         //write vertex id representation of trajectories.
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH,append))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH, append))) {
 
             StringBuilder trajBuilder = new StringBuilder();
             String hash;
@@ -204,13 +202,13 @@ public class TorSaver {
                     Integer id = graph.vertexIdLookup.get(hash);
 
                     if (id == null)
-                        logger.error("a mapped edge is missing when processing trajectory id "+ traj.id);
+                        logger.error("a mapped edge is missing when processing trajectory id " + traj.id);
                     else
                         trajBuilder.append(id).append(";");
                 }
 
                 //remove the tail ";" character
-                trajBuilder.setLength(trajBuilder.length()-1);
+                trajBuilder.setLength(trajBuilder.length() - 1);
                 writer.write(trajBuilder.toString());
                 writer.newLine();
 
@@ -219,12 +217,12 @@ public class TorSaver {
 
             writer.flush();
 
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         //write edge id representation of trajectories.
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(setting.TRAJECTORY_EDGE_REPRESENTATION_PATH, append))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(setting.TRAJECTORY_EDGE_REPRESENTATION_PATH, append))) {
 
             StringBuilder trajBuilder = new StringBuilder();
             Iterator<TorEdge> iterator;
@@ -235,13 +233,13 @@ public class TorSaver {
                 trajBuilder.append(traj.id).append(";");
                 iterator = traj.edges.iterator();
 
-                while(iterator.hasNext()) {
+                while (iterator.hasNext()) {
                     curEdge = iterator.next();
                     trajBuilder.append(curEdge.id).append(";");
                 }
 
                 //remove the tail ";" character
-                trajBuilder.setLength(trajBuilder.length()-1);
+                trajBuilder.setLength(trajBuilder.length() - 1);
                 writer.write(trajBuilder.toString());
                 writer.newLine();
 
@@ -250,7 +248,7 @@ public class TorSaver {
 
             writer.flush();
 
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

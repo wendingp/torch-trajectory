@@ -26,32 +26,35 @@ public abstract class InvertedIndex implements Index {
     IntegratedIntCompressor sortedIntCodec = new IntegratedIntCompressor();
     IntCompressor unsortedIntCodec = new IntCompressor();
 
-    protected InvertedIndex(FileSetting setting){
+    protected InvertedIndex(FileSetting setting) {
         this.setting = setting;
     }
 
     /**
      * invertedIndex a list of trajectories, either by edges or vertices.
+     *
      * @param trajectories trajectories to be indexed
      */
     public abstract <T extends TrajEntry> void indexAll(List<Trajectory<T>> trajectories);
 
     /**
      * invertedIndex a list of trajectories, either by edges or vertices.
+     *
      * @param trajectories trajectories to be indexed
      */
     public abstract <T extends TrajEntry> void index(Trajectory<T> trajectories);
 
     /**
      * write inverted indexes to disk in a specific format
+     *
      * @param path URI to saveUncompressed the indexes
      */
-    public final void saveUncompressed(String path){
+    public final void saveUncompressed(String path) {
         ensureExistence(path);
 
         try (BufferedWriter idBufWriter = new BufferedWriter((new FileWriter(path + "_id.txt", false)));
              BufferedWriter trajBufWriter = new BufferedWriter((new FileWriter(path + "_trajId.txt", false)));
-             BufferedWriter posBufWriter = new BufferedWriter((new FileWriter(path+ "_pos.txt", false)))) {
+             BufferedWriter posBufWriter = new BufferedWriter((new FileWriter(path + "_pos.txt", false)))) {
 
             for (Map.Entry<Integer, Map<String, Integer>> entry : index.entrySet()) {
 
@@ -61,7 +64,7 @@ public abstract class InvertedIndex implements Index {
 
                 //sort inverted list
                 List<Pair> l = new ArrayList<>(entry.getValue().size());
-                for(Map.Entry<String, Integer> entry1 : entry.getValue().entrySet())
+                for (Map.Entry<String, Integer> entry1 : entry.getValue().entrySet())
                     l.add(new Pair(entry1));
 
                 l.sort(Comparator.comparingInt(p -> p.trajid));
@@ -86,12 +89,12 @@ public abstract class InvertedIndex implements Index {
         }
     }
 
-    public final void saveCompressed(String path){
+    public final void saveCompressed(String path) {
         ensureExistence(path);
 
         try (BufferedWriter idBufWriter = new BufferedWriter((new FileWriter(path + "_id.compressed")));
              BufferedWriter trajBufWriter = new BufferedWriter((new FileWriter(path + "_trajId.compressed")));
-             BufferedWriter posBufWriter = new BufferedWriter((new FileWriter(path+ "_pos.compressed")))) {
+             BufferedWriter posBufWriter = new BufferedWriter((new FileWriter(path + "_pos.compressed")))) {
 
             for (Map.Entry<Integer, Map<String, Integer>> entry : index.entrySet()) {
 
@@ -100,7 +103,7 @@ public abstract class InvertedIndex implements Index {
 
                 // sort inverted list
                 List<Pair> pairs = new ArrayList<>(entry.getValue().size());
-                for(Map.Entry<String, Integer> entry1 : entry.getValue().entrySet())
+                for (Map.Entry<String, Integer> entry1 : entry.getValue().entrySet())
                     pairs.add(new Pair(entry1));
                 pairs.sort(Comparator.comparingInt(p -> p.trajid));
 
@@ -108,7 +111,7 @@ public abstract class InvertedIndex implements Index {
                 int pairSize = pairs.size();
                 int[] trajId = new int[pairSize];
                 int[] pos = new int[pairSize];
-                for (int i = 0; i < pairSize; i++){
+                for (int i = 0; i < pairSize; i++) {
                     trajId[i] = pairs.get(i).trajid;
                     pos[i] = pairs.get(i).pos;
                 }
@@ -135,26 +138,26 @@ public abstract class InvertedIndex implements Index {
 
     }
 
-     public List<Pair> getPairs(int vertexId){
+    public List<Pair> getPairs(int vertexId) {
 
         CompressedPairs compressedPairs = compressedIndex.get(vertexId);
         int[] trajIds = sortedIntCodec.uncompress(compressedPairs.trajIds);
         int[] posis = unsortedIntCodec.uncompress(compressedPairs.posis);
         List<Pair> pairs = new LinkedList<>();
-        for (int i = 0; i < trajIds.length; i++){
+        for (int i = 0; i < trajIds.length; i++) {
             pairs.add(new Pair(trajIds[i], posis[i]));
         }
         return pairs;
     }
 
-    public List<String> getKeys(int vertexId){
+    public List<String> getKeys(int vertexId) {
         CompressedPairs compressedPairs = compressedIndex.get(vertexId);
         if (compressedPairs == null)
             return new ArrayList<>();
 
         int[] trajIds = sortedIntCodec.uncompress(compressedPairs.trajIds);
         List<String> l = new LinkedList<>();
-        for (int trajId: trajIds)
+        for (int trajId : trajIds)
             l.add(String.valueOf(trajId));
 
         return l;
@@ -165,14 +168,14 @@ public abstract class InvertedIndex implements Index {
      * the in-memory edge-dataStructure is an field of this instance
      *
      * @return true if the dataStructure file can be build and construct successfully
-     *         false if indexes cannot be construct( cannot find dataStructure file or some other reasons)
+     * false if indexes cannot be construct( cannot find dataStructure file or some other reasons)
      */
     public boolean build(String path) {
-
         logger.info("build up inverted index");
-        if (!path.equals(setting.EDGE_INVERTED_INDEX) &&
-                !path.equals(setting.VERTEX_INVERTED_INDEX))
-            throw new IllegalStateException("base path got to be "+setting.EDGE_INVERTED_INDEX+" or "+setting.VERTEX_INVERTED_INDEX);
+        if (!path.equals(setting.EDGE_INVERTED_INDEX) && !path.equals(setting.VERTEX_INVERTED_INDEX)) {
+            throw new IllegalArgumentException("base path got to be " + setting.EDGE_INVERTED_INDEX + " or " +
+                    setting.VERTEX_INVERTED_INDEX);
+        }
 
         try (BufferedReader idBufReader = new BufferedReader(new FileReader(path + "_id.compressed"));
              BufferedReader trajBufReader = new BufferedReader(new FileReader(path + "_trajId.compressed"));
@@ -213,16 +216,17 @@ public abstract class InvertedIndex implements Index {
         public int[] posis;
     }
 
-    public static class Pair{
-        Pair(Map.Entry<String, Integer> entry){
+    public static class Pair {
+        Pair(Map.Entry<String, Integer> entry) {
             this.trajid = Integer.parseInt(entry.getKey());
             this.pos = entry.getValue();
         }
 
-        Pair(int trajid, int pos){
+        Pair(int trajid, int pos) {
             this.trajid = trajid;
             this.pos = pos;
         }
+
         int trajid;
         int pos;
     }

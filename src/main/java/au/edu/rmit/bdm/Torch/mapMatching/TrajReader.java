@@ -130,7 +130,6 @@ public class TrajReader {
                     return false;
                 }
             }
-
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
         }

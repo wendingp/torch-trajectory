@@ -108,7 +108,7 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
             return topKwithEDR(k, pointQuery, resolver);
 
         logger.error("unsupported similarity measure: {}", measureType.toString());
-        throw new IllegalStateException("unsupported similarity measure");
+        throw new IllegalArgumentException("unsupported similarity measure");
     }
 
     private <T extends TrajEntry> List<String> topKwithEDR(int k, List<T> pointQuery, TrajectoryResolver resolver) {

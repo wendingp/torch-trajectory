@@ -23,21 +23,18 @@ class TopKQuery extends QueryImpl {
     @Override
     public QueryResult execute(Object K) {
         if (!(K instanceof Integer))
-            throw new IllegalStateException(
-                    "parameter passed to windowQuery should be of type Integer, " +
-                            "which indicates top k results to return");
+            throw new IllegalArgumentException("parameter passed to windowQuery should be of type Integer, " +
+                    "which indicates top k results to return");
         if (index.useEdge())
             return topKUsingEdge((int) K);
-        else
-            return topKUsingVertex((int) K);
+        return topKUsingVertex((int) K);
     }
 
     @Override
-
     public void updateIdx(Index idx) {
-        if (!(idx instanceof TopKQueryIndex))
-            throw new IllegalStateException("the index do not support TopK search");
-
+        if (!(idx instanceof TopKQueryIndex)) {
+            throw new IllegalArgumentException("the index do not support TopK search");
+        }
         index = (TopKQueryIndex) idx;
     }
 

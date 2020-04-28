@@ -33,7 +33,8 @@ public class TrajectoryResolver {
     public boolean contain;
     public boolean isNantong;
 
-    public TrajectoryResolver(TrajEdgeRepresentationPool trajectoryPool, Map<Integer, String[]> rawEdgeLookup, boolean resolveAll) {
+    public TrajectoryResolver(TrajEdgeRepresentationPool trajectoryPool, Map<Integer, String[]> rawEdgeLookup,
+                              boolean resolveAll) {
         this.trajectoryPool = trajectoryPool;
         this.rawEdgeLookup = rawEdgeLookup;
         this.resolveAll = resolveAll;
@@ -43,18 +44,17 @@ public class TrajectoryResolver {
         this.resolveAll = resolveAll;
         this.setting = setting;
         this.isNantong = isNantong;
-        if (!isNantong) {
+        if (isNantong) {
+            vertexLookup = new HashMap<>();
+            trajVertexRepresentationPool = new TrajVertexRepresentationPool(false, setting);
+            loadVertexLookup();
+        } else {
             trajectoryPool = new TrajEdgeRepresentationPool(false, setting);
             rawEdgeLookup = new HashMap<>();
             timeSpanLookup = new HashMap<>();
             loadRawEdgeLookupTable();
             loadTimeSpanLookupTable();
-        } else {
-            vertexLookup = new HashMap<>();
-            trajVertexRepresentationPool = new TrajVertexRepresentationPool(false, setting);
-            loadVertexLookup();
         }
-
     }
 
     private void loadVertexLookup() {
@@ -63,19 +63,20 @@ public class TrajectoryResolver {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] splits = line.split(";");
-                vertexLookup.put(Integer.parseInt(splits[0]), new Coordinate(Double.parseDouble(splits[1]), Double.parseDouble(splits[2])));
+                vertexLookup.put(Integer.parseInt(splits[0]),
+                        new Coordinate(Double.parseDouble(splits[1]), Double.parseDouble(splits[2])));
             }
-
         } catch (IOException e) {
             logger.debug("cannot find/read file: " + setting.ID_VERTEX_LOOKUP);
         }
     }
 
-    QueryResult resolve(String queryType, List<String> trajIds, List<TrajEntry> rawQuery, Trajectory<TrajEntry> _mappedQuery) {
-
+    QueryResult resolve(String queryType, List<String> trajIds, List<TrajEntry> rawQuery,
+                        Trajectory<TrajEntry> _mappedQuery) {
         List<TrajEntry> mappedQuery = _mappedQuery;
-        if (!queryType.equals(Torch.QueryType.RangeQ))
+        if (!queryType.equals(Torch.QueryType.RangeQ)) {
             mappedQuery = resolveMappedQuery(_mappedQuery);
+        }
 
         logger.info("number of ids before: {}", trajIds.size());
 
@@ -85,54 +86,48 @@ public class TrajectoryResolver {
                 while (iter.hasNext()) {
                     String id = iter.next();
                     TimeInterval candidate_time_span = timeSpanLookup.get(id);
-                    if (!querySpan.contains(candidate_time_span))
+                    if (!querySpan.contains(candidate_time_span)) {
                         iter.remove();
+                    }
                 }
             } else {  //join but not contain
                 while (iter.hasNext()) {
                     String id = iter.next();
                     TimeInterval candidate_time_span = timeSpanLookup.get(id);
-                    if (!querySpan.joins(candidate_time_span))
+                    if (!querySpan.joins(candidate_time_span)) {
                         iter.remove();
+                    }
                 }
             }
-
         }
-
         logger.info("number of ids after: {}", trajIds.size());
 
-        QueryResult ret;
-        if (resolveAll)
-            ret = QueryResult.genResolvedRet(queryType, resolveRet(trajIds), rawQuery, mappedQuery);
-        else {
-            int[] ids = new int[trajIds.size()];
-            for (int i = 0; i < trajIds.size(); i++)
-                ids[i] = Integer.valueOf(trajIds.get(i));
-            ret = QueryResult.genUnresolvedRet(queryType, ids, rawQuery, mappedQuery);
+        QueryResult queryResult;
+        if (resolveAll) {
+            queryResult = QueryResult.genResolvedRet(queryType, resolveRet(trajIds), rawQuery, mappedQuery);
+        } else {
+            int[] ids = trajIds.stream().mapToInt(Integer::parseInt).toArray();
+            queryResult = QueryResult.genUnresolvedRet(queryType, ids, rawQuery, mappedQuery);
         }
-        return ret;
+        return queryResult;
     }
 
     public boolean meetTimeConstrain(String trajId) {
-        if (querySpan == null) return true;
-
-        if (contain)
+        if (querySpan == null) {
+            return true;
+        }
+        if (contain) {
             return querySpan.contains(timeSpanLookup.get(trajId));
-
+        }
         return querySpan.joins(timeSpanLookup.get(trajId));
     }
 
     private List<TrajEntry> resolveMappedQuery(Trajectory<TrajEntry> mappedQuery) {
-
         List<TrajEntry> l = new Trajectory<>();
-        int queryLen = mappedQuery.edges.size();
-
-        for (int i = 1; i < queryLen; i++) {
-
+        for (int i = 1; i < mappedQuery.edges.size(); i++) {
             String[] tokens = rawEdgeLookup.get(mappedQuery.edges.get(i).id);
             String[] lats = tokens[0].split(",");
             String[] lngs = tokens[1].split(",");
-
             for (int j = 0; j < lats.length; j++) {
                 l.add(new Coordinate(Double.parseDouble(lats[j]), Double.parseDouble(lngs[j])));
             }
@@ -142,66 +137,29 @@ public class TrajectoryResolver {
 
     public List<Trajectory<TrajEntry>> resolveResult(int[] ids) {
         List<String> trajIds = new ArrayList<>(ids.length);
-        for (int i : ids) trajIds.add(String.valueOf(i));
+        for (int i : ids) {
+            trajIds.add(String.valueOf(i));
+        }
         return resolveRet(trajIds);
     }
 
 
     private List<Trajectory<TrajEntry>> resolveRet(Collection<String> trajIds) {
-
-        List<Trajectory<TrajEntry>> ret = null;
-
-        if (!isNantong) {
-            String[] tokens = null;
-
-            ret = new ArrayList<>(trajIds.size());
+        String[] tokens;
+        List<Trajectory<TrajEntry>> ret = new ArrayList<>(trajIds.size());
+        if (isNantong) {
             for (String trajId : trajIds) {
-
-                int[] edges = trajectoryPool.get(trajId);
-                if (edges == null) {
-                    logger.debug("cannot find trajectory id {}, this should not be happened", trajId);
-                    continue;
-                }
-
-                Trajectory<TrajEntry> t = new Trajectory<>();
-                t.id = trajId;
-
-                for (int i = 1; i < edges.length; i++) {
-
-                    tokens = rawEdgeLookup.get(edges[i]);
-                    String[] lats = tokens[0].split(",");
-                    String[] lngs = tokens[1].split(",");
-
-                    for (int j = 0; j < lats.length; j++) {
-                        try {
-                            t.add(new Coordinate(Double.parseDouble(lats[j]), Double.parseDouble(lngs[j])));
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-                ret.add(t);
-            }
-        } else {
-            String[] tokens = null;
-
-            ret = new ArrayList<>(trajIds.size());
-            for (String trajId : trajIds) {
-
                 int[] vertices = trajVertexRepresentationPool.get(trajId);
-
                 if (vertices == null) {
                     logger.debug("cannot find trajectory id {}, this should not happen", trajId);
                     continue;
                 }
-
                 Trajectory<TrajEntry> t = new Trajectory<>();
                 t.id = trajId;
 
                 for (int i = 1; i < vertices.length; i++) {
-
                     Coordinate from = vertexLookup.get(vertices[i - 1]);
                     Coordinate to = vertexLookup.get(vertices[i]);
-
                     t.add(from);
                     double dist = GeoUtil.distance(from, to);
                     int addNum = ((int) dist) / 50;
@@ -214,7 +172,29 @@ public class TrajectoryResolver {
                         }
                     }
                 }
-
+                ret.add(t);
+            }
+        } else {
+            for (String trajId : trajIds) {
+                int[] edges = trajectoryPool.get(trajId);
+                if (edges == null) {
+                    logger.debug("cannot find trajectory id {}, this should not be happened", trajId);
+                    continue;
+                }
+                Trajectory<TrajEntry> t = new Trajectory<>();
+                t.id = trajId;
+                for (int i = 1; i < edges.length; i++) {
+                    tokens = rawEdgeLookup.get(edges[i]);
+                    String[] lats = tokens[0].split(",");
+                    String[] lngs = tokens[1].split(",");
+                    for (int j = 0; j < lats.length; j++) {
+                        try {
+                            t.add(new Coordinate(Double.parseDouble(lats[j]), Double.parseDouble(lngs[j])));
+                        } catch (Exception ignored) {
+                            // TODO
+                        }
+                    }
+                }
                 ret.add(t);
             }
         }
@@ -240,16 +220,13 @@ public class TrajectoryResolver {
 
                 rawEdgeLookup.put(id, new String[]{lats, lngs});
             }
-
         } catch (IOException e) {
             throw new RuntimeException("some critical data is missing, system on exit...");
         }
     }
 
     private void loadTimeSpanLookupTable() {
-
         logger.info("load time querySpan lookup table");
-
         try (FileReader fr = new FileReader(setting.TRAJECTORY_START_END_TIME_PARTIAL);
              BufferedReader reader = new BufferedReader(fr)) {
             String line;
@@ -264,10 +241,8 @@ public class TrajectoryResolver {
                 span = tokens[1].split(" \\| ");
                 start = span[0];
                 end = span[1];
-
                 timeSpanLookup.put(id, buildInterval(id, start, end));
             }
-
         } catch (IOException e) {
             throw new RuntimeException("some critical data is missing, system on exit...");
         }

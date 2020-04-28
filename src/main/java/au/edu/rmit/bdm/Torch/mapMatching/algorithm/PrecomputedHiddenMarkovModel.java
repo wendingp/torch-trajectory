@@ -23,28 +23,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class is a implementation of HiddenMarkovModel, a map-matching algorithm. For more information, refer to
+ *
  * @see HiddenMarkovModel
  * @see com.graphhopper.matching.MapMatching
- *
+ * <p>
  * PrecomputedHiddenMarkovModel is optimized for algorithm a batch of trajectories.
  * It precomputes and stores information of nodes within a range from the source node,
  * which could be directly looked up while process trajectories.
- *
+ * <p>
  * The drawback of this approach is that the space complexity is relatively high.
- *
+ * <p>
  * When to use it: A bit math would help you decide whether to use it or not:
- *
+ * <p>
  * given:
  * - sample rate
- *   suppose 30 seconds
+ * suppose 30 seconds
  * - average object moving speed
- *   suppose the object is car and the average max speed for a car is 30 m/s (118.8 km/h)
+ * suppose the object is car and the average max speed for a car is 30 m/s (118.8 km/h)
  * out: 900m
- *
+ * <p>
  * In above senario, the distance between two sample point could be at most 900m.
  * 900m is a reasonable range for precomputation the shorest path.
  * Trajectories containing adjancent sample points which distance are larger than 900m will be considered illegal and excluded.
- *
+ * <p>
  * If after simple math, you found the distance between sample points could be a large more than that( say above 3000),
  * you should consider not using the other HMM implementation.
  */
@@ -62,15 +63,16 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
     private static final double INITIAL_SEARCH_RANGE = 50;
     private static final double INCREMENT = 20;
 
-    PrecomputedHiddenMarkovModel(TorGraph graph){
-        if (!graph.isBuilt) throw new IllegalStateException("please build the graph first.");
+    PrecomputedHiddenMarkovModel(TorGraph graph) {
+        if (!graph.isBuilt) {
+            throw new IllegalStateException("please build the graph first");
+        }
         this.graph = graph;
         this.shortestPathCache = graph.pool;
     }
 
     @Override
-    public <T extends TrajEntry>List<Trajectory<TowerVertex>> batchMatch(List<Trajectory<T>> in) {
-
+    public <T extends TrajEntry> List<Trajectory<TowerVertex>> batchMatch(List<Trajectory<T>> in) {
         logger.info("start map-matching, total number of raw trajectories for current batch: {}", in.size());
 
         List<Trajectory<TowerVertex>> mappedTrajectories = new ArrayList<>(in.size());
@@ -79,15 +81,13 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
 
         ExecutorService threadPool = new ThreadPoolExecutor(10, 15, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
         AtomicInteger counter = new AtomicInteger(1);
-        int reportForEach = in.size() / 1000 == 0 ? 50 : (int)Math.floor(in.size() / 1000.) ;
+        int reportForEach = in.size() / 1000 == 0 ? 50 : (int) Math.floor(in.size() / 1000.);
 
         for (Trajectory<T> raw : in) {
-
-            if ( counter.getAndIncrement() % reportForEach == 0) {
-                String finishRate =  String.format("%.2f", 100. * counter.intValue() / in.size());
+            if (counter.getAndIncrement() % reportForEach == 0) {
+                String finishRate = String.format("%.2f", 100. * counter.intValue() / in.size());
                 logger.info("current progress for this batch: {} %", finishRate);
             }
-
             threadPool.execute(() -> {
                 try {
                     Trajectory<TowerVertex> mappedTrajectory = match(raw);
@@ -96,15 +96,16 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
                             mappedTrajectories.add(mappedTrajectory);
                         }
                     }
-                } catch (Exception unqualifiedTrajectory) {}
+                } catch (Exception unqualifiedTrajectory) {
+                    // TODO
+                }
             });
         }
-
         threadPool.shutdown();
         try {
             threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
-            logger.error("{}", e);
+            logger.error("{}", e.getMessage());
         }
 
         logger.info("have done current batch");
@@ -117,7 +118,6 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
 
     @Override
     public Trajectory<TowerVertex> match(Trajectory<? extends TrajEntry> rawTraj) throws Exception {
-
         Trajectory<TowerVertex> mappedTrajectory = new Trajectory<>();
         mappedTrajectory.id = rawTraj.id;
         mappedTrajectory.hasTime = rawTraj.hasTime;
@@ -177,8 +177,9 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
                 double shortestPathDistance = shortestPathCache.minDistance(preCandidate.candidateVertex, candidate.candidateVertex);
                 double transitionProbability;
                 if (shortestPathDistance == 0) transitionProbability = 1.0;
-                else if ( shortestPathDistance == Double.MAX_VALUE) transitionProbability =0.;
-                else transitionProbability = 1. / TRANSITION_PROBABILITY_BETA * Math.exp(-1 * Math.abs(lineDistance - shortestPathDistance) / TRANSITION_PROBABILITY_BETA);
+                else if (shortestPathDistance == Double.MAX_VALUE) transitionProbability = 0.;
+                else
+                    transitionProbability = 1. / TRANSITION_PROBABILITY_BETA * Math.exp(-1 * Math.abs(lineDistance - shortestPathDistance) / TRANSITION_PROBABILITY_BETA);
 
                 //double transitionProbability = lineDistance / shortestPathDistance;
                 preCandidate.probability += preCandidate.emissionProbability * transitionProbability;
@@ -197,8 +198,9 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
 
                     double transitionProbability;
                     if (shortestPathDistance == 0) transitionProbability = 1.0;
-                    else if ( shortestPathDistance == Double.MAX_VALUE) transitionProbability =0.;
-                    else transitionProbability = 1. / TRANSITION_PROBABILITY_BETA * Math.exp(-1 * Math.abs(lineDistance - shortestPathDistance) / TRANSITION_PROBABILITY_BETA);
+                    else if (shortestPathDistance == Double.MAX_VALUE) transitionProbability = 0.;
+                    else
+                        transitionProbability = 1. / TRANSITION_PROBABILITY_BETA * Math.exp(-1 * Math.abs(lineDistance - shortestPathDistance) / TRANSITION_PROBABILITY_BETA);
                     // double transitionProbability = lineDistance / shortestPathDistance;
 
                     double p = preCandidate.probability * transitionProbability * curCandidate.emissionProbability;
@@ -245,7 +247,7 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
         TorVertex preVertex = mapMatchedVertices.get(0);
         TorVertex currentVertex;
 
-        for (int i = 1; i < mapMatchedVertices.size()-1; ++i) {
+        for (int i = 1; i < mapMatchedVertices.size() - 1; ++i) {
             currentVertex = mapMatchedVertices.get(i);
             if (preVertex == currentVertex) continue;
 
@@ -256,8 +258,7 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
                 addEdges(edges, curShortestPath);
                 addVertices(vertices, curShortestPath);
 
-            }else
-            {
+            } else {
                 logger.debug("trajectory id: {}, cannot find shortest edges", rawTraj.id);
                 throw new IllegalStateException();
             }
@@ -286,13 +287,13 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
     private void addVertices(List<TowerVertex> retVertices, List<TowerVertex> curShortestPath) throws Exception {
         if (retVertices.size() != 0) {
             int verticesLastIdx = retVertices.size() - 1;
-            if (retVertices.get(verticesLastIdx)==curShortestPath.get(1) &&
-                    retVertices.get(verticesLastIdx-1)==curShortestPath.get(0)){
+            if (retVertices.get(verticesLastIdx) == curShortestPath.get(1) &&
+                    retVertices.get(verticesLastIdx - 1) == curShortestPath.get(0)) {
                 retVertices.remove(verticesLastIdx);
                 retVertices.remove(verticesLastIdx - 1);
-            } else if (retVertices.get(verticesLastIdx) == curShortestPath.get(0)){
+            } else if (retVertices.get(verticesLastIdx) == curShortestPath.get(0)) {
                 retVertices.remove(verticesLastIdx);
-            }else{
+            } else {
                 System.err.println("cannot connect");
                 throw new Exception();
             }
@@ -314,20 +315,20 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
         TowerVertex pre = curShortestPath.get(0);
         TowerVertex cur = curShortestPath.get(1);
 
-        if ((preEdge = allEdges.get(pre.hash+cur.hash)) == null)
+        if ((preEdge = allEdges.get(pre.hash + cur.hash)) == null)
             preEdge = allEdges.get(cur.hash + pre.hash);
         if (preEdge == null) {
             System.err.println("given two tower vertices, Torch cannot find the edge.");
             throw new IllegalStateException();
         }
 
-        if (retEdges.size() == 0 || retEdges.get(retEdges.size()-1) != preEdge)
-        retEdges.add(preEdge);
+        if (retEdges.size() == 0 || retEdges.get(retEdges.size() - 1) != preEdge)
+            retEdges.add(preEdge);
 
-        for (int i = 1; i < curShortestPath.size(); i++){
+        for (int i = 1; i < curShortestPath.size(); i++) {
             cur = curShortestPath.get(i);
 
-            if ((curEdge = allEdges.get(pre.hash+cur.hash)) == null)
+            if ((curEdge = allEdges.get(pre.hash + cur.hash)) == null)
                 curEdge = allEdges.get(cur.hash + pre.hash);
 
             if (curEdge == null) {
@@ -358,14 +359,14 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
     }
 
     /**
-     * only include trajectory node that is either the first one, 
+     * only include trajectory node that is either the first one,
      * the last one, or not within two GPS standard deviation with each other.
-     * 
+     *
      * @param in the trajectory to be checked
      * @return filtered trajectory
      */
     private Trajectory<TrajEntry> filterEntries(Trajectory<? extends TrajEntry> in) {
-        Trajectory<TrajEntry> ret = new Trajectory<>(in.id,in.hasTime);
+        Trajectory<TrajEntry> ret = new Trajectory<>(in.id, in.hasTime);
         TrajEntry prevEntry = null;
         int last = in.size() - 1;
 
@@ -389,6 +390,7 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
 
         /**
          * standard deviation of GPS device
+         *
          * @see com.graphhopper.matching.MapMatching
          */
         final double SIGMA = 50;

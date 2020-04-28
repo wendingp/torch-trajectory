@@ -14,7 +14,7 @@ public interface Query {
      *
      * @param param A SearchWindow object indicates the range to search on.
      * @return A list of trajectories meets the specific query.txt requirement.
-     * @throws IllegalStateException if the passed object type is not expected for an particular query.txt, exception will be thrown.
+     * @throws IllegalStateException if not expected the passed object type for an particular query.txt, exception will be thrown.
      */
     QueryResult execute(Object param);
 
@@ -39,6 +39,7 @@ public interface Query {
 
     /**
      * @param idx
+     * @throws IllegalArgumentException if different idx type
      */
     void updateIdx(Index idx);
 }

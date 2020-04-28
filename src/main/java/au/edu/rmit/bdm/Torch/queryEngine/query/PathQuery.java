@@ -23,7 +23,7 @@ class PathQuery extends QueryImpl {
     private NameEdgeIdLookup lookup;
     private boolean isByStName;
 
-    PathQuery(PathQueryIndex index, Mapper mapper, TrajectoryResolver resolver){
+    PathQuery(PathQueryIndex index, Mapper mapper, TrajectoryResolver resolver) {
         super(mapper, resolver);
         this.index = index;
         lookup = new NameEdgeIdLookup(resolver.setting);
@@ -31,37 +31,38 @@ class PathQuery extends QueryImpl {
 
     @Override
     public QueryResult execute(Object _isStrict) {
-        if (mapped == null) throw new IllegalStateException("please invoke prepare(List<T> raw) first");
-        if (!(_isStrict instanceof Boolean))
-            throw new IllegalStateException("parameter passed to PathQuery should be of type SearchWindow, " +
-                "which indicates top k results to return");
+        if (mapped == null) {
+            throw new IllegalStateException("please invoke prepare(List<T> raw) first");
+        }
+        if (!(_isStrict instanceof Boolean)) {
+            throw new IllegalArgumentException("parameter passed to PathQuery should be of type SearchWindow, " +
+                    "which indicates top k results to return");
+        }
         boolean isStrictPath = (Boolean) _isStrict;
 
         List<LightEdge> queryEdges = LightEdge.copy(mapped.edges);
-
         List<String> trajIds = isStrictPath ? index.findByStrictPath(queryEdges) : index.findByPath(queryEdges);
         logger.info("trajectory ids found: {}", trajIds);
-        return isByStName ?
-                resolver.resolve(isStrictPath ? "SPQ" : Torch.QueryType.PathQ, trajIds, null, mapped)
-        : resolver.resolve(isStrictPath ? "SPQ" : Torch.QueryType.PathQ, trajIds, raw, mapped);
+        return resolver.resolve(isStrictPath ? "SPQ" : Torch.QueryType.PathQ, trajIds, isByStName ? null : raw, mapped);
     }
 
     @Override
     public void updateIdx(Index idx) {
-        if (!(idx instanceof PathQueryIndex))
-            throw new IllegalStateException("the index do not support pathQuery");
+        if (!(idx instanceof PathQueryIndex)) {
+            throw new IllegalArgumentException("the index do not support pathQuery");
+        }
 
         index = (PathQueryIndex) idx;
     }
 
     @Override
     public boolean prepare(List<? extends TrajEntry> raw) {
-        this.raw = (List<TrajEntry>)raw;
+        this.raw = (List<TrajEntry>) raw;
         Trajectory<TrajEntry> t = new Trajectory<>();
         t.addAll(raw);
 
         try {
-            mapped = (Trajectory<TrajEntry>)(Object)mapper.match(t);
+            mapped = (Trajectory<TrajEntry>) (Object) mapper.match(t);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -71,14 +72,15 @@ class PathQuery extends QueryImpl {
     }
 
     @Override
-    public boolean prepare(String streetName){
+    public boolean prepare(String streetName) {
         int[] ids = lookup.get(streetName);
         if (ids.length == 0) return false;
 
         mapped = new Trajectory<>();
         List<TorEdge> l = new LinkedList<>();
-        for (int id : ids)
-            l.add(new TorEdge(id, null,null, 0.));
+        for (int id : ids) {
+            l.add(new TorEdge(id, null, null, 0.));
+        }
         logger.debug("edges on street {}: {}", streetName, Arrays.toString(ids));
         mapped.edges = l;
         isByStName = true;

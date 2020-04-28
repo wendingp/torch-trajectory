@@ -31,12 +31,12 @@ public class DBManager {
         db.buildFromFile(setting.TRAJECTORY_VERTEX_TABLE, setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH_PARTIAL, true);
     }
 
-    public void buildTable(String tableName, boolean override){
+    public void buildTable(String tableName, boolean override) {
         // SQL statement for creating a new table
         String sql;
         if (override) {
 
-            sql = "DROP TABLE IF EXISTS '" + tableName+"';";
+            sql = "DROP TABLE IF EXISTS '" + tableName + "';";
             try {
                 Statement stmt = conn.createStatement();
                 stmt.executeUpdate(sql);
@@ -69,14 +69,14 @@ public class DBManager {
         buildTable(tableName, override);
 
         //insert all records
-        try(FileReader fr = new FileReader(path2file);
-            BufferedReader reader = new BufferedReader(fr)){
+        try (FileReader fr = new FileReader(path2file);
+             BufferedReader reader = new BufferedReader(fr)) {
 
             String line;
             int counter = 0;
-            while((line = reader.readLine())!=null) {
-                if (counter++ %20000 == 0)
-                    logger.info("has insert "+counter+" records into db");
+            while ((line = reader.readLine()) != null) {
+                if (counter++ % 20000 == 0)
+                    logger.info("has insert " + counter + " records into db");
                 String[] tokens = line.split("\t");
                 String id = tokens[0];
                 String content = tokens[1];
@@ -84,30 +84,30 @@ public class DBManager {
                 insert(tableName, Integer.parseInt(id), content);
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.error(e.getMessage());
-            logger.error("cannot find "+path2file);
+            logger.error("cannot find " + path2file);
             System.exit(-1);
         }
 
         return this;
     }
 
-    public void insert(String tableName, Integer id, String content){
+    public void insert(String tableName, Integer id, String content) {
         connect();
 
-        String sql = "INSERT INTO " + tableName + "(id,content) VALUES("+id+",'"+content+"')";
+        String sql = "INSERT INTO " + tableName + "(id,content) VALUES(" + id + ",'" + content + "')";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
             logger.error(e.getMessage());
-            logger.error("cannot insert record: id={}, content:{}"+id, content);
+            logger.error("cannot insert record: id={}, content:{}" + id, content);
             System.exit(-1);
         }
     }
 
-    public void insert(String tableName, String name, String content){
+    public void insert(String tableName, String name, String content) {
         connect();
 
         String sql = "INSERT INTO " + tableName + "(name,content) VALUES(?, ?)";
@@ -118,11 +118,11 @@ public class DBManager {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage());
-            logger.error("cannot insert record: id={}, content:{}"+name, content);
+            logger.error("cannot insert record: id={}, content:{}" + name, content);
         }
     }
 
-    public DBManager connect(){
+    public DBManager connect() {
         if (conn != null) return this;
         FileUtil.ensureExistence(setting.DB_URL.split(":")[2]);
         try {
@@ -137,8 +137,7 @@ public class DBManager {
         return this;
     }
 
-    public void closeConn(){
-
+    public void closeConn() {
         try {
             if (conn != null) {
                 conn.close();
@@ -158,31 +157,27 @@ public class DBManager {
 //    }
 
     public String get(String table, int key) {
-        return get(table,String.valueOf(key));
+        return get(table, String.valueOf(key));
     }
 
     public String get(String table, String val) {
-        if (conn == null) throw new IllegalStateException("do not have sqlite connection");
-        String attr;
-        if (table.equals(setting.EDGENAME_ID_TABLE))
-            attr = "name";
-        else
-            attr = "id";
-
-        String sql = "SELECT content from " + table + " WHERE "+attr+ " = ?";
+        if (conn == null) {
+            throw new IllegalStateException("No sqlite connection");
+        }
+        String attr = table.equals(setting.EDGENAME_ID_TABLE) ? "name" : "id";
+        String sql = "SELECT content from " + table + " WHERE " + attr + " = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             //pstmt.setString(1, attr);
             pstmt.setString(1, val);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.isClosed())
+            if (rs.isClosed()) {
                 return null;
-
+            }
             String ret = rs.getString(1);
             rs.close();
             return ret;
         } catch (SQLException e) {
             throw new IllegalStateException(e.getMessage());
-
         }
     }
 }

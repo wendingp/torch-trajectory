@@ -9,11 +9,6 @@ import java.util.Set;
  * For internal use.
  */
 public class QueryProperties {
-
-    public QueryProperties() {
-        init();
-    }
-
     public String similarityMeasure;
     public String preferedIndex;
     public boolean useRaw;
@@ -22,6 +17,10 @@ public class QueryProperties {
     public String baseDir = "Torch";
     public String uriPrefix = "";
     public boolean isNantong = false;
+
+    public QueryProperties() {
+        init();
+    }
 
     public QueryProperties(QueryProperties properties) {
         init();
@@ -42,7 +41,7 @@ public class QueryProperties {
         }
     }
 
-    public QueryProperties init() {
+    private void init() {
         similarityMeasure = Torch.Algorithms.DTW;
         preferedIndex = Torch.Index.EDGE_INVERTED_INDEX;
         baseDir = "Torch";
@@ -51,6 +50,5 @@ public class QueryProperties {
         resolveAll = true;
         queryUsed = new HashSet<>();
         isNantong = false;
-        return this;
     }
 }

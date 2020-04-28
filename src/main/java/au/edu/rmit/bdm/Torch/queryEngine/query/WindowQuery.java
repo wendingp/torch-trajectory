@@ -20,9 +20,8 @@ class WindowQuery extends QueryImpl {
     @Override
     public QueryResult execute(Object windowRange) {
         if (!(windowRange instanceof SearchWindow))
-            throw new IllegalStateException(
-                    "parameter passed to windowQuery should be of type SearchWindow, " +
-                            "which indicates the range to search within");
+            throw new IllegalArgumentException("parameter passed to windowQuery should be of type SearchWindow, " +
+                    "which indicates the range to search within");
 
         SearchWindow window = (SearchWindow) windowRange;
         List<String> trajIds = index.findInRange(window);
@@ -36,9 +35,9 @@ class WindowQuery extends QueryImpl {
 
     @Override
     public void updateIdx(Index idx) {
-        if (!(idx instanceof WindowQueryIndex))
-            throw new IllegalStateException("the index do not support windowQuery");
-
+        if (!(idx instanceof WindowQueryIndex)) {
+            throw new IllegalArgumentException("the index do not support windowQuery");
+        }
         index = (WindowQueryIndex) idx;
     }
 }

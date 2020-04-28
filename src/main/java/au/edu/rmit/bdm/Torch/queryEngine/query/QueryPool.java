@@ -194,7 +194,7 @@ public class QueryPool extends HashMap<String, Query> {
                 index = LEVI;
                 break;
             default:
-                throw new IllegalStateException("please lookup Torch.Index for currently supported index type");
+                throw new IllegalArgumentException("please lookup Torch.Index for currently supported index type");
         }
         return index;
     }
