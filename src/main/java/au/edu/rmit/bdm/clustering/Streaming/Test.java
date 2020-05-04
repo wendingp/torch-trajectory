@@ -26,7 +26,7 @@ public class Test {
         String vertexLine;
         while ((vertexLine = vertexReader.readLine()) != null) {
 
-            String temp[] = vertexLine.split("\t");
+            String[] temp = vertexLine.split("\t");
             String carId = temp[0];
             String[] vertexTK = temp[1].split(",");
 
@@ -64,7 +64,7 @@ public class Test {
         String vertexLine, timeLine;
         while ((vertexLine = vertexReader.readLine()) != null) {
             timeLine = timeReader.readLine();
-            String temp[] = vertexLine.split("\t");
+            String[] temp = vertexLine.split("\t");
             int carId = Integer.valueOf(temp[0]);
             String[] vertexTK = temp[1].split(",");
             String[] timeTK = timeLine.split("\t")[1].split(",");

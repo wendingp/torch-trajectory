@@ -16,18 +16,18 @@ public class mapv {
                                            ArrayList<Integer> clusterIDs, String output) {
         write(output, "geometry\n");
         for (Integer clusterID : clusterIDs) {
-            String content = "\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [";
+            StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
             int[] cluster = map.get(clusterID);
             // System.out.println(Arrays.toString(cluster));
             for (int edge_i = 0; edge_i < cluster.length; edge_i++) {
                 String single_edge = edgeInfo.get(cluster[edge_i]);
                 String[] abc = single_edge.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
-                    content += "[" + abc[i + abc.length / 2] + "," + abc[i] + "],";
+                    content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
                 }
             }
-            content = content.substring(0, content.length() - 1);
-            content += "]}\"";
+            content = new StringBuilder(content.substring(0, content.length() - 1));
+            content.append("]}\"");
             write(output, content + "\n");
         }
     }
@@ -43,13 +43,13 @@ public class mapv {
             int[] cluster = clusterIDs.get(clust_i);
             for (int edge_i = 0; edge_i < cluster.length; edge_i++) {
                 String single_edge = edgeInfo.get(cluster[edge_i]);
-                String content = "\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [";
+                StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
                 String[] abc = single_edge.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
-                    content += "[" + abc[i + abc.length / 2] + "," + abc[i] + "],";
+                    content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
                 }
-                content = content.substring(0, content.length() - 1);
-                content += "]}\"";
+                content = new StringBuilder(content.substring(0, content.length() - 1));
+                content.append("]}\"");
                 write(output, content + "\n");
             }
         }
@@ -65,14 +65,14 @@ public class mapv {
             int[] cluster = map.get(clusterIDs.get(clust_i));
             // System.out.println(Arrays.toString(cluster));
             for (int edge_i = 0; edge_i < cluster.length; edge_i++) {
-                String content = "\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [";
+                StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
                 String single_edge = edgeInfo.get(cluster[edge_i]);
                 String[] abc = single_edge.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
-                    content += "[" + abc[i + abc.length / 2] + "," + abc[i] + "],";
+                    content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
                 }
-                content = content.substring(0, content.length() - 1);
-                content += "]}\"";
+                content = new StringBuilder(content.substring(0, content.length() - 1));
+                content.append("]}\"");
                 write(output, content + "\n");
             }
         }
@@ -85,14 +85,14 @@ public class mapv {
                                          ArrayList<Integer> edgeIDs, String output) {
         write(output, "geometry\n");
         for (int edge_i = 0; edge_i < edgeIDs.size(); edge_i++) {
-            String content = "\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [";
+            StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
             String single_edge = edgeInfo.get(edgeIDs.get(edge_i));
             String[] abc = single_edge.split(",");
             for (int i = 0; i < abc.length / 2; i++) {
-                content += "[" + abc[i + abc.length / 2] + "," + abc[i] + "],";
+                content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
             }
-            content = content.substring(0, content.length() - 1);
-            content += "]}\"";
+            content = new StringBuilder(content.substring(0, content.length() - 1));
+            content.append("]}\"");
             write(output, content + "\n");
         }
     }
@@ -106,16 +106,16 @@ public class mapv {
         try {
             in = new Scanner(new BufferedReader(new FileReader(edge)));
             while (in.hasNextLine()) {
-                String content = "\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [";
+                StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
                 String str = in.nextLine();
                 String strr = str.trim();
                 String[] abc = strr.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
-                    content += "[" + abc[i + abc.length / 2] + "," + abc[i] + "]";
+                    content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("]");
                     if (i < abc.length / 2 - 1)
-                        content += ",";
+                        content.append(",");
                 }
-                content += "]}\"";
+                content.append("]}\"");
                 write(output, content + "\n");
             }
         } catch (FileNotFoundException e) {

@@ -181,7 +181,7 @@ public class StreamKpath extends Yinyang {
                     Map<Integer, ArrayList<Integer>> dataset_remove = new HashMap<>();
                     int expiredtime = cartime - slidingwindow;
                     for (streamEdge edgeid1 : invertedIndex) {
-                        edgeid1.removeExprired(expiredtime, formerexpired, dataset_remove);
+                        edgeid1.removeExpired(expiredtime, formerexpired, dataset_remove);
                     }
                     formerexpired = expiredtime;
                     readingdata = true;

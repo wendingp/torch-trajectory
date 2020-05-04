@@ -1,6 +1,5 @@
 package au.edu.rmit.bdm.clustering.Streaming;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 

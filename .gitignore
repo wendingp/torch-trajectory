@@ -15,3 +15,4 @@ porto/
 .project
 .settings
 .classpath
+/.vscode/settings.json

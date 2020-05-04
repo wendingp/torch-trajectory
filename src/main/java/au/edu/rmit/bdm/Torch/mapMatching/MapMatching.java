@@ -176,7 +176,7 @@ public class MapMatching {
         /**
          * @param range This param will be used if the algorithm used is Torch.Algorithms.HMM_PRECOMPUTED.
          *              It tells the range to compute shortest path information between src and its near points.
-         * @see TorDijkstra#run(TowerVertex)
+         * @see TorDijkstra run(TowerVertex)
          */
         public Builder setPrecomputationRange(int range) {
             props.preComputationRange = range;

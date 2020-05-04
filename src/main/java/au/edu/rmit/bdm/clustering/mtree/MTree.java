@@ -59,7 +59,7 @@ public class MTree<DATA> {
     private static class SplitNodeReplacement extends Exception {
         // A subclass of Throwable cannot be generic.  :-(
         // So, we have newNodes declared as Object[] instead of Node[].
-        private Object newNodes[];
+        private Object[] newNodes;
 
         private SplitNodeReplacement(Object... newNodes) {
             this.newNodes = newNodes;
@@ -134,14 +134,14 @@ public class MTree<DATA> {
      * the M-tree is too slow to build, we write it to the files after the first construction
      */
     public void writeMtreetoFile(Node node, int level, int fartherid, String folder) {
-        String filename = folder + "/" + Integer.toString(level) + ".mtree";
-        String content = node.radius + ":" + fartherid + ";" + node.distanceToParent + ";";
+        String filename = folder + "/" + level + ".mtree";
+        StringBuilder content = new StringBuilder(node.radius + ":" + fartherid + ";" + node.distanceToParent + ";");
         if (node instanceof MTree.LeafNode) {//for the objects
             System.out.println(node.radius);
             for (DATA centerdata : node.children.keySet()) {
                 IndexItem child = node.children.get(centerdata);
                 int idx = MTree.this.distanceFunction.getID(child.data);
-                content += Integer.toString(idx) + ",";
+                content.append(idx).append(",");
             }
 //			content += Arrays.toString(node.getEdgeOcc());
             Util.write(filename, content + "\n");
@@ -151,7 +151,7 @@ public class MTree<DATA> {
                 int idx = MTree.this.distanceFunction.getID(child.data);
                 Node childnode = (Node) child;
                 writeMtreetoFile(childnode, level + 1, idx, folder);
-                content += Integer.toString(idx) + ","; //write to the internal node file
+                content.append(idx).append(","); //write to the internal node file
             }
             Util.write(filename, content + "\n");
         }
@@ -317,13 +317,7 @@ public class MTree<DATA> {
 
             @Override
             public int compareTo(ItemWithDistances<U> that) {//the comparison for the queue
-                if (this.minDistance < that.minDistance) {
-                    return -1;
-                } else if (this.minDistance > that.minDistance) {
-                    return +1;
-                } else {
-                    return 0;
-                }
+                return Double.compare(this.minDistance, that.minDistance);
             }
         }
 
@@ -351,7 +345,7 @@ public class MTree<DATA> {
                 System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis);
                 if (timeToEnd()) {
                     System.out.println("\nIteration stops now, the final centers are:");
-                    runrecord.setIterationtimes(t + 1);
+                    runRecord.setIterationtimes(t + 1);
                     break;//convergence
                 }
             }
@@ -374,7 +368,7 @@ public class MTree<DATA> {
             int min_length_id = 0;
             System.out.println(centoridData.size());
             for (int j = 0; j < k; j++) {
-                Set<Integer> candilist = CENTERS.get(j).creatCandidateListNoDatamap(edgeIndex, centoridData.get(j));//generate the candidate list
+                Set<Integer> candilist = CENTERS.get(j).creatCandidateListNoDataMap(edgeIndex, centoridData.get(j));//generate the candidate list
                 candidateofAllclusters.addAll(candilist);// merge it to a single list
                 int length = centoridData.get(j).length;
                 if (length < minlength) {// get the minimum length
@@ -424,13 +418,13 @@ public class MTree<DATA> {
                         }
                         candiList.get(minId).add(child);//add the trajectory into the list of cluster
                         ClusterPath aClusterPath = CENTERS.get(minId);
-                        aClusterPath.updateHistorgramGuava(data, 0);//histogram used for
+                        aClusterPath.updateHistogramGuava(data, 0);//histogram used for
                     } else {// the node
                         Node childNode = (Node) child;//if this node cannot be pruned, we will further enqueue this to the queue with the bounds
                         if (assignNode(childNode, centoridData, data, child.radius)) {//pruned
                             candiList.get(minId).add(child);
                             ClusterPath aClusterPath = CENTERS.get(minId);
-                            aClusterPath.updateHistorgramGuava(childNode.edgeOcc, childNode.lengthOcc);
+                            aClusterPath.updateHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
                         } else {
 
                             pendingQueue.add(new ItemWithDistances<Node>(childNode, childNode.bounds, minUpperBound));
@@ -439,13 +433,13 @@ public class MTree<DATA> {
                 }
             }
             long time2 = System.nanoTime();
-            runrecord.addAssignmentTime((time2 - time1) / 1000000000.0);
+            runRecord.addAssignmentTime((time2 - time1) / 1000000000.0);
         }
 
         /*
          * the data needs to be sorted before the intersection
          */
-        public int Intersection(int arr1[], int arr2[], int m, int n) {
+        public int Intersection(int[] arr1, int[] arr2, int m, int n) {
             int i = 0, j = 0;
             int dist = 0;
             while (i < m && j < n) {
@@ -488,10 +482,7 @@ public class MTree<DATA> {
                 }
                 i++;
             }
-            if (secondsmallest >= minUpperBound)
-                return true;
-            else
-                return false;
+            return secondsmallest >= minUpperBound;
         }
 
         /*
@@ -523,7 +514,7 @@ public class MTree<DATA> {
                 candiList.get(idx).removeAll(idxs);
             }
             long Time2 = System.nanoTime();
-            runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
         }
 
         /*
@@ -541,10 +532,10 @@ public class MTree<DATA> {
             for (int j = 0; j < k; j++) {
                 long startTime1 = System.nanoTime();
                 int[] clustra = centoridData.get(j);
-                Set<Integer> candilist = CENTERS.get(j).creatCandidateListNoDatamap(edgeIndex, clustra);//generate the candidate list
+                Set<Integer> candilist = CENTERS.get(j).creatCandidateListNoDataMap(edgeIndex, clustra);//generate the candidate list
                 Collections.addAll(candidateofAllclusters, candilist.toArray(new Integer[0]));
                 long endtime1 = System.nanoTime();
-                runrecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
+                runRecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
                 clustData.put(j, clustra);
                 if (clustra.length < centerMinlength) {// get the minimum length
                     centerMinlength = clustra.length;
@@ -643,7 +634,7 @@ public class MTree<DATA> {
                                 idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
                                 accumulateHistogramGuava(tra, idx, newCenterId, centerID);    // update the histogram directly
                                 long Time2 = System.nanoTime();
-                                runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+                                runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
                             }
                         } else {
                             Node childNode = (Node) child;//if this node cannot be pruned, we will further enqueue this to the queue with the bounds
@@ -666,8 +657,8 @@ public class MTree<DATA> {
                                     idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
 
                                     ClusterPath aClusterPath = CENTERS.get(minId);
-                                    bClusterPath.removeHistorgramGuava(childNode.edgeOcc, childNode.lengthOcc);
-                                    aClusterPath.updateHistorgramGuava(childNode.edgeOcc, childNode.lengthOcc);
+                                    bClusterPath.removeHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
+                                    aClusterPath.updateHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
                                 }
                             } else {
                                 ArrayList<IndexItem> idxlist;
@@ -677,7 +668,7 @@ public class MTree<DATA> {
                                     idxlist = new ArrayList<IndexItem>();
                                 idxlist.add(child);
                                 idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
-                                bClusterPath.removeHistorgramGuava(childNode.edgeOcc, childNode.lengthOcc);//remove the histogram from original histogram
+                                bClusterPath.removeHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);//remove the histogram from original histogram
                                 pendingQueue.add(new ItemWithDistances<Node>(childNode, childNode.bounds, minUpperBound));
                             }
                         }
@@ -687,11 +678,11 @@ public class MTree<DATA> {
             long Time1 = System.nanoTime();
             updateCentersNew(idxNeedsIn, idxNeedsOut);//add to the new
             long Time2 = System.nanoTime();
-            runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
             assignmentNormal(centoridData);//assign the nodes in the pending queue using the same method
             System.out.println(movedtrajectory);
             long time2 = System.nanoTime();
-            runrecord.addAssignmentTime((time2 - time1) / 1000000000.0);
+            runRecord.addAssignmentTime((time2 - time1) / 1000000000.0);
         }
 
         /*
@@ -721,7 +712,7 @@ public class MTree<DATA> {
                 overallDis += CENTERS.get(i).getSumDistance();
             }
             long Time2 = System.nanoTime();
-            runrecord.addRefinementTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addRefinementTime((Time2 - Time1) / 1000000000.0);
             return overallDis;
         }
 
@@ -764,13 +755,7 @@ public class MTree<DATA> {
 
                 @Override
                 public int compareTo(ItemWithDistances<U> that) {
-                    if (this.minDistance < that.minDistance) {
-                        return -1;
-                    } else if (this.minDistance > that.minDistance) {
-                        return +1;
-                    } else {
-                        return 0;
-                    }
+                    return Double.compare(this.minDistance, that.minDistance);
                 }
             }
 
@@ -834,7 +819,7 @@ public class MTree<DATA> {
             private void fetchNext() {
                 assert !finished;
 
-                if (finished || yieldedCount >= Query.this.limit) {
+                if (yieldedCount >= Query.this.limit) {
                     finished = true;
                     return;
                 }
@@ -855,13 +840,11 @@ public class MTree<DATA> {
                             double childMinDistance = Math.max(childDistance - child.radius, 0.0);
                             if (childMinDistance <= Query.this.range) {
                                 if (child instanceof MTree.Entry) {
-                                    @SuppressWarnings("unchecked")
                                     Entry entry = (Entry) child;
-                                    nearestQueue.add(new ItemWithDistances<Entry>(entry, childDistance, childMinDistance));
+                                    nearestQueue.add(new ItemWithDistances<>(entry, childDistance, childMinDistance));
                                 } else {
-                                    @SuppressWarnings("unchecked")
                                     Node childNode = (Node) child;
-                                    pendingQueue.add(new ItemWithDistances<Node>(childNode, childDistance, childMinDistance));
+                                    pendingQueue.add(new ItemWithDistances<>(childNode, childDistance, childMinDistance));
                                 }
                             }
                         }
@@ -888,7 +871,6 @@ public class MTree<DATA> {
                         return true;
                     }
                 }
-
                 return false;
             }
 
@@ -1354,8 +1336,6 @@ public class MTree<DATA> {
 
     }
 
-    ;
-
 
     private class NonRootNodeTrait extends NodeTrait implements Rootness {
 
@@ -1374,8 +1354,6 @@ public class MTree<DATA> {
             assert thisNode.distanceToParent >= 0;
         }
     }
-
-    ;
 
 
     private class LeafNodeTrait extends NodeTrait implements Leafness<DATA> {
@@ -1432,7 +1410,6 @@ public class MTree<DATA> {
             CandidateChild nearestDistance = new CandidateChild(null, -1.0, Double.POSITIVE_INFINITY);
 
             for (IndexItem item : thisNode.children.values()) {
-                @SuppressWarnings("unchecked")
                 Node child = (Node) item;
                 double childDistance = thisNode.mtree().distanceFunction.calculate(child.data, data);
                 if (childDistance > child.radius) {
@@ -1471,7 +1448,6 @@ public class MTree<DATA> {
 
 
         public void addChild(IndexItem newChild_, double distance) {
-            @SuppressWarnings("unchecked")
             Node newChild = (Node) newChild_;
 
             class ChildWithDistance {
@@ -1493,7 +1469,6 @@ public class MTree<DATA> {
                 newChild = cwd.child;
                 distance = cwd.distance;
                 if (thisNode.children.containsKey(newChild.data)) {
-                    @SuppressWarnings("unchecked")
                     Node existingChild = (Node) thisNode.children.get(newChild.data);
                     assert existingChild.data.equals(newChild.data);
 
@@ -1531,7 +1506,6 @@ public class MTree<DATA> {
 
         public void doRemoveData(DATA data, double distance) throws DataNotFound {
             for (IndexItem childItem : thisNode.children.values()) {
-                @SuppressWarnings("unchecked")
                 Node child = (Node) childItem;
                 if (Math.abs(distance - child.distanceToParent) <= child.radius) {
                     double distanceToChild = thisNode.mtree().distanceFunction.calculate(data, child.data);
@@ -1567,7 +1541,6 @@ public class MTree<DATA> {
             double distanceNearestMergeCandidate = Double.POSITIVE_INFINITY;
 
             for (IndexItem child : thisNode.children.values()) {
-                @SuppressWarnings("unchecked")
                 Node anotherChild = (Node) child;
                 if (anotherChild == theChild) continue;
 
@@ -1658,7 +1631,6 @@ public class MTree<DATA> {
                 super.removeData(data, distance);
             } catch (NodeUnderCapacity e) {
                 // Promote the only child to root
-                @SuppressWarnings("unchecked")
                 Node theChild = (Node) (children.values().iterator().next());
                 Node newRoot;
                 if (theChild instanceof MTree.InternalNode) {
@@ -1696,8 +1668,6 @@ public class MTree<DATA> {
             super(data, new NonRootNodeTrait(), new NonLeafNodeTrait());
         }
     }
-
-    ;
 
 
     public class LeafNode extends Node {

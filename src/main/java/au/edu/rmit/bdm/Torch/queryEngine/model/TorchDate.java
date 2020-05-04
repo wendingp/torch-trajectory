@@ -77,15 +77,13 @@ public class TorchDate implements Comparable<TorchDate> {
         String[] ymd = date[0].split("-");
         String[] hms = date[1].split(":");
 
-        setYear(Integer.valueOf(ymd[0]));
-        setMonth(Integer.valueOf(ymd[1]));
-        setDay(Integer.valueOf(ymd[2]));
+        setYear(Integer.parseInt(ymd[0]));
+        setMonth(Integer.parseInt(ymd[1]));
+        setDay(Integer.parseInt(ymd[2]));
 
-        setHours(Integer.valueOf(hms[0]));
-        setMinutes(Integer.valueOf(hms[1]));
-        setSeconds(Integer.valueOf(hms[2]));
-
-
+        setHours(Integer.parseInt(hms[0]));
+        setMinutes(Integer.parseInt(hms[1]));
+        setSeconds(Integer.parseInt(hms[2]));
         return this;
     }
 

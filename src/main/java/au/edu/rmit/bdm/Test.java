@@ -182,7 +182,7 @@ public class Test {
 
         List<String> edges = new ArrayList<>(10000);
         String line;
-        String raw[];
+        String[] raw;
         double dist;
         while ((line = edgeReader.readLine()) != null) {
             raw = rawReader.readLine().split(";");

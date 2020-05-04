@@ -1,12 +1,12 @@
 package au.edu.rmit.bdm.clustering.Streaming;
 
 public class Tuple {
-    public final int timestemp;
+    public final int timestamp;
     public final int carId;
     public final int edgeId;
 
-    public Tuple(int timestemp, int carId, int edgeId) {
-        this.timestemp = timestemp;
+    public Tuple(int timestamp, int carId, int edgeId) {
+        this.timestamp = timestamp;
         this.carId = carId;
         this.edgeId = edgeId;
     }
@@ -18,6 +18,6 @@ public class Tuple {
 
     @Override
     public String toString() {
-        return timestemp + "";
+        return timestamp + "";
     }
 }

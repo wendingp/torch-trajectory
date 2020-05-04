@@ -36,7 +36,7 @@ public interface SplitFunction<DATA> {
      *
      * @param <DATA> The type of the data objects.
      */
-    public static class SplitResult<DATA> {
+    class SplitResult<DATA> {
 
         /**
          * A pair of promoted data objects.

@@ -31,7 +31,7 @@ public class Util {
     }
 
     // Returns element closest to target in arr[]
-    public static int findClosest(int arr[], int target) {
+    public static int findClosest(int[] arr, int target) {
         int n = arr.length;
 
         // Corner cases

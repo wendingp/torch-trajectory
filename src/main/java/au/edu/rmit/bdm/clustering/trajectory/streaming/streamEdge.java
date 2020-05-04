@@ -8,45 +8,46 @@ import java.util.TreeMap;
  * it stores the inverted index for each edge
  */
 public class streamEdge {
-    TreeMap<Integer, ArrayList<Integer>> timeindex;//sorted timestamp, the carid list
+    TreeMap<Integer, ArrayList<Integer>> timeIndex;//sorted timestamp, the carid list
     int id;//the id of each edge
 
     public streamEdge(int id) {
         this.id = id;
-        timeindex = new TreeMap<>();
+        timeIndex = new TreeMap<>();
     }
 
     public void addCars(int cartime, int[] carsid) {
         ArrayList<Integer> traidlist;
-        if (timeindex.containsKey(cartime)) {
-            traidlist = timeindex.get(cartime);
+        if (timeIndex.containsKey(cartime)) {
+            traidlist = timeIndex.get(cartime);
         } else {
             traidlist = new ArrayList<>();
         }
-        for (int j = 0; j < carsid.length; j++) {
-            traidlist.add(Integer.valueOf(carsid[j]));
+        for (int i : carsid) {
+            traidlist.add(i);
         }
-        timeindex.put(cartime, traidlist);
+        timeIndex.put(cartime, traidlist);
     }
 
     /*
      * delete expired data which will not be used for data and index within in the sliding window
      */
-    public void removeExprired(int expiredtime, int formerexpired, Map<Integer, ArrayList<Integer>> dataset_remove) {
-        if (!timeindex.isEmpty())
-            for (int timeid : timeindex.keySet()) {
-                if (timeid < expiredtime && timeid >= formerexpired) {
-                    ArrayList<Integer> cars = timeindex.get(timeid);
-                    for (int carid : cars) {
-                        ArrayList<Integer> edgeids = null;
-                        if (dataset_remove.containsKey(carid))
-                            edgeids = dataset_remove.get(carid);
-                        else
-                            edgeids = new ArrayList<>();
-                        edgeids.add(id);
-                        dataset_remove.put(carid, edgeids);
+    public void removeExpired(int expiredtime, int formerexpired, Map<Integer, ArrayList<Integer>> dataset_remove) {
+        if (timeIndex.isEmpty()) return;
+        for (int timeId : timeIndex.keySet()) {
+            if (timeId < expiredtime && timeId >= formerexpired) {
+                ArrayList<Integer> cars = timeIndex.get(timeId);
+                for (int carId : cars) {
+                    ArrayList<Integer> edgeIds;
+                    if (dataset_remove.containsKey(carId)) {
+                        edgeIds = dataset_remove.get(carId);
+                    } else {
+                        edgeIds = new ArrayList<>();
                     }
+                    edgeIds.add(id);
+                    dataset_remove.put(carId, edgeIds);
                 }
             }
+        }
     }
 }

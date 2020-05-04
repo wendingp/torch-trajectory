@@ -9,7 +9,7 @@
 	</appender>
 
 	<logger name="au.edu.rmit.bdm">
-		<level value="DEBUG"></level>
+		<level value="DEBUG"/>
 		<appender-ref ref="consoleAppender" />
 	</logger>
 

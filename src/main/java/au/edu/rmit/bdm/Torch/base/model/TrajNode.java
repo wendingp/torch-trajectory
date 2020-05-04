@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * A trajNode models a node on a trajectory.
- * Besides GPS coordinate, each node could also carries other information such as timestep, current speed etc.
+ * Besides GPS coordinate, each node could also carries other information such as timestamp, current speed etc.
  * However, algorithm from raw trajectory nodes to graph vertices for other kind of information requires further
  * research and experiment.
  * This function is expected to be developed in future.

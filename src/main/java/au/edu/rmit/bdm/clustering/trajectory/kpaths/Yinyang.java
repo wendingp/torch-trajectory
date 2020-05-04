@@ -25,14 +25,14 @@ public class Yinyang extends Process {
     protected int indexFil = 0;
     int numCompute = 0;
 
-    public Yinyang(String datapath) {
-        super(datapath);
-        threadName = datapath;
+    public Yinyang(String dataPath) {
+        super(dataPath);
+        threadName = dataPath;
         iterationStops = true;
     }
 
-    public Yinyang(String[] datapath) {
-        super(datapath);
+    public Yinyang(String[] dataPath) {
+        super(dataPath);
     }
 
     public Yinyang(FileSetting setting, int trajNumber) {
@@ -46,7 +46,7 @@ public class Yinyang extends Process {
         while (dataOut) {//there is data still from the pool
             double nowTime = (System.nanoTime() - startTime) / 1000000000.0;
             if (nowTime >= slidingwindow) {
-                if (readingdata == true || !dataEnough)
+                if (readingdata || !dataEnough)
                     continue;
 
                 iterationStops = false;//
@@ -87,7 +87,7 @@ public class Yinyang extends Process {
 
                 initializeClustersIncrease1(k, 10);
                 //		yinyangkPath(k, folder);
-                //		runrecord.printLog();
+                //		runRecord.printLog();
                 iterationStops = false;
                 while (temp == trajectoryNumber) {//sleep 0.1s if the data not changed
                     try {
@@ -139,9 +139,9 @@ public class Yinyang extends Process {
     /*
      * update the upper bound of trajectory
      */
-    void updateUpperBound(Map<Integer, double[]> trajectoryBounds, int traid, double bestvalue) {
+    void updateUpperBound(Map<Integer, double[]> trajectoryBounds, int traid, double bestVal) {
         double[] bounds = trajectoryBounds.get(traid);
-        bounds[0] = bestvalue;
+        bounds[0] = bestVal;
         trajectoryBounds.put(traid, bounds);
     }
 
@@ -162,7 +162,6 @@ public class Yinyang extends Process {
         if (center_drift.isEmpty())//if it is the first time to compute
             for (int i = 0; i < k; i++) {
                 int[] alist = CENTERS.get(i).getTrajectoryData();
-                ;
                 int[] blist = PRE_CENS.get(i).getTrajectoryData();
                 double dis = computeRealDistance(alist, blist, 0);
                 center_drift.put(i, dis);
@@ -188,20 +187,20 @@ public class Yinyang extends Process {
             long startTime = System.nanoTime();
             tra = datamap.get(idx);//  read the trajectory data
             long endtime = System.nanoTime();
-            runrecord.addIOTime((endtime - startTime) / 1000000000.0);
+            runRecord.addIOTime((endtime - startTime) / 1000000000.0);
         }
         numCompute++;
         long Time1 = System.nanoTime();
         double min_dist = Intersection(tra, clustra, tra.length, clustra.length);
         long Time2 = System.nanoTime();
-        runrecord.addsimiComputationTime((Time2 - Time1) / 1000000000.0);
+        runRecord.addsimiComputationTime((Time2 - Time1) / 1000000000.0);
         return min_dist;
     }
 
     /*
      * the data needs to be sorted before the intersection
      */
-    public int Intersection(int arr1[], int arr2[], int m, int n) {
+    public int Intersection(int[] arr1, int[] arr2, int m, int n) {
         int i = 0, j = 0;
         int dist = 0;
         while (i < m && j < n) {
@@ -227,9 +226,9 @@ public class Yinyang extends Process {
             tra = datamap.get(idx);// the trajectory data is read in the first time in this iteration
         }
         ClusterPath newCluster = CENTERS.get(newCenter);//update the entry in min_id
-        newCluster.updateHistorgramGuava(tra, idx);// add the new trajectory in
+        newCluster.updateHistogramGuava(tra, idx);// add the new trajectory in
         ClusterPath oldCluster = CENTERS.get(oldCenter);
-        oldCluster.removeHistorgramGuava(tra, idx);//remove the old trajectory out
+        oldCluster.removeHistogramGuava(tra, idx);//remove the old trajectory out
     }
 
 
@@ -249,7 +248,7 @@ public class Yinyang extends Process {
             newCluster.removeTrajectoryToCluster(idxs);
         }
         long Time2 = System.nanoTime();
-        runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+        runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
     }
 
     public double getMinimumLowerbound(double[] bounds, int groupNumber) {
@@ -266,7 +265,7 @@ public class Yinyang extends Process {
         long startTime1 = System.nanoTime();
         boolean indexcheck = candilist.contains(idx);
         long endtime1 = System.nanoTime();
-        runrecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
+        runRecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
         return indexcheck;
     }
 
@@ -311,7 +310,7 @@ public class Yinyang extends Process {
             Set<Integer> candilist = CENTERS.get(j).creatCandidateList(edgeIndex, datamap);//generate the candidate list
             Collections.addAll(candidateofAllclusters, candilist.toArray(new Integer[0]));
             long endtime1 = System.nanoTime();
-            runrecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
+            runRecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
             int[] clustra = CENTERS.get(j).getTrajectoryData();
 
             clustData.put(j, clustra);
@@ -352,7 +351,7 @@ public class Yinyang extends Process {
                             long startTime = System.nanoTime();
                             tra = datamap.get(idx);//  read the trajectory data
                             endtime = System.nanoTime();
-                            runrecord.addIOTime((endtime - startTime) / 1000000000.0);
+                            runRecord.addIOTime((endtime - startTime) / 1000000000.0);
                             min_dist = computeRealDistance(tra, clustra, idx);//compute the distance with new center
                         } else {// do not need to read as no overlap
                             min_dist = Math.max(tralength, clustra.length);
@@ -418,7 +417,7 @@ public class Yinyang extends Process {
                         idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
                         accumulateHistogramGuava(tra, idx, newCenterId, centerID);    // update the histogram directly
                         long Time2 = System.nanoTime();
-                        runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+                        runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
                     }
                 }
             }
@@ -427,7 +426,7 @@ public class Yinyang extends Process {
         long Time1 = System.nanoTime();
         updateCenters(idxNeedsIn, idxNeedsOut);
         long Time2 = System.nanoTime();
-        runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+        runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
     }
 
     /*
@@ -453,7 +452,7 @@ public class Yinyang extends Process {
             Set<Integer> candilist = newCluster.creatCandidateList(edgeIndex, datamap);//generate the candidate list
             for (int idx : candilist) {
                 int[] tra = datamap.get(idx);//the trajectory data is read
-                CENTERS.get(j).updateHistorgramGuava(tra, idx); //update the edge histogram using every new trajectory
+                CENTERS.get(j).updateHistogramGuava(tra, idx); //update the edge histogram using every new trajectory
             }
             newCluster.mergeTrajectoryToCluster(new ArrayList<Integer>(candilist));
             assignedTra.addAll(candilist);//already assigned
@@ -470,7 +469,7 @@ public class Yinyang extends Process {
             ArrayList<Integer> cenlist = lengthCluster.get(lengthid);
             int randomid = rand.nextInt(cenlist.size());
             int min_id = cenlist.get(randomid);
-            CENTERS.get(min_id).updateHistorgramGuava(tra, idx); //update the edge histogram using every new trajectory
+            CENTERS.get(min_id).updateHistogramGuava(tra, idx); //update the edge histogram using every new trajectory
             CENTERS.get(min_id).addTrajectoryToCluster(idx);
         }
     }
@@ -548,7 +547,7 @@ public class Yinyang extends Process {
                     accumulateHistogramGuava(tra, idx, newCenterId, centerID);    // update the histogram directly
                 }
                 long Time2 = System.nanoTime();
-                runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+                runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
                 updateUpperBound(trajectoryBounds, idx, min_dist);
             }
         }
@@ -577,7 +576,7 @@ public class Yinyang extends Process {
             //		assignAccumulateInvertedindex(k, groupNumber);	// Step 3.2, 3.3: assign to each group
             assignByTriangleFeaturesGroup(k, groupNumber);
             long endtime = System.nanoTime();
-            runrecord.addAssignmentTime((endtime - startTime1) / 1000000000.0);
+            runRecord.addAssignmentTime((endtime - startTime1) / 1000000000.0);
             System.out.println("assign time cost: " + (endtime - startTime1) / 1000000000.0 + "s");
             long startTime = System.nanoTime();
             double overallDis = 0;
@@ -586,17 +585,17 @@ public class Yinyang extends Process {
                 if (graphPathExtraction) {
                     drfit = CENTERS.get(i).extractNewPathFrequency(forwardGraph, backwardGraph, i);// test the optimal
                 } else {
-                    drfit = CENTERS.get(i).extractNewPathGuava(datamap, runrecord, traLength, trajectoryHistogram); //update the centroid of each cluster
+                    drfit = CENTERS.get(i).extractNewPathGuava(datamap, runRecord, traLength, trajectoryHistogram); //update the centroid of each cluster
                 }
                 center_drift.put(i, drfit);
                 overallDis += CENTERS.get(i).getSumDistance();
             }
             computeDrift(k, groupNumber);// 	Step 3.1 compute the drift using PRE_CENS and CENTERS
             endtime = System.nanoTime();
-            runrecord.addRefinementTime((endtime - startTime) / 1000000000.0);
+            runRecord.addRefinementTime((endtime - startTime) / 1000000000.0);
             System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis + ", time cost: " + (endtime - startTime1) / 1000000000.0 + "s\n");
             if (timeToEnd()) {//all center does not change any more
-                runrecord.setIterationtimes(t + 1);
+                runRecord.setIterationtimes(t + 1);
                 break;//convergence
             }
         }
@@ -619,7 +618,7 @@ public class Yinyang extends Process {
             initializeClustersIncrease(k, 100);
             yinyangkPath(k, null, transformed);
 
-            runrecord.printLog();
+            runRecord.printLog();
             int[] results = new int[k];
             for (int i = 0; i < k; i++)
                 results[i] = cluster2SearchLookup.get(CENTERS.get(i).getTrajectoryID());
@@ -647,7 +646,7 @@ public class Yinyang extends Process {
             initializeClustersIncrease(k, 100);
             yinyangkPath(k, null, transformed);
 
-            runrecord.printLog();
+            runRecord.printLog();
             int[] results = new int[k];
             for (int i = 0; i < k; i++)
                 results[i] = cluster2SearchLookup.get(CENTERS.get(i).getTrajectoryID());

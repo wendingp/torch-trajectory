@@ -1,16 +1,16 @@
 package au.edu.rmit.bdm.clustering.trajectory.kpaths;
 
-import java.util.*;
-
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+
+import java.util.*;
 
 /*
  * this store the information of each cluster
  */
 public class ClusterPath {
-    protected Set<Integer> clusterTrajectory; // it stores all the idxs of trajectories
-    protected VIseries centroid; // store the centorid path
+    protected Set<Integer> clusterTrajectory; // stores all the indices of trajectories
+    protected VIseries centroid; // store the centroid path
     int iteration = 1000; // the maximum iteration times
 
     // build histogram for edges and length using hashmap and Guava
@@ -18,7 +18,7 @@ public class ClusterPath {
     protected Multiset<Integer> lengthOcc;
     protected boolean centerChanged = true;
     int minlength, maxlength;
-    int[] lengthAccu;//for the score computation
+    int[] lengthAccumulation; // for the score computation
     Map<String, Double> checkedList;//store the start, end edges, and the score
     PriorityQueue<Path> queue;
     ArrayList<Integer> sortedFrequency;
@@ -26,7 +26,7 @@ public class ClusterPath {
     int pathMinlength;
 
     protected int idx;// it stores the idx of the trajectory which is the centroid.
-    protected double sumdistance = 0; // the sum distance in this cluster.
+    protected double sumDistance = 0; // the sum distance in this cluster.
     protected Set<Integer> candidateList = new HashSet<>();//built from the inverted index
     protected int[] finalPath;
 
@@ -48,13 +48,13 @@ public class ClusterPath {
     /*
      * generate the list id of trajectory that share edge with cluster
      */
-    public Set<Integer> creatCandidateList(Map<Integer, List<Integer>> edgeIndex, Map<Integer, int[]> datamap) {
+    public Set<Integer> creatCandidateList(Map<Integer, List<Integer>> edgeIndex, Map<Integer, int[]> dataMap) {
         if (centerChanged) {//create a new list if changed, otherwise return previous to avoid rebuild
-            int[] trajectory = datamap.get(idx);
-            candidateList = new HashSet<Integer>();
-            for (int edgeid : trajectory) {
-                List<Integer> traidlist = edgeIndex.get(edgeid);
-                Collections.addAll(candidateList, traidlist.toArray(new Integer[0]));
+            int[] trajectory = dataMap.get(idx);
+            candidateList = new HashSet<>();
+            for (int edgeId : trajectory) {
+                List<Integer> trajIdList = edgeIndex.get(edgeId);
+                Collections.addAll(candidateList, trajIdList.toArray(new Integer[0]));
             }
         }
         return candidateList;
@@ -63,9 +63,9 @@ public class ClusterPath {
     /*
      * generate the list id of trajectory that share edge with cluster, or we can ignore this
      */
-    public Set<Integer> creatCandidateListNoDatamap(Map<Integer, List<Integer>> edgeIndex, int[] trajectory) {
+    public Set<Integer> creatCandidateListNoDataMap(Map<Integer, List<Integer>> edgeIndex, int[] trajectory) {
         if (centerChanged) {//create a new list if changed, otherwise return previous to avoid rebuild
-            candidateList = new HashSet<Integer>();
+            candidateList = new HashSet<>();
             for (int edgeid : trajectory) {
                 List<Integer> traidlist = edgeIndex.get(edgeid);
                 Collections.addAll(candidateList, traidlist.toArray(new Integer[0]));
@@ -103,15 +103,13 @@ public class ClusterPath {
      * remove the trajectory into the clusters
      */
     void removeTrajectoryToCluster(int value) {
-        if (clusterTrajectory.contains(value)) {
-            clusterTrajectory.remove(new Integer(value));
-        }
+        clusterTrajectory.remove(value);
     }
 
     /*
-     * we will try to use the data sketches instead of using hashmap;
+     * TODO: we will try to use the data sketches instead of using hashmap
      */
-    public void updateHistorgramGuava(int[] tra, int idx) {
+    public void updateHistogramGuava(int[] tra, int idx) {
         lengthOcc.add(tra.length);
         for (int edge : tra) {
             edgeOcc.add(edge);
@@ -121,7 +119,7 @@ public class ClusterPath {
     /*
      * we will try to use the data sketches instead of using hashmap;
      */
-    void removeHistorgramGuava(int[] tra, int idx) {
+    void removeHistogramGuava(int[] tra, int idx) {
         lengthOcc.remove(tra.length, 1);
         for (int edge : tra) {
             edgeOcc.remove(edge, 1);
@@ -131,7 +129,7 @@ public class ClusterPath {
     /*
      * we will try to use the data sketches instead of using hashmap;
      */
-    public void updateHistorgramGuava(Multiset<Integer> edgeH, Multiset<Integer> lengthH) {
+    public void updateHistogramGuava(Multiset<Integer> edgeH, Multiset<Integer> lengthH) {
         edgeOcc.addAll(edgeH);
         lengthOcc.addAll(lengthH);
     }
@@ -139,7 +137,7 @@ public class ClusterPath {
     /*
      * we will try to use the data sketches instead of using hashmap;
      */
-    public void removeHistorgramGuava(Multiset<Integer> edgeH, Multiset<Integer> lengthH) {
+    public void removeHistogramGuava(Multiset<Integer> edgeH, Multiset<Integer> lengthH) {
         edgeOcc.removeAll(edgeH);
         lengthOcc.removeAll(lengthH);
     }
@@ -148,7 +146,7 @@ public class ClusterPath {
      * return the sum distance in the cluster
      */
     public double getSumDistance() {
-        return sumdistance;
+        return sumDistance;
     }
 
     /*
@@ -186,53 +184,56 @@ public class ClusterPath {
         return sum;
     }
 
-    public void accumulateLenghtOcc() {
-        ArrayList<Integer> sortedTralen = new ArrayList<Integer>(lengthOcc.elementSet());
-        Collections.sort(sortedTralen);        //sorted length increasingly
+    public void accumulateLengthOcc() {
+        ArrayList<Integer> sortedTrajectoryLengths = new ArrayList<>(lengthOcc.elementSet());
+        Collections.sort(sortedTrajectoryLengths);        //sorted length increasingly
         if (lengthOcc.isEmpty()) {
             System.out.println("A cluster is empty now due to bad random initialization");
             return;
         }
-        minlength = sortedTralen.get(0);
-        maxlength = sortedTralen.get(sortedTralen.size() - 1);
-        lengthAccu = new int[maxlength - minlength + 1];
+        minlength = sortedTrajectoryLengths.get(0);
+        maxlength = sortedTrajectoryLengths.get(sortedTrajectoryLengths.size() - 1);
+        lengthAccumulation = new int[maxlength - minlength + 1];
         sumEdgeOcc = 0;
-        sortedFrequency = new ArrayList<Integer>();
+        sortedFrequency = new ArrayList<>();
         for (int edge : edgeOcc.elementSet()) {//reverse way
             sortedFrequency.add(edgeOcc.count(edge));
             sumEdgeOcc += edgeOcc.count(edge);        //sorted frequency
         }
-        Collections.sort(sortedFrequency, Collections.reverseOrder());
+        sortedFrequency.sort(Collections.reverseOrder());
         for (int length = minlength; length <= maxlength; length++) {
             int occ = 0;
             for (int i = length; i > minlength; i--) {
                 if (lengthOcc.contains(i))
                     occ += lengthOcc.count(i);
             }
-            lengthAccu[length - minlength] = occ;
+            lengthAccumulation[length - minlength] = occ;
         }
     }
 
     /*
      * We use Multiset in the google library to update the histogram in a faster way by scanning each trajectory
      */
-    double extractNewPathGuava(Map<Integer, int[]> datamap, RunLog runrecord, Map<Integer, Integer> traLengthmap, Map<Integer, Integer> trajectoryHistogram) {
+    double extractNewPathGuava(Map<Integer, int[]> dataMap, RunLog runRecord,
+                               Map<Integer, Integer> traLengthMap, Map<Integer, Integer> trajectoryHistogram) {
         int min = Integer.MAX_VALUE;
-        int traid = 0;
-        accumulateLenghtOcc();
-        for (int traidx : clusterTrajectory) {        //read each trajectory in this cluster, it is slow as we need to read every trajectory, we can construct a weighted graph and choose the route
-            int traLength = traLengthmap.get(traidx);
-            int bound = Math.min(trajectoryHistogram.get(traidx), getFirstNSum(sortedFrequency, traLength));
+        int trajId = 0;
+        accumulateLengthOcc();
+        for (int clusterTrajIdx : clusterTrajectory) {
+            // read each trajectory in this cluster,
+            // it is slow as we need to read every trajectory, we can construct a weighted graph and choose the route
+            int traLength = traLengthMap.get(clusterTrajIdx);
+            int bound = Math.min(trajectoryHistogram.get(clusterTrajIdx), getFirstNSum(sortedFrequency, traLength));
             int sumLength = edgeOcc.size();
             int i = minlength;
             while (i <= traLength) {
-                sumLength += lengthAccu[i - minlength];
+                sumLength += lengthAccumulation[i - minlength];
                 i++;
             }
-            if ((sumLength - bound) >= min) {
+            if (sumLength - bound >= min) {
                 continue;// skip reading the trajectory data
             }
-            int[] tra = datamap.get(traidx);
+            int[] tra = dataMap.get(clusterTrajIdx);
             int sumFrequency = 0;
             for (int edge : tra) {        //compute the vertex frequency of each trajectory
                 sumFrequency += edgeOcc.count(edge);
@@ -240,20 +241,22 @@ public class ClusterPath {
             int sumDis = sumLength - sumFrequency;
             if (min > sumDis) {//choose the one which can minimize the sum of distance
                 min = sumDis;
-                traid = traidx;
+                trajId = clusterTrajIdx;
             }
         }
-        if (idx == traid)
+        if (idx == trajId) {
             centerChanged = false;//center does not change;
-        sumdistance = min;
-        int[] a = datamap.get(traid);
+        }
+        sumDistance = min;
+        int[] a = dataMap.get(trajId);
         //	System.out.println(edgeOcc.size()+" "+min+" "+a.length);
         double drift = 0;
-        if (centerChanged)
+        if (centerChanged) {
             drift = Intersection(finalPath, a, finalPath.length, a.length);
+        }
         centroid.setVIseries(a);
-        centroid.idx = traid;
-        idx = traid;
+        centroid.idx = trajId;
+        idx = trajId;
         finalPath = a;
         return drift;
     }
@@ -261,13 +264,12 @@ public class ClusterPath {
     /* A greedy algorithm when the optimal result does not change any more and better than last result,
      * we will stop exploring when the length is close to the maximum length it can be
      */
-    public double extractNewPathFrequency(
-            HashMap<Integer, ArrayList<Integer>> forwardGraph,
-            HashMap<Integer, ArrayList<Integer>> backwardGraph, int clusterid) {
+    public double extractNewPathFrequency(HashMap<Integer, ArrayList<Integer>> forwardGraph,
+                                          HashMap<Integer, ArrayList<Integer>> backwardGraph, int clusterid) {
         checkedList = new HashMap<>();
-        queue = new PriorityQueue<Path>();
+        queue = new PriorityQueue<>();
         ArrayList<Integer> optimal = new ArrayList<>();
-        accumulateLenghtOcc();
+        accumulateLengthOcc();
         double optimalScore = Double.MAX_VALUE;
 
         if (finalPath != null) {
@@ -275,9 +277,9 @@ public class ClusterPath {
             optimalScore = computeScore(finalPath);//initialized to min score using last centroid
             for (int a : finalPath)
                 optimal.add(a);
-            double lowerbound = estimateLowerbound(optimalScore, optimal.size());
-            if (optimalScore > lowerbound) {
-                Path aPath = new Path(optimal, optimalScore, lowerbound);
+            double lowerBound = estimateLowerbound(optimalScore, optimal.size());
+            if (optimalScore > lowerBound) {
+                Path aPath = new Path(optimal, optimalScore, lowerBound);
                 queue.add(aPath);
             }
         }
@@ -286,9 +288,9 @@ public class ClusterPath {
             ArrayList<Integer> arrayList = new ArrayList<>();
             arrayList.add(edge);
             double score = computeScore(arrayList);
-            double lowerbound = estimateLowerbound(score, 1);
-            if (optimalScore > lowerbound) {
-                Path aPath = new Path(arrayList, score, lowerbound);
+            double lowerBound = estimateLowerbound(score, 1);
+            if (optimalScore > lowerBound) {
+                Path aPath = new Path(arrayList, score, lowerBound);
                 queue.add(aPath);
             }
         }
@@ -298,9 +300,9 @@ public class ClusterPath {
         while (!queue.isEmpty()) {
             cou++;
             Path candidate = queue.poll();
-            double lowerbound = candidate.getLowerbound();// compute the score
+            double lowerBound = candidate.getLowerbound();// compute the score
             double score = candidate.getScore();
-            if (lowerbound > optimalScore || cou >= iteration) {//termination as all possible has been checked
+            if (lowerBound > optimalScore || cou >= iteration) {//termination as all possible has been checked
                 break;
             }
             ArrayList<Integer> Can = candidate.getPath();
@@ -325,13 +327,13 @@ public class ClusterPath {
                                 optimalScore = newscore;
                                 optimal = newCan;
                             }
-                            lowerbound = estimateLowerbound(newscore, newCan.size());
+                            lowerBound = estimateLowerbound(newscore, newCan.size());
                             String signature = signaturePath(ids, end);
-                            if (neverChecked(signature, lowerbound)) {
+                            if (neverChecked(signature, lowerBound)) {
                                 continue;
                             }
-                            if (lowerbound < optimalScore) {
-                                Path newpath = new Path(newCan, newscore, lowerbound);
+                            if (lowerBound < optimalScore) {
+                                Path newpath = new Path(newCan, newscore, lowerBound);
                                 queue.add(newpath);
                             }
                         }
@@ -357,34 +359,34 @@ public class ClusterPath {
                                 optimalScore = newscore;
                                 optimal = newCan;
                             }
-                            lowerbound = estimateLowerbound(newscore, newCan.size());
+                            lowerBound = estimateLowerbound(newscore, newCan.size());
                             String signature = signaturePath(start, ids);
-                            if (neverChecked(signature, lowerbound))    //repetitive path
+                            if (neverChecked(signature, lowerBound))    //repetitive path
                                 continue;
-                            if (lowerbound < optimalScore) {//if this path is promising
-                                Path newpath = new Path(newCan, newscore, lowerbound);
+                            if (lowerBound < optimalScore) {//if this path is promising
+                                Path newpath = new Path(newCan, newscore, lowerBound);
                                 queue.add(newpath);
                             }
                         }
                     }
             }
         }
-        sumdistance = optimalScore;
+        sumDistance = optimalScore;
         //	System.out.println(optimalScore+" "+optimal.size());
         Collections.sort(optimal);
-        int[] centoridData = optimal.stream().mapToInt(i -> i).toArray();
+        int[] centroidData = optimal.stream().mapToInt(i -> i).toArray();
         double drift = 0;
         if (finalPath != null && centerChanged)
-            drift = Intersection(finalPath, centoridData, finalPath.length, centoridData.length);
-        centroid.setVIseries(centoridData);
-        finalPath = centoridData;
+            drift = Intersection(finalPath, centroidData, finalPath.length, centroidData.length);
+        centroid.setVIseries(centroidData);
+        finalPath = centroidData;
         return drift;
     }
 
     /*
      * the data needs to be sorted before the intersection
      */
-    public int Intersection(int arr1[], int arr2[], int m, int n) {
+    public int Intersection(int[] arr1, int[] arr2, int m, int n) {
         int i = 0, j = 0;
         int dist = 0;
         while (i < m && j < n) {
@@ -404,17 +406,17 @@ public class ClusterPath {
     /*
      * check whether it exists in the checked list
      */
-    public boolean neverChecked(String aString, double lowerbound) {
+    public boolean neverChecked(String aString, double lowerBound) {
         if (checkedList.containsKey(aString)) {
             double previous = checkedList.get(aString);
-            if (lowerbound >= previous)
+            if (lowerBound >= previous) {
                 return false;
-            else {
-                checkedList.put(aString, lowerbound);// add to the list
+            } else {
+                checkedList.put(aString, lowerBound);// add to the list
                 return true;
             }
         } else {
-            checkedList.put(aString, lowerbound);// add to the list
+            checkedList.put(aString, lowerBound);// add to the list
             return true;
         }
     }
@@ -424,12 +426,12 @@ public class ClusterPath {
      */
     public double computeScore(int[] path) {
         double weight = sumEdgeOcc;
-        for (int i = 0; i < path.length; i++) {
-            weight -= edgeOcc.count(path[i]);
+        for (int value : path) {
+            weight -= edgeOcc.count(value);
         }
         if (path.length > minlength) {
             for (int i = 1; i <= Math.min(path.length - minlength, maxlength - minlength); i++)
-                weight += lengthAccu[i];
+                weight += lengthAccumulation[i];
         }
         return weight;
     }
@@ -438,17 +440,17 @@ public class ClusterPath {
      * compute the objective score based on the edge histogram and length histogram
      */
     public double computeScore(ArrayList<Integer> path) {
-        int[] patharray = path.stream().mapToInt(i -> i).toArray();
-        return computeScore(patharray);
+        return computeScore(path.stream().mapToInt(i -> i).toArray());
     }
 
     /*
      * compute the objective score based on the edge histogram and length histogram
      */
-    public double computeScoreWithPrevious(int newedge, double weight, int length) {
-        weight -= edgeOcc.count(newedge);
-        if (length > minlength)
-            weight += lengthAccu[length - minlength];
+    public double computeScoreWithPrevious(int newEdge, double weight, int length) {
+        weight -= edgeOcc.count(newEdge);
+        if (length > minlength) {
+            weight += lengthAccumulation[length - minlength];
+        }
         return weight;
     }
 
@@ -457,23 +459,23 @@ public class ClusterPath {
      * this can be used as a dominance table,
      */
     public String signaturePath(int a, int b) {
-        String key = a + "_" + b;
-        return key;
+        return a + "_" + b;
     }
 
     //add the rest heavy edges to compute the lower bound of the score
     public double estimateLowerbound(double score, int length) {
-        double lowerbound = score;
+        double lowerBound = score;
         int i = length;
         while (i < minlength && i - length < sortedFrequency.size()) {
-            lowerbound -= sortedFrequency.get(i - length);
+            lowerBound -= sortedFrequency.get(i - length);
             i++;
         }
-        while (i <= maxlength && (i - length < sortedFrequency.size()) && lengthAccu[i - minlength] < sortedFrequency.get(i - length)) {
-            lowerbound += lengthAccu[i - minlength] - sortedFrequency.get(i - length);
+        while (i <= maxlength && i - length < sortedFrequency.size()
+                && lengthAccumulation[i - minlength] < sortedFrequency.get(i - length)) {
+            lowerBound += lengthAccumulation[i - minlength] - sortedFrequency.get(i - length);
             i++;
         }
-        return lowerbound;
+        return lowerBound;
     }
 
     /*
@@ -481,7 +483,7 @@ public class ClusterPath {
      */
     public int estimateMax() {
         int i = minlength;
-        while (lengthAccu[i - minlength] < sortedFrequency.get(i - minlength)) {
+        while (lengthAccumulation[i - minlength] < sortedFrequency.get(i - minlength)) {
             i++;
         }
         return i;

@@ -31,7 +31,7 @@ public class Process extends Thread {
     int frequencyThreshold = Integer.parseInt(LoadProperties.load("frequencyThreshold"));
     int streamingDuration = Integer.parseInt(LoadProperties.load("streamingDuration"));
     int streamEdges = Integer.parseInt(LoadProperties.load("streamEdges"));
-    protected RunLog runrecord = new RunLog();
+    protected RunLog runRecord = new RunLog();
     ArrayList<Integer> cluslist;
     ArrayList<int[]> centroids;
     int trajectoryNumber;// the number of trajectories in the dataset
@@ -123,7 +123,7 @@ public class Process extends Thread {
         //	if (PRE_CENS == null)
         //		return false;
         for (ClusterPath cc : CENTERS) {
-            if (cc.getCenterChanged() == true) {
+            if (cc.getCenterChanged()) {
                 return false;
             }
         }
@@ -234,7 +234,7 @@ public class Process extends Thread {
      * conclude the edge information
      */
     void concludeCenter() {
-        int a[] = new int[road_types.size() + 1];
+        int[] a = new int[road_types.size() + 1];
         for (int t = 0; t < k; t++) {
             int[] trajectory = CENTERS.get(t).getTrajectoryData();
             for (int i = 0; i < trajectory.length; i++) {
@@ -403,7 +403,7 @@ public class Process extends Thread {
             long Time1 = System.nanoTime();
             int[] tra = datamap.get(idx);//the trajectory data is read
             long Time2 = System.nanoTime();
-            runrecord.addIOTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addIOTime((Time2 - Time1) / 1000000000.0);
             double min_dist = Double.MAX_VALUE;
             int min_id = 1;
             double[] bounds = null;
@@ -456,9 +456,9 @@ public class Process extends Thread {
             }
             ClusterPath newCluster = new_CENTERS.get(min_id);
             Time1 = System.nanoTime();
-            newCluster.updateHistorgramGuava(tra, idx); //update the edge histogram using every new trajectory
+            newCluster.updateHistogramGuava(tra, idx); //update the edge histogram using every new trajectory
             Time2 = System.nanoTime();
-            runrecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
             newCluster.addTrajectoryToCluster(idx);    // update the new trajectory to this cluster.
         }
         return new_CENTERS;
@@ -467,7 +467,7 @@ public class Process extends Thread {
     /*
      * the data needs to be sorted before the intersection
      */
-    public int Intersection(int arr1[], int arr2[], int m, int n) {
+    public int Intersection(int[] arr1, int[] arr2, int m, int n) {
         int i = 0, j = 0;
         int dist = 0;
         while (i < m && j < n) {
@@ -500,19 +500,19 @@ public class Process extends Thread {
         long startTime1 = System.nanoTime();
         CENTERS = assignRebuildInvertedindex(k, new_CENTERS, yinyang, groupnumber, candidateset);    //update the CENTERS
         long endtime = System.nanoTime();
-        runrecord.addAssignmentTime((endtime - startTime1) / 1000000000.0);
+        runRecord.addAssignmentTime((endtime - startTime1) / 1000000000.0);
 
         long startTime = System.nanoTime();
         for (int i = 0; i < k; i++) {// generate the new centroid for each cluster
             if (graphPathExtraction)
                 CENTERS.get(i).extractNewPathFrequency(forwardGraph, backwardGraph, i);// test the optimal
             else {
-                CENTERS.get(i).extractNewPathGuava(datamap, runrecord, traLength, trajectoryHistogram);
+                CENTERS.get(i).extractNewPathGuava(datamap, runRecord, traLength, trajectoryHistogram);
             }
             overallDis += CENTERS.get(i).getSumDistance();
         }
         endtime = System.nanoTime();
-        runrecord.addRefinementTime((endtime - startTime) / 1000000000.0);
+        runRecord.addRefinementTime((endtime - startTime) / 1000000000.0);
 
         if (yinyang)
             System.out.println("iteration 1, the sum distance is " + overallDis + ", time cost: " + (endtime - startTime1) / 1000000000.0 + "s\n");
@@ -531,7 +531,7 @@ public class Process extends Thread {
             System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis);
             if (timeToEnd()) {
                 System.out.println("\nIteration stops now");
-                runrecord.setIterationtimes(t + 1);
+                runRecord.setIterationtimes(t + 1);
                 break;//convergence
             }
         }

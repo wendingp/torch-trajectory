@@ -47,25 +47,30 @@ public class TrajReader {
         boolean hasDate = (dateDataPath != null);
         boolean finished = false;
         SimpleDateFormat sdfmt = null;
-        if (hasDate) sdfmt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        if (hasDate) {
+            sdfmt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        }
 
         try {
             if (trajReader == null)
                 trajReader = new LineNumberReader(new FileReader(trajSrcPath));
             if (hasDate) dateReader = new BufferedReader(new FileReader(dateDataPath));
 
-            String trajLine = null;
+            String trajLine;
             String dateLine = null;
 
             while (true) {
-
                 if ((trajLine = trajReader.readLine()) == null) {
                     trajReader.close();
-                    if (hasDate) dateReader.close();
+                    if (hasDate) {
+                        dateReader.close();
+                    }
                     return true;
                 }
 
-                if (hasDate) dateLine = dateReader.readLine();
+                if (hasDate) {
+                    dateLine = dateReader.readLine();
+                }
 
                 String[] temp = trajLine.split("\t");
                 String trajId = temp[0];
@@ -78,7 +83,6 @@ public class TrajReader {
                         dateContent = dateLine.split("\t")[1];
                         dateContent = dateContent.substring(1, dateContent.length() - 1); //remove head "[" and tail "]"
                     }
-
                 } catch (Exception e) {
                     logger.warn("trajectory id {} is excluded, either too short or contain illegal chars", trajId);
                     continue;
@@ -104,12 +108,12 @@ public class TrajReader {
                         lat = Double.parseDouble(latLng[1]);
                         lon = Double.parseDouble(latLng[0]);
                     } catch (Exception e) {
-                        logger.warn("node of trajectory ID {} contains illegal gps location, that node will be excluded. " + trajId);
+                        logger.warn("node of trajectory ID {} contains illegal gps location, which will be excluded. "
+                                + trajId);
                         continue;
                     }
 
                     TrajNode node = new TrajNode(lat, lon);
-
                     if (hasDate) {
                         Date date;
                         try {

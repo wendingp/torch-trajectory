@@ -120,8 +120,8 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
         Map<String, int[]> cache = new HashMap<>();
         int querySize = pointQuery.size();
 
-        for (int i = 0; i < pointQuery.size(); i++) {
-            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(new Coordinate(pointQuery.get(i).getLat(), pointQuery.get(i).getLng()), epsilon));
+        for (T value : pointQuery) {
+            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(new Coordinate(value.getLat(), value.getLng()), epsilon));
             for (Integer vertexId : idSet) {
                 if (visited.contains(vertexId)) continue;
                 List<String> trajs = vertexInvertedIndex.getKeys(vertexId);
@@ -190,8 +190,8 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
         Map<String, Integer> trajUpperBound = new HashMap<>();
         Set<Integer> visited = new HashSet<>();
 
-        for (int i = 0; i < pointQuery.size(); i++) {
-            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(new Coordinate(pointQuery.get(i).getLat(), pointQuery.get(i).getLng()), epsilon));
+        for (T value : pointQuery) {
+            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(new Coordinate(value.getLat(), value.getLng()), epsilon));
             for (Integer vertexId : idSet) {
                 if (visited.contains(vertexId)) continue;
                 List<String> trajs = vertexInvertedIndex.getKeys(vertexId);
@@ -284,10 +284,7 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
                 //findMoreVertices the nearest pair between a trajectory and query.txt queryVertex
                 //trajectory hash, queryVertex hash vertices
                 Set<Integer> vertices = new HashSet<>();
-                if (round == INITIAL_ROUND_FOR_DTW) {
-                    gridIndex.incrementallyFind(queryVertex, round, vertices, true);
-                } else
-                    gridIndex.incrementallyFind(queryVertex, round, vertices, false);
+                gridIndex.incrementallyFind(queryVertex, round, vertices, round == INITIAL_ROUND_FOR_DTW);
                 for (Integer vertexId : vertices) {
                     Double score = -GeoUtil.distance(idVertexLookup.get(vertexId), queryVertex);
                     List<String> l = vertexInvertedIndex.getKeys(vertexId);
@@ -430,8 +427,7 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
                 //trajectory hash, queryVertex hash vertices
                 Set<Integer> vertices = new HashSet<>();
 
-                if (round == INITIAL_ROUND_FOR_H_OR_F) gridIndex.incrementallyFind(queryVertex, round, vertices, true);
-                else gridIndex.incrementallyFind(queryVertex, round, vertices, false);
+                gridIndex.incrementallyFind(queryVertex, round, vertices, round == INITIAL_ROUND_FOR_H_OR_F);
 
                 for (Integer vertexId : vertices) {
                     Double score = -GeoUtil.distance(idVertexLookup.get(vertexId), queryVertex);

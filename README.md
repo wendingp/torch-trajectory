@@ -100,7 +100,7 @@ and the second is number of top results to return.
       List<Trajectory<TrajEntry>> l = ret.getResultTrajectory();
       String mapVformat = ret.getMapVFormat();
    } else {
-       //do something
+       // do something
    }
 ```
 

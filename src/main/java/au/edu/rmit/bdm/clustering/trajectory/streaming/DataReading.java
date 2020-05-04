@@ -12,7 +12,7 @@ public class DataReading extends Thread {
 
     private static Map<String, Integer> edgeMapping; // the key stores the composition of camera id, lane id, direction, the value stores the new id
     private static Map<String, Integer> vehicleMapping;// the key stores the original plate number, the value is the new id.
-    static int globalStarttime = 151792;
+    static int globalStartTime = 151792;
 
     public DataReading() {
 
@@ -30,17 +30,17 @@ public class DataReading extends Thread {
             Scanner in = new Scanner(new BufferedReader(new FileReader(path)));
             while (in.hasNextLine()) {// load the trajectory dataset, and we can efficiently find the trajectory by their id.
                 String str = in.nextLine();
-                String strr = str.trim();
-                String[] record = strr.split(",");
+                String strTrim = str.trim();
+                String[] record = strTrim.split(",");
                 if (record[0].equals("LKBH") || record.length < 6)
                     continue; //|| StringUtils.isNumeric(record[5])==false
-                String oldedge = record[0] + "_" + record[1] + "_" + record[2];//can be combined with the lane number for a high granularity
-                int newedge = 0;
-                if (edgeMapping.containsKey(oldedge)) {
-                    newedge = edgeMapping.get(oldedge);
+                String oldEdge = record[0] + "_" + record[1] + "_" + record[2];//can be combined with the lane number for a high granularity
+                int newEdge = 0;
+                if (edgeMapping.containsKey(oldEdge)) {
+                    newEdge = edgeMapping.get(oldEdge);
                 } else {
-                    newedge = edgeCounter++;
-                    edgeMapping.put(oldedge, newedge);
+                    newEdge = edgeCounter++;
+                    edgeMapping.put(oldEdge, newEdge);
                 }
                 int newcar = 0;
                 if (vehicleMapping.containsKey(record[3])) {
@@ -50,7 +50,7 @@ public class DataReading extends Thread {
                     vehicleMapping.put(record[3], newcar);
                 }
                 double normalizedTime = Double.valueOf(record[5]);
-                String newrecord = (int) normalizedTime + "," + newcar + "," + newedge + "\n";
+                String newrecord = (int) normalizedTime + "," + newcar + "," + newEdge + "\n";
                 System.out.println(newrecord);
                 Util.write(output, newrecord);
             }
@@ -88,16 +88,16 @@ public class DataReading extends Thread {
                 if (tempid != cartime) {
                     if (storeSecondRecord != null) {
                         int time = tempid + 12;
-                        String content = time + ";";
+                        StringBuilder content = new StringBuilder(time + ";");
                         for (int edgeid1 : storeSecondRecord.keySet()) {
-                            content += edgeid1 + ":";
+                            content.append(edgeid1).append(":");
                             Set<Integer> tralist = storeSecondRecord.get(edgeid1);
                             for (int carid1 : tralist)
-                                content += carid1 + ",";
-                            content = content.substring(0, content.length() - 1);
-                            content += ";";
+                                content.append(carid1).append(",");
+                            content = new StringBuilder(content.substring(0, content.length() - 1));
+                            content.append(";");
                         }
-                        content = content.substring(0, content.length() - 1);
+                        content = new StringBuilder(content.substring(0, content.length() - 1));
                         Util.write(output, content + "\n");
                     }
                     storeSecondRecord = new TreeMap<>();

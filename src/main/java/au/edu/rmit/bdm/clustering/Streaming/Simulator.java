@@ -1,7 +1,6 @@
 package au.edu.rmit.bdm.clustering.Streaming;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.*;
@@ -31,7 +30,7 @@ class Simulator {
         String line;
         while ((line = reader.readLine()) != null) {
             Tuple t = Tuple.genFromCSV(line);
-            if (t.timestemp >= startFrom) {
+            if (t.timestamp >= startFrom) {
                 preT = t;
                 break;
             } else {
@@ -81,7 +80,7 @@ class Simulator {
 
         if (cur.intValue() * speedupFactor - window + 1 > 0) {
             int discardTo = cur.intValue() * speedupFactor - window;
-            while (cachedList.getFirst() != null && cachedList.getFirst().timestemp <= discardTo) {
+            while (cachedList.getFirst() != null && cachedList.getFirst().timestamp <= discardTo) {
                 cachedList.removeFirst();
             }
         }
@@ -97,7 +96,7 @@ class Simulator {
                 return true;
 
             Tuple t = Tuple.genFromCSV(line);
-            if (t.timestemp > cur.intValue() * speedupFactor) {
+            if (t.timestamp > cur.intValue() * speedupFactor) {
                 preT = t;
                 System.err.println(counter);
                 return false;

@@ -228,7 +228,6 @@ public final class DistanceFunctions {
                     return null;
                 }
             }
-            ;
             IntegerListEuclideanCoordinate coord1 = new IntegerListEuclideanCoordinate(data1);
             IntegerListEuclideanCoordinate coord2 = new IntegerListEuclideanCoordinate(data2);
             return DistanceFunctions.euclidean(coord1, coord2);
@@ -283,7 +282,6 @@ public final class DistanceFunctions {
                     return null;
                 }
             }
-            ;
             DoubleListEuclideanCoordinate coord1 = new DoubleListEuclideanCoordinate(data1);
             DoubleListEuclideanCoordinate coord2 = new DoubleListEuclideanCoordinate(data2);
             return DistanceFunctions.euclidean(coord1, coord2);
