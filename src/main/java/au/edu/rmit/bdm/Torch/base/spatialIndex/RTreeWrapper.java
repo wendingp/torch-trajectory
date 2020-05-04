@@ -204,7 +204,7 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
         try (InputStream is = new FileInputStream(rtree)) {
             this.rTree = serializer.read(is, rtree.length(), InternalStructure.DEFAULT);
         } catch (IOException e) {
-            logger.error("{}", e);
+            logger.error(e.getMessage());
         }
     }
 
