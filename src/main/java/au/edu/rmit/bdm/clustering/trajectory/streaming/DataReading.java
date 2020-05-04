@@ -5,7 +5,6 @@ import au.edu.rmit.bdm.clustering.trajectory.kpaths.Util;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 
 public class DataReading extends Thread {
@@ -21,7 +20,7 @@ public class DataReading extends Thread {
     /*
      * convert the raw data from oracle to a simple version
      */
-    public static void convertToEdges(String path, String output, String newEdgeFile, String newCarFile) throws IOException {
+    public static void convertToEdges(String path, String output, String newEdgeFile, String newCarFile) {
         int edgeCounter = 1;
         int carCounter = 1;
         edgeMapping = new HashMap<>();
@@ -35,21 +34,21 @@ public class DataReading extends Thread {
                 if (record[0].equals("LKBH") || record.length < 6)
                     continue; //|| StringUtils.isNumeric(record[5])==false
                 String oldEdge = record[0] + "_" + record[1] + "_" + record[2];//can be combined with the lane number for a high granularity
-                int newEdge = 0;
+                int newEdge;
                 if (edgeMapping.containsKey(oldEdge)) {
                     newEdge = edgeMapping.get(oldEdge);
                 } else {
                     newEdge = edgeCounter++;
                     edgeMapping.put(oldEdge, newEdge);
                 }
-                int newcar = 0;
+                int newcar;
                 if (vehicleMapping.containsKey(record[3])) {
                     newcar = vehicleMapping.get(record[3]);
                 } else {
                     newcar = carCounter++;
                     vehicleMapping.put(record[3], newcar);
                 }
-                double normalizedTime = Double.valueOf(record[5]);
+                double normalizedTime = Double.parseDouble(record[5]);
                 String newrecord = (int) normalizedTime + "," + newcar + "," + newEdge + "\n";
                 System.out.println(newrecord);
                 Util.write(output, newrecord);
@@ -75,16 +74,16 @@ public class DataReading extends Thread {
      */
     public static void convertStandardFormat(String path, String output) {
         Map<Integer, Set<Integer>> storeSecondRecord = null;
-        int tempid = -Integer.MAX_VALUE;
+        int tempid = Integer.MIN_VALUE;
         try {
             Scanner in = new Scanner(new BufferedReader(new FileReader(path)));
             while (in.hasNextLine()) {// load the trajectory dataset, and we can efficiently find the trajectory by their id.
                 String str = in.nextLine();
                 String strr = str.trim();
                 String[] record = strr.split(",");
-                int cartime = Integer.valueOf(record[0]);
-                int carid = Integer.valueOf(record[1]);
-                int edgeid = Integer.valueOf(record[2]);
+                int cartime = Integer.parseInt(record[0]);
+                int carid = Integer.parseInt(record[1]);
+                int edgeid = Integer.parseInt(record[2]);
                 if (tempid != cartime) {
                     if (storeSecondRecord != null) {
                         int time = tempid + 12;
@@ -103,11 +102,12 @@ public class DataReading extends Thread {
                     storeSecondRecord = new TreeMap<>();
                     tempid = cartime;
                 }
-                Set<Integer> tralist = null;
+                Set<Integer> tralist;
+                assert storeSecondRecord != null;
                 if (storeSecondRecord.containsKey(edgeid)) {
                     tralist = storeSecondRecord.get(edgeid);
                 } else {
-                    tralist = new HashSet<Integer>();
+                    tralist = new HashSet<>();
                 }
                 tralist.add(carid);
                 storeSecondRecord.put(edgeid, tralist);

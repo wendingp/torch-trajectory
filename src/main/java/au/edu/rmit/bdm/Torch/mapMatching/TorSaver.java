@@ -80,7 +80,7 @@ public class TorSaver {
         try {
             thread.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
-            logger.error("{}", e);
+            logger.error(e.getMessage());
         }
     }
 

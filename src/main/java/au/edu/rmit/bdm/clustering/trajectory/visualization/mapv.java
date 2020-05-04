@@ -1,6 +1,5 @@
 package au.edu.rmit.bdm.clustering.trajectory.visualization;
 
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,8 +18,8 @@ public class mapv {
             StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
             int[] cluster = map.get(clusterID);
             // System.out.println(Arrays.toString(cluster));
-            for (int edge_i = 0; edge_i < cluster.length; edge_i++) {
-                String single_edge = edgeInfo.get(cluster[edge_i]);
+            for (int value : cluster) {
+                String single_edge = edgeInfo.get(value);
                 String[] abc = single_edge.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
                     content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
@@ -38,11 +37,9 @@ public class mapv {
     public static void generateClusterPath1(Map<Integer, int[]> map, Map<Integer, String> edgeInfo,
                                             ArrayList<int[]> clusterIDs, String output) {
         write(output, "geometry\n");
-        for (int clust_i = 0; clust_i < clusterIDs.size(); clust_i++) {
-
-            int[] cluster = clusterIDs.get(clust_i);
-            for (int edge_i = 0; edge_i < cluster.length; edge_i++) {
-                String single_edge = edgeInfo.get(cluster[edge_i]);
+        for (int[] cluster : clusterIDs) {
+            for (int value : cluster) {
+                String single_edge = edgeInfo.get(value);
                 StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
                 String[] abc = single_edge.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
@@ -61,12 +58,12 @@ public class mapv {
     public static void generateClusterPathSorted(Map<Integer, int[]> map, Map<Integer, String> edgeInfo,
                                                  ArrayList<Integer> clusterIDs, String output) {
         write(output, "geometry\n");
-        for (int clust_i = 0; clust_i < clusterIDs.size(); clust_i++) {
-            int[] cluster = map.get(clusterIDs.get(clust_i));
+        for (Integer clusterID : clusterIDs) {
+            int[] cluster = map.get(clusterID);
             // System.out.println(Arrays.toString(cluster));
-            for (int edge_i = 0; edge_i < cluster.length; edge_i++) {
+            for (int value : cluster) {
                 StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
-                String single_edge = edgeInfo.get(cluster[edge_i]);
+                String single_edge = edgeInfo.get(value);
                 String[] abc = single_edge.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
                     content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
@@ -84,9 +81,9 @@ public class mapv {
     public static void generateHighEdges(Map<Integer, String> edgeInfo,
                                          ArrayList<Integer> edgeIDs, String output) {
         write(output, "geometry\n");
-        for (int edge_i = 0; edge_i < edgeIDs.size(); edge_i++) {
+        for (Integer edgeID : edgeIDs) {
             StringBuilder content = new StringBuilder("\"{\"\"type\"\": \"\"LineString\"\", \"\"coordinates\"\": [");
-            String single_edge = edgeInfo.get(edgeIDs.get(edge_i));
+            String single_edge = edgeInfo.get(edgeID);
             String[] abc = single_edge.split(",");
             for (int i = 0; i < abc.length / 2; i++) {
                 content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
@@ -148,6 +145,6 @@ public class mapv {
      * convert the sorted sequence into a path in the road network.
      */
     public static void reconvertTrajectory() {
-
+        throw new UnsupportedOperationException();
     }
 }

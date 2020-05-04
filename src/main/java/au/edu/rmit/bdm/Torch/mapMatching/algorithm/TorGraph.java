@@ -184,9 +184,9 @@ public class TorGraph {
 
             String line;
             String[] tokens;
-            Integer id;
-            Double lat;
-            Double lng;
+            int id;
+            double lat;
+            double lng;
             while ((line = reader.readLine()) != null) {
                 tokens = line.split(";");
                 id = Integer.parseInt(tokens[0]);
@@ -208,9 +208,9 @@ public class TorGraph {
 
             String line;
             String[] tokens;
-            Integer edgeId;
-            Integer vertexId1;
-            Integer vertexId2;
+            int edgeId;
+            int vertexId1;
+            int vertexId2;
             double len;
             TowerVertex t1, t2;
 
@@ -226,6 +226,7 @@ public class TorGraph {
                     t2 = idVertexLookup.get(vertexId2);
                     allEdges.put(t1.hash + t2.hash, new TorEdge(edgeId, t1, t2, len));
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -254,7 +255,7 @@ public class TorGraph {
             allPoints.put(vertex.hash, vertex);
         }
 
-        MemoryUsage.printCurrentMemUsage("[after loadding all vertices]");
+        MemoryUsage.printCurrentMemUsage("[after loading all vertices]");
         AllEdgesIterator allEdgeIterator = graph.getAllEdges();
 
         // model all edges; two issues are taken into consideration:
@@ -394,17 +395,15 @@ public class TorGraph {
         return vehicle;
     }
 
-    private TorGraph initLookUpTable() {
-        Map<String, TorEdge> edges = allEdges;
+    private void initLookUpTable() {
         Collection<TowerVertex> vertices = towerVertexes.values();
 
         for (TowerVertex vertex : vertices)
             vertexIdLookup.put(vertex.hash, vertex.id);
 
-        for (Map.Entry<String, TorEdge> entry : edges.entrySet())
+        for (Map.Entry<String, TorEdge> entry : allEdges.entrySet())
             edgeIdLookup.put(entry.getKey(), entry.getValue().id);
 
-        return this;
     }
 
     public GraphHopper getGH() {

@@ -301,7 +301,7 @@ public class Test {
             t.id = tokens[0];
 
             for (String vertex : vertices)
-                t.add(new TowerVertex(0, 0, Integer.valueOf(vertex)));
+                t.add(new TowerVertex(0, 0, Integer.parseInt(vertex)));
 
 
             vertexInvertedIndex.index(t);

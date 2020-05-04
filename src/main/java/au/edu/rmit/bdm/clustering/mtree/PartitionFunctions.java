@@ -1,13 +1,11 @@
 package au.edu.rmit.bdm.clustering.mtree;
 
+import au.edu.rmit.bdm.clustering.mtree.utils.Pair;
+
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import au.edu.rmit.bdm.clustering.mtree.utils.Pair;
 
 /**
  * Some cur-defined implementations of {@linkplain PartitionFunction partition
@@ -51,34 +49,26 @@ public final class PartitionFunctions {
          * @see au.edu.rmit.bdm.clustering.mtree.PartitionFunction#process(au.edu.rmit.bdm.clustering.mtree.utils.Pair, java.util.Set, au.edu.rmit.bdm.clustering.mtree.DistanceFunction)
          */
         @Override
-        public Pair<Set<DATA>> process(
-                final Pair<DATA> promoted,
-                Set<DATA> dataSet,
-                final DistanceFunction<? super DATA> distanceFunction
-        ) {
-            List<DATA> queue1 = new ArrayList<DATA>(dataSet);
+        public Pair<Set<DATA>> process(final Pair<DATA> promoted,
+                                       Set<DATA> dataSet,
+                                       final DistanceFunction<? super DATA> distanceFunction) {
+            List<DATA> queue1 = new ArrayList<>(dataSet);
             // Sort by distance to the first promoted data
-            Collections.sort(queue1, new Comparator<DATA>() {
-                @Override
-                public int compare(DATA data1, DATA data2) {
-                    double distance1 = distanceFunction.calculate(data1, promoted.first);
-                    double distance2 = distanceFunction.calculate(data2, promoted.first);
-                    return Double.compare(distance1, distance2);
-                }
+            queue1.sort((data1, data2) -> {
+                double distance1 = distanceFunction.calculate(data1, promoted.first);
+                double distance2 = distanceFunction.calculate(data2, promoted.first);
+                return Double.compare(distance1, distance2);
             });
 
-            List<DATA> queue2 = new ArrayList<DATA>(dataSet);
+            List<DATA> queue2 = new ArrayList<>(dataSet);
             // Sort by distance to the second promoted data
-            Collections.sort(queue2, new Comparator<DATA>() {
-                @Override
-                public int compare(DATA data1, DATA data2) {
-                    double distance1 = distanceFunction.calculate(data1, promoted.second);
-                    double distance2 = distanceFunction.calculate(data2, promoted.second);
-                    return Double.compare(distance1, distance2);
-                }
+            queue2.sort((data1, data2) -> {
+                double distance1 = distanceFunction.calculate(data1, promoted.second);
+                double distance2 = distanceFunction.calculate(data2, promoted.second);
+                return Double.compare(distance1, distance2);
             });
 
-            Pair<Set<DATA>> partitions = new Pair<Set<DATA>>(new HashSet<DATA>(), new HashSet<DATA>());
+            Pair<Set<DATA>> partitions = new Pair<>(new HashSet<>(), new HashSet<>());
 
             int index1 = 0;
             int index2 = 0;

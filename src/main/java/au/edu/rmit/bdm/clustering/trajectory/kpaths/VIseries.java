@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static au.edu.rmit.bdm.Torch.base.helper.GeoUtil.min;
+
 /*
  * sheng
  * @date 2/6/2018
@@ -31,8 +33,8 @@ public class VIseries {
      * we can propose bound to avoid reading each trajectory and compute the similarity model.
      */
     public double EDRDistanceJaccard(Integer[] T1, Integer[] T2) {
-        Set<Integer> s1 = new HashSet<Integer>(Arrays.asList(T1));
-        Set<Integer> s2 = new HashSet<Integer>(Arrays.asList(T2));
+        Set<Integer> s1 = new HashSet<>(Arrays.asList(T1));
+        Set<Integer> s2 = new HashSet<>(Arrays.asList(T2));
         int length = Math.max(s1.size(), s2.size());
         s1.retainAll(s2);
         return length - s1.size();
@@ -74,20 +76,12 @@ public class VIseries {
         return dpInts[T1.length][T2.length];
     }
 
-    private int min(int a, int b, int c) {
-        if (a > b)
-            a = b;
-        if (a > c)
-            a = c;
-        return a;
-    }
 
     /*
      * dynamic time warping distance
      */
     public double DTWDistance(VIseries T1, VIseries T2) {
-        // double distance = SimilarityMeasure.DynamicTimeWarping(T1.trajectory,
-        // T2.trajectory);
-        return 0;
+        // double distance = SimilarityMeasure.DynamicTimeWarping(T1.trajectory, T2.trajectory);
+        throw new UnsupportedOperationException();
     }
 }

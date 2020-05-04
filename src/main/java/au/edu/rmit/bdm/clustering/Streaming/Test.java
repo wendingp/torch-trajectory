@@ -1,7 +1,5 @@
 package au.edu.rmit.bdm.clustering.Streaming;
 
-import au.edu.rmit.bdm.clustering.trajectory.kpaths.Yinyang;
-
 import java.io.*;
 import java.util.*;
 
@@ -16,7 +14,7 @@ public class Test {
         String line;
         while ((line = reader.readLine()) != null) {
             String[] tk = line.split(";");
-            lookup.put(new VerticesEdge(Integer.valueOf(tk[1]), Integer.valueOf(tk[2])), Integer.valueOf(tk[0]));
+            lookup.put(new VerticesEdge(Integer.parseInt(tk[1]), Integer.parseInt(tk[2])), Integer.valueOf(tk[0]));
         }
         reader.close();
 
@@ -33,7 +31,7 @@ public class Test {
             StringBuilder builder = new StringBuilder(carId).append("\t");
 
             for (int i = 1; i < vertexTK.length; i++) {
-                int edgeId = lookup.get(new VerticesEdge(Integer.valueOf(vertexTK[i - 1]), Integer.valueOf(vertexTK[i])));
+                int edgeId = lookup.get(new VerticesEdge(Integer.parseInt(vertexTK[i - 1]), Integer.parseInt(vertexTK[i])));
                 builder.append(edgeId).append(",");
             }
             builder.setLength(builder.length() - 1);
@@ -52,7 +50,7 @@ public class Test {
         String line;
         while ((line = reader.readLine()) != null) {
             String[] tk = line.split(";");
-            lookup.put(new VerticesEdge(Integer.valueOf(tk[1]), Integer.valueOf(tk[2])), Integer.valueOf(tk[0]));
+            lookup.put(new VerticesEdge(Integer.parseInt(tk[1]), Integer.parseInt(tk[2])), Integer.valueOf(tk[0]));
         }
         reader.close();
 
@@ -65,13 +63,13 @@ public class Test {
         while ((vertexLine = vertexReader.readLine()) != null) {
             timeLine = timeReader.readLine();
             String[] temp = vertexLine.split("\t");
-            int carId = Integer.valueOf(temp[0]);
+            int carId = Integer.parseInt(temp[0]);
             String[] vertexTK = temp[1].split(",");
             String[] timeTK = timeLine.split("\t")[1].split(",");
 
             for (int i = 1; i < vertexTK.length; i++) {
-                int edgeId = lookup.get(new VerticesEdge(Integer.valueOf(vertexTK[i - 1]), Integer.valueOf(vertexTK[i])));
-                int time = Integer.valueOf(timeTK[i - 1]);
+                int edgeId = lookup.get(new VerticesEdge(Integer.parseInt(vertexTK[i - 1]), Integer.parseInt(vertexTK[i])));
+                int time = Integer.parseInt(timeTK[i - 1]);
                 if (!records.containsKey(time)) {
                     records.put(time, new LinkedList<>());
                 }

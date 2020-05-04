@@ -196,8 +196,8 @@ public class GeneralTest {
         Graph g = hopper.getGraphHopperStorage();
 
         NodeAccess nodeAccess = g.getNodeAccess();
-        EdgeIterator iter = g.getAllEdges();
-        System.err.println("total number of edges " + ((AllEdgesIterator) iter).getMaxId());
+        AllEdgesIterator iter = g.getAllEdges();
+        System.err.println("total number of edges " + iter.getMaxId());
         iter.next();
         PointList l = iter.fetchWayGeometry(3);
         for (int i = 0; i < l.size(); i++){

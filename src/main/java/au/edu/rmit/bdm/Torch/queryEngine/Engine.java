@@ -215,7 +215,7 @@ public class Engine {
                     !index.equals(Torch.Index.LEVI)) {
                 throw new IllegalArgumentException("checkout supported index type options at Torch.Index");
             }
-            properties.preferedIndex = index;
+            properties.preferredIndex = index;
             return this;
         }
 

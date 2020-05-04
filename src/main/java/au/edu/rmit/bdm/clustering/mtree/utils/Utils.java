@@ -45,7 +45,7 @@ public final class Utils {
             }
         }
 
-        return new Pair<T>(min, max);
+        return new Pair<>(min, max);
     }
 
 
@@ -58,8 +58,8 @@ public final class Utils {
      * @return A list with the chosen elements.
      */
     public static <T> List<T> randomSample(Collection<T> collection, int n) {
-        List<T> list = new ArrayList<T>(collection);
-        List<T> sample = new ArrayList<T>(n);
+        List<T> list = new ArrayList<>(collection);
+        List<T> sample = new ArrayList<>(n);
         Random random = new Random();
         while (n > 0 && !list.isEmpty()) {
             int index = random.nextInt(list.size());

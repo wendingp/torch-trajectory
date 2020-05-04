@@ -42,7 +42,7 @@ public class QueryPool extends HashMap<String, Query> {
     private TrajectoryResolver resolver;
 
     /**
-     * initilize supported indexes for the 4 types of queries.
+     * initialize supported indexes for the 4 types of queries.
      *
      * @param props
      */
@@ -111,7 +111,7 @@ public class QueryPool extends HashMap<String, Query> {
     private Query initTopKQuery() {
 
         // edge based top K
-        if (props.preferedIndex.equals(Torch.Index.EDGE_INVERTED_INDEX)) {
+        if (props.preferredIndex.equals(Torch.Index.EDGE_INVERTED_INDEX)) {
             initEdgeInvertedIndex();
             return props.resolveAll ? new TopKQuery(edgeInvertedIndex, mapper, resolver) :
                     new TopKQuery(edgeInvertedIndex, mapper, resolver);
@@ -175,7 +175,7 @@ public class QueryPool extends HashMap<String, Query> {
         }
 
         if (props.containsKey("epsilon") && LEVI != null)
-            LEVI.updateEpsilon(Integer.valueOf(props.get("epsilon")));
+            LEVI.updateEpsilon(Integer.parseInt(props.get("epsilon")));
     }
 
     public void setTimeInterval(TimeInterval span, boolean contain) {
@@ -201,9 +201,9 @@ public class QueryPool extends HashMap<String, Query> {
         return index;
     }
 
-    private SimilarityFunction.MeasureType convertMeasureType(String preferedDistFunc) {
+    private SimilarityFunction.MeasureType convertMeasureType(String preferredDistFunc) {
         SimilarityFunction.MeasureType measureType;
-        switch (preferedDistFunc) {
+        switch (preferredDistFunc) {
             case Torch.Algorithms.DTW:
                 measureType = SimilarityFunction.MeasureType.DTW;
                 break;

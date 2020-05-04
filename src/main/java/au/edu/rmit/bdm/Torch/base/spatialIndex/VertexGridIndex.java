@@ -79,9 +79,9 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
         leftLng = Float.MAX_VALUE;
         upperLat = -Float.MAX_VALUE;
         rightLng = -Float.MAX_VALUE;
-        Collection<TowerVertex> allTrajEntrys = allPointMap.values();
+        Collection<TowerVertex> allTrajEntries = allPointMap.values();
 
-        for (TowerVertex point : allTrajEntrys) {
+        for (TowerVertex point : allTrajEntries) {
             if (point.lat < lowerLat) lowerLat = (float) point.lat;
             if (point.lat > upperLat) upperLat = (float) point.lat;
             if (point.lng < leftLng) leftLng = (float) point.lng;
@@ -97,12 +97,12 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
         this.deltaLat = (upperLat - lowerLat) / this.verticalTileNumber;
         this.deltaLon = (rightLng - leftLng) / this.horizontalTileNumber;
 
-        logger.info("start to insert points, grid location: (lowerLat,leftLng)=({},{}), (upperLat,rightLng)=({},{}), (deltaLat,deltaLon,horizontalTileNumber,verticalTileNumber)=({},{},{},{})  grid size: {}*{}={}, point size: {}", lowerLat, leftLng, upperLat, rightLng, deltaLat, deltaLon, horizontalTileNumber, verticalTileNumber, this.horizontalTileNumber, this.verticalTileNumber, this.horizontalTileNumber * this.verticalTileNumber, allTrajEntrys.size());
+        logger.info("start to insert points, grid location: (lowerLat,leftLng)=({},{}), (upperLat,rightLng)=({},{}), (deltaLat,deltaLon,horizontalTileNumber,verticalTileNumber)=({},{},{},{})  grid size: {}*{}={}, point size: {}", lowerLat, leftLng, upperLat, rightLng, deltaLat, deltaLon, horizontalTileNumber, verticalTileNumber, this.horizontalTileNumber, this.verticalTileNumber, this.horizontalTileNumber * this.verticalTileNumber, allTrajEntries.size());
 
         //key for tile id, value for point id list
         Map<Integer, Set<Integer>> grid = new HashMap<>(this.horizontalTileNumber * this.verticalTileNumber + 1);
 
-        for (TowerVertex point : allTrajEntrys)
+        for (TowerVertex point : allTrajEntries)
             insert(point, grid);
 
         this.putAll(grid);
@@ -113,13 +113,10 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
     void computeTileInfo() {
 
         int numTiles = horizontalTileNumber * verticalTileNumber;
-        for (int i = 1; i < numTiles; i++) {
-            int tileId = i;
+        for (int tileId = 1; tileId < numTiles; tileId++) {
             int temp = tileId % horizontalTileNumber;
             int col = temp == 0 ? horizontalTileNumber : temp;
             int row = (tileId - col) / horizontalTileNumber;
-
-
             double upperLat = this.upperLat - deltaLat * row;
             double lowerLat = upperLat - deltaLat;
 
@@ -175,7 +172,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
      */
     private boolean load(String path) {
         File file = new File(INDEX_FILE_POINT);
-        String line = null, pointLine = null;
+        String line, pointLine;
         if (size() == 0 && file.exists()) {
 
             try (BufferedReader idReader = new BufferedReader(new FileReader(INDEX_FILE_GRID_ID));
@@ -221,12 +218,14 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
     private void save() {
 
         File file = new File(INDEX_FILE_POINT);
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
+        if (!file.exists() && !file.getParentFile().mkdirs()) {
+            throw new AssertionError();
         }
 
-        try (BufferedWriter idWriter = new BufferedWriter((new OutputStreamWriter(new FileOutputStream(INDEX_FILE_GRID_ID, false), StandardCharsets.UTF_8)));
-             BufferedWriter pointWriter = new BufferedWriter((new OutputStreamWriter(new FileOutputStream(INDEX_FILE_POINT, false), StandardCharsets.UTF_8)))) {
+        try (BufferedWriter idWriter = new BufferedWriter((new OutputStreamWriter(new FileOutputStream(
+                INDEX_FILE_GRID_ID, false), StandardCharsets.UTF_8)));
+             BufferedWriter pointWriter = new BufferedWriter((new OutputStreamWriter(new FileOutputStream(
+                     INDEX_FILE_POINT, false), StandardCharsets.UTF_8)))) {
             //first write some arguments
             idWriter.write(this.lowerLat + Torch.SEPARATOR_1);
             idWriter.write(this.leftLng + Torch.SEPARATOR_1);
@@ -298,7 +297,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
     }
 
     private Collection<Integer> _pointsInWindow(SearchWindow window) {
-        int pos = calculateTileID(window.middle);
+//        int pos = calculateTileID(window.middle);
         int leftUpperID = calculateTileID(window.upperLat, window.leftLng);
         int rightUpperID = calculateTileID(window.upperLat, window.rightLng);
         int leftLowerID = calculateTileID(window.lowerLat, window.leftLng);
@@ -326,7 +325,6 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
 
 
     public double findBound(TrajEntry queryPoint, int round) {
-
         int tileId = calculateTileID(queryPoint);
         Tile t = tileInfo.get(tileId);
         double dist2nearestEdge = t.dist2nearestEdge(queryPoint);
@@ -392,50 +390,42 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
     }
 
     private int computeUpperLeft(int pos) {
-        int ans;
         if (pos % this.horizontalTileNumber == 0) {
             if (pos < this.horizontalTileNumber) return pos;
-            ans = pos - this.horizontalTileNumber;
+            return pos - this.horizontalTileNumber;
         } else {
             if (pos < this.horizontalTileNumber) return pos - 1;
-            ans = pos - this.horizontalTileNumber - 1;
+            return pos - this.horizontalTileNumber - 1;
         }
-        return ans;
     }
 
     private int computeUpperRight(int pos) {
         if (pos % (this.horizontalTileNumber - 1) == 0) {
             if (pos < this.horizontalTileNumber) return pos;
-            int ans = pos - this.horizontalTileNumber;
-            return ans;
+            return pos - this.horizontalTileNumber;
         } else {
             if (pos < this.horizontalTileNumber) return pos + 1;
-            int ans = pos - this.horizontalTileNumber + 1;
-            return ans;
+            return pos - this.horizontalTileNumber + 1;
         }
     }
 
     private int computeLowerLeft(int pos) {
         if (pos % this.horizontalTileNumber == 0) {
             if (pos >= this.horizontalTileNumber * (this.verticalTileNumber - 1)) return pos;
-            int ans = pos + this.horizontalTileNumber;
-            return ans;
+            return pos + this.horizontalTileNumber;
         } else {
             if (pos >= this.horizontalTileNumber * (this.verticalTileNumber - 1)) return pos - 1;
-            int ans = pos + this.horizontalTileNumber - 1;
-            return ans;
+            return pos + this.horizontalTileNumber - 1;
         }
     }
 
     private int computeLowerRight(int pos) {
         if (pos % (this.horizontalTileNumber - 1) == 0) {
             if (pos >= this.horizontalTileNumber * (this.verticalTileNumber - 1)) return pos;
-            int ans = pos + this.horizontalTileNumber;
-            return ans;
+            return pos + this.horizontalTileNumber;
         } else {
             if (pos >= this.horizontalTileNumber * (this.verticalTileNumber - 1)) return pos + 1;
-            int ans = pos + this.horizontalTileNumber + 1;
-            return ans;
+            return pos + this.horizontalTileNumber + 1;
         }
     }
 }

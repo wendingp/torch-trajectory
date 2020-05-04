@@ -38,16 +38,6 @@ public class TorEdge {
 
     public boolean isBackward;
 
-    /**
-     * for database
-     */
-    private String latitudes;
-
-    /**
-     * for database
-     */
-    private String longtitudes;
-
     public int getPosition() {
         return position;
     }
@@ -95,7 +85,7 @@ public class TorEdge {
             latStringBuilder.append(",").append(pillarPoint.getLat());
         }
         latStringBuilder.append(",").append(adjVertex.getLat());
-        this.latitudes = latStringBuilder.toString();
+        String latitudes = latStringBuilder.toString();
 
         StringBuilder lonStringBuilder = new StringBuilder();
         lonStringBuilder.append(baseVertex.getLng());
@@ -103,16 +93,15 @@ public class TorEdge {
             lonStringBuilder.append(",").append(pillarPoint.getLat());
         }
         lonStringBuilder.append(",").append(adjVertex.getLng());
-        this.longtitudes = lonStringBuilder.toString();
+        String longitudes = lonStringBuilder.toString();
         getLength();
 
-        StringBuilder res = new StringBuilder();
-        return res.append(this.id).append(Torch.SEPARATOR_1)
-                .append(this.latitudes).append(Torch.SEPARATOR_1)
-                .append(this.longtitudes).append(Torch.SEPARATOR_1)
-                .append(this.length).append(Torch.SEPARATOR_1)
-                .append(this.isForward).append(Torch.SEPARATOR_1)
-                .append(this.isBackward).append(Torch.SEPARATOR_1).toString();
+        return this.id + Torch.SEPARATOR_1 +
+                latitudes + Torch.SEPARATOR_1 +
+                longitudes + Torch.SEPARATOR_1 +
+                this.length + Torch.SEPARATOR_1 +
+                this.isForward + Torch.SEPARATOR_1 +
+                this.isBackward + Torch.SEPARATOR_1;
     }
 
 //    /**

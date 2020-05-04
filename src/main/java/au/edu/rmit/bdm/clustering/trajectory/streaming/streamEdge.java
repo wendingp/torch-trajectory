@@ -32,10 +32,10 @@ public class streamEdge {
     /*
      * delete expired data which will not be used for data and index within in the sliding window
      */
-    public void removeExpired(int expiredtime, int formerexpired, Map<Integer, ArrayList<Integer>> dataset_remove) {
+    public void removeExpired(int expiredTime, int formerExpired, Map<Integer, ArrayList<Integer>> dataset_remove) {
         if (timeIndex.isEmpty()) return;
         for (int timeId : timeIndex.keySet()) {
-            if (timeId < expiredtime && timeId >= formerexpired) {
+            if (timeId < expiredTime && timeId >= formerExpired) {
                 ArrayList<Integer> cars = timeIndex.get(timeId);
                 for (int carId : cars) {
                     ArrayList<Integer> edgeIds;

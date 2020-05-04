@@ -166,8 +166,7 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
             entry.setValue(exactValue);
             topKHeap.add(entry);
             if (topKHeap.size() > k) topKHeap.poll();
-
-            bestKth = topKHeap.peek().getValue();
+            bestKth = Objects.requireNonNull(topKHeap.peek()).getValue();
         }
 
         while (topKHeap.size() > 0) {

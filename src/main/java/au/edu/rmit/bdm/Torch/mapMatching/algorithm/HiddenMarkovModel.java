@@ -34,7 +34,7 @@ import java.util.Map;
 public class HiddenMarkovModel implements Mapper {
 
     private static Logger logger = LoggerFactory.getLogger(HiddenMarkovModel.class);
-    private com.graphhopper.matching.MapMatching hmm;
+    private final com.graphhopper.matching.MapMatching hmm;
     private TorGraph torGraph;
 
     HiddenMarkovModel(TorGraph torGraph, AlgorithmOptions options) {
@@ -65,7 +65,7 @@ public class HiddenMarkovModel implements Mapper {
 
         boolean first = true;
         int pre;
-        TowerVertex preVertex = null;
+        TowerVertex preVertex;
         TowerVertex adjVertex;
         int preAdjId = -1;
 

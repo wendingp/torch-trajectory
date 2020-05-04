@@ -48,9 +48,7 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
                 Geometries.rectangleGeographic(window.leftLng, window.lowerLat, window.rightLng, window.upperLat));
 
         Set<String> trajIDSet = new HashSet<>();
-        entries.forEach(entry -> {
-            trajIDSet.add(entry.value());
-        });
+        entries.forEach(entry -> trajIDSet.add(entry.value()));
 
 //        List<Trajectory<Coordinate>> resolvedRet = new ArrayList<>();
 //        trajIDSet.forEach(trajId -> {
@@ -129,9 +127,7 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
 //    }
 
     private void findMBRs(rx.Observable<Entry<String, Geometry>> results, Set<String> trajectoryID) {
-        results.forEach(entry -> {
-            trajectoryID.add(entry.value());
-        });
+        results.forEach(entry -> trajectoryID.add(entry.value()));
     }
 
     private double calLowerBound(List<Rectangle> q, List<Rectangle> r) {
@@ -180,9 +176,7 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
 
     private void calUpperBound(rx.Observable<Entry<Integer, Geometry>> results, Map<Integer, Double> idScores,
                                final double pointNumber) {
-        results.forEach(entry -> {
-            idScores.merge(entry.value(), pointNumber, (a, b) -> b + a);
-        });
+        results.forEach(entry -> idScores.merge(entry.value(), pointNumber, Double::sum));
     }
 
     /**
@@ -246,25 +240,26 @@ public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
         logger.info("start to serialize dataStructure file to disk");
 
         File rtree = new File(setting.RTREE_INDEX);
-        if (rtree.exists())
-            rtree.delete();
+        if (rtree.exists() && !rtree.delete()) {
+            throw new AssertionError();
+        }
 
         Serializer<String, Geometry> serializer = Serializers.flatBuffers().javaIo();
         try (OutputStream os = new FileOutputStream(rtree)) {
             serializer.write(this.rTree, os);
         } catch (Exception e) {
-            logger.error("{}", e);
+            logger.error(e.getMessage());
         }
     }
 
-    class Pair {
-        final String trajectoryID;
-        double score;
-
-        Pair(String trajectoryID, double score) {
-            this.score = score;
-            this.trajectoryID = trajectoryID;
-        }
-    }
+//    class Pair {
+//        final String trajectoryID;
+//        double score;
+//
+//        Pair(String trajectoryID, double score) {
+//            this.score = score;
+//            this.trajectoryID = trajectoryID;
+//        }
+//    }
 }
 

@@ -35,8 +35,8 @@ public class Trajectory<T extends TrajEntry> extends LinkedList<T> {
         String[] trajTuples = trajContent.split("],\\[");
         String[] latLng;
 
-        for (int i = 0; i < trajTuples.length; i++) {
-            latLng = trajTuples[i].split(",");
+        for (String trajTuple : trajTuples) {
+            latLng = trajTuple.split(",");
             Coordinate coordinate = new Coordinate(Double.parseDouble(latLng[0]), Double.parseDouble(latLng[1]));
             trajectory.add(coordinate);
         }

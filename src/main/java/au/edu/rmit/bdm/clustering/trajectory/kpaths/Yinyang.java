@@ -12,7 +12,7 @@ import java.util.*;
  * reference paper: Yinyang K-means: A drop-in replacement of the classic K-means with consistent speedup
  */
 public class Yinyang extends Process {
-    private Thread runingThread;//multi thread
+    private Thread runningThread;//multi thread
     private String threadName;
     TrajectoryMtree centroidindex;//the tree used to group the centroid in the first
 
@@ -102,9 +102,9 @@ public class Yinyang extends Process {
 
     public void start() {
         System.out.println("Starting " + threadName);
-        if (runingThread == null) {
-            runingThread = new Thread(this, threadName);
-            runingThread.start();
+        if (runningThread == null) {
+            runningThread = new Thread(this, threadName);
+            runningThread.start();
         }
     }
 
@@ -297,8 +297,8 @@ public class Yinyang extends Process {
      *  group can be eliminated
      */
     public void assignByTriangleFeaturesGroup(int k, int groupNumber) {
-        Set<Integer> candidateofAllclusters = new HashSet<Integer>();
-        Map<Integer, int[]> clustData = new HashMap<Integer, int[]>();
+        Set<Integer> candidateofAllclusters = new HashSet<>();
+        Map<Integer, int[]> clustData = new HashMap<>();
         Map<Integer, ArrayList<Integer>> idxNeedsIn = new HashMap<>();//it stores all the idxs of trajectories that move in
         Map<Integer, ArrayList<Integer>> idxNeedsOut = new HashMap<>();
         int centerMinlength = Integer.MAX_VALUE;
@@ -326,15 +326,14 @@ public class Yinyang extends Process {
         for (int group_i = 0; group_i < groupNumber; group_i++) {//check each group
             //	ArrayList<Integer> centers = group.get(group_i);
             //	for (int centerID:centers)
-            int centerID = group_i;
             {//check each center in the group
-                int center_length = clustData.get(centerID).length;
-                Set<Integer> tralist = CENTERS.get(centerID).getClusterTrajectories();
+                int center_length = clustData.get(group_i).length;
+                Set<Integer> tralist = CENTERS.get(group_i).getClusterTrajectories();
                 for (int idx : tralist) { // check every trajectory in the center to assign which integrate the group filtering and local filtering
                     int[] tra = null;
                     int tralength = traLength.get(idx); // the length of trajectory is read
-                    double min_dist = Double.MAX_VALUE;// to record the best center's distance
-                    int newCenterId = centerID;//initialize as the original center
+                    double min_dist;// to record the best center's distance
+                    int newCenterId = group_i;//initialize as the original center
                     if (!checkInvertedIndex(candidateofAllclusters, idx)) { // if it is never contained by any list, we can assign it to the cluster with minimum length
                         min_dist = Math.max(tralength, centerMinlength);
                         double min_dist1 = Math.max(tralength, center_length);
@@ -345,8 +344,8 @@ public class Yinyang extends Process {
                     } else {//check whether we need to change the center by comparing the bounds
                         double[] bounds = trajectoryBounds.get(idx);
                         double lowerbound = getMinimumLowerbound(bounds, groupNumber);    // bound from drift
-                        Set<Integer> canlist = CENTERS.get(centerID).getCandidateList();
-                        int[] clustra = clustData.get(centerID);
+                        Set<Integer> canlist = CENTERS.get(group_i).getCandidateList();
+                        int[] clustra = clustData.get(group_i);
                         if (checkInvertedIndex(canlist, idx)) {
                             long startTime = System.nanoTime();
                             tra = datamap.get(idx);//  read the trajectory data
@@ -357,23 +356,22 @@ public class Yinyang extends Process {
                             min_dist = Math.max(tralength, clustra.length);
                         }
                         double newupperbound = min_dist;// tighten the upper bound
-                        newCenterId = centerID;
-                        double centroidBound = interMinimumCentoridDis[centerID] / 2.0;
+                        newCenterId = group_i;
+                        double centroidBound = interMinimumCentoridDis[group_i] / 2.0;
                         lowerbound = Math.max(lowerbound, centroidBound);
                         if (lowerbound < newupperbound) {//cannot not pass the group filtering
                             for (int group_j = 0; group_j < groupNumber; group_j++) {
                                 if (group_j == group_i)//skip current group
                                     continue;
-                                double localbound = Math.max((bounds[group_j + 2] - group_drift[group_j]), innerCentoridDis[centerID][group_j] / 2.0);
+                                double localbound = Math.max((bounds[group_j + 2] - group_drift[group_j]), innerCentoridDis[group_i][group_j] / 2.0);
                                 if (localbound < min_dist) {//the groups that cannot pass the filtering of bound and inverted index
                                     //	ArrayList<Integer> centerCandidates = group.get(group_j);
                                     double second_min_dist_local = Double.MAX_VALUE;
                                     //	for(int center_j: centerCandidates)
-                                    int center_j = group_j;
                                     {// goto the local filtering on center in a group, by checking the candidate list and bounds
-                                        canlist = CENTERS.get(center_j).getCandidateList();// get the candidate list of each cluster
-                                        clustra = clustData.get(center_j);
-                                        double dist = 0;
+                                        canlist = CENTERS.get(group_j).getCandidateList();// get the candidate list of each cluster
+                                        clustra = clustData.get(group_j);
+                                        double dist;
                                         if (checkInvertedIndex(canlist, idx)) {
                                             dist = computeRealDistance(tra, clustra, idx);
                                         } else {
@@ -382,7 +380,7 @@ public class Yinyang extends Process {
                                         }
                                         if (min_dist > dist) {
                                             min_dist = dist; // maintain the one with min distance, and second min distance
-                                            newCenterId = center_j;
+                                            newCenterId = group_j;
                                         }
                                         if (second_min_dist_local > dist) {
                                             second_min_dist_local = dist;
@@ -398,7 +396,7 @@ public class Yinyang extends Process {
                             numFilWholGroup++;
                         }
                     }
-                    if (newCenterId != centerID) {// the trajectory moves to other center, this should be counted into the time of refinement.
+                    if (newCenterId != group_i) {// the trajectory moves to other center, this should be counted into the time of refinement.
                         movedtrajectory++;
                         numeMovedTrajectories++;
                         long Time1 = System.nanoTime();
@@ -406,16 +404,16 @@ public class Yinyang extends Process {
                         if (idxNeedsIn.containsKey(newCenterId))
                             idxlist = idxNeedsIn.get(newCenterId);
                         else
-                            idxlist = new ArrayList<Integer>();
+                            idxlist = new ArrayList<>();
                         idxlist.add(idx);
                         idxNeedsIn.put(newCenterId, idxlist);// temporal store as we cannot add them the trajectory list which will be scanned later, batch remove later
-                        if (idxNeedsOut.containsKey(centerID))
-                            idxlist = idxNeedsOut.get(centerID);
+                        if (idxNeedsOut.containsKey(group_i))
+                            idxlist = idxNeedsOut.get(group_i);
                         else
-                            idxlist = new ArrayList<Integer>();
+                            idxlist = new ArrayList<>();
                         idxlist.add(idx);
-                        idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
-                        accumulateHistogramGuava(tra, idx, newCenterId, centerID);    // update the histogram directly
+                        idxNeedsOut.put(group_i, idxlist);// temporal store, batch remove later
+                        accumulateHistogramGuava(tra, idx, newCenterId, group_i);    // update the histogram directly
                         long Time2 = System.nanoTime();
                         runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
                     }
@@ -454,7 +452,7 @@ public class Yinyang extends Process {
                 int[] tra = datamap.get(idx);//the trajectory data is read
                 CENTERS.get(j).updateHistogramGuava(tra, idx); //update the edge histogram using every new trajectory
             }
-            newCluster.mergeTrajectoryToCluster(new ArrayList<Integer>(candilist));
+            newCluster.mergeTrajectoryToCluster(new ArrayList<>(candilist));
             assignedTra.addAll(candilist);//already assigned
         }
 
@@ -479,8 +477,8 @@ public class Yinyang extends Process {
      *  assign based on previous center to save time on IO based on inverted index only
      */
     public void assignAccumulateInvertedindex(int k, int groupNumber) {
-        Set<Integer> candidateofAllclusters = new HashSet<Integer>();
-        Map<Integer, int[]> clustData = new HashMap<Integer, int[]>();
+        Set<Integer> candidateofAllclusters = new HashSet<>();
+        Map<Integer, int[]> clustData = new HashMap<>();
         Map<Integer, ArrayList<Integer>> idxNeedsIn = new HashMap<>();//it stores all the idxs of trajectories that move in
         Map<Integer, ArrayList<Integer>> idxNeedsOut = new HashMap<>();
         int centerMinlength = Integer.MAX_VALUE;
@@ -506,9 +504,10 @@ public class Yinyang extends Process {
                 int tralength = traLength.get(idx); // the length of trajectory is read
                 double min_dist = Double.MAX_VALUE;// to record the best center's distance
                 int newCenterId = centerID;//initialize as the original center
-                if (!candidateofAllclusters.contains(idx)) { // if it is never contained by any list, we can assign it to the cluster with minimum length
+                if (!candidateofAllclusters.contains(idx)) {
+                    // if it is never contained by any list, we can assign it to the cluster with minimum length
                     min_dist = Math.max(tralength, centerMinlength);
-                    newCenterId = minLengthCenterid;
+//                    newCenterId = minLengthCenterid; // TODO fix this?
                     double min_dist1 = Math.max(tralength, center_length);
                     if (min_dist1 > min_dist) {//change to other center
                         newCenterId = minLengthCenterid;
@@ -517,9 +516,9 @@ public class Yinyang extends Process {
                     for (int center_j = 0; center_j < k; center_j++) {// goto the local filtering on center in a group, by checking the candidate list and bounds
                         Set<Integer> canlist = CENTERS.get(center_j).getCandidateList();// get the candidate list of each cluster
                         int[] clustra = clustData.get(center_j);
-                        double dist = 0;
+                        double dist;
                         if (canlist.contains(idx)) {
-                            dist = computeRealDistance(tra, clustra, idx);
+                            dist = computeRealDistance(null, clustra, idx);
                         } else {
                             dist = Math.max(tralength, clustra.length);
                         }
@@ -535,16 +534,16 @@ public class Yinyang extends Process {
                     if (idxNeedsIn.containsKey(newCenterId))
                         idxlist = idxNeedsIn.get(newCenterId);
                     else
-                        idxlist = new ArrayList<Integer>();
+                        idxlist = new ArrayList<>();
                     idxlist.add(idx);
                     idxNeedsIn.put(newCenterId, idxlist);// temporal store as we cannot add them the trajectory list which will be scanned later, batch remove later
                     if (idxNeedsOut.containsKey(centerID))
                         idxlist = idxNeedsOut.get(centerID);
                     else
-                        idxlist = new ArrayList<Integer>();
+                        idxlist = new ArrayList<>();
                     idxlist.add(idx);
                     idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
-                    accumulateHistogramGuava(tra, idx, newCenterId, centerID);    // update the histogram directly
+                    accumulateHistogramGuava(null, idx, newCenterId, centerID);    // update the histogram directly
                 }
                 long Time2 = System.nanoTime();
                 runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
@@ -557,31 +556,30 @@ public class Yinyang extends Process {
     /*
      * the yinyang algorithm
      */
-    public int yinyangkPath(int k, String folder, Set<Integer> candidateset) {
-        int groupNumber = k;
+    public void yinyangkPath(int k, String folder, Set<Integer> candidateSet) {
         trajectoryBounds = new HashMap<>();
-        center_drift = new HashMap<Integer, Double>();
-        groupInitialClusters(groupNumber, k); //	Step 1: divide k centroid into t groups
-        singleKpath(k, 0, true, groupNumber, folder, candidateset); // 	Step 2, generate the initial center
-        computeDrift(k, groupNumber);// Step 3.1 compute the drift using PRE_CENS and CENTERS
+        center_drift = new HashMap<>();
+        groupInitialClusters(k, k); //	Step 1: divide k centroid into t groups
+        singleKpath(k, 0, true, k, folder, candidateSet); // 	Step 2, generate the initial center
+        computeDrift(k, k);// Step 3.1 compute the drift using PRE_CENS and CENTERS
         int t = 1;
         //	runrecord.clear();
         for (; t < TRY_TIMES; t++) {
             if (graphPathExtraction) {
-                printCluterTrajectory(k, t, folder);
+                printClusterTrajectory(k, t, folder);
             } else {
-                printCluterTraID(k, t, folder);
+                printClusterTraID(k, t, folder);
             }
             long startTime1 = System.nanoTime();
             //		assignAccumulateInvertedindex(k, groupNumber);	// Step 3.2, 3.3: assign to each group
-            assignByTriangleFeaturesGroup(k, groupNumber);
+            assignByTriangleFeaturesGroup(k, k);
             long endtime = System.nanoTime();
             runRecord.addAssignmentTime((endtime - startTime1) / 1000000000.0);
             System.out.println("assign time cost: " + (endtime - startTime1) / 1000000000.0 + "s");
             long startTime = System.nanoTime();
             double overallDis = 0;
             for (int i = 0; i < k; i++) {
-                double drfit = 0;
+                double drfit;
                 if (graphPathExtraction) {
                     drfit = CENTERS.get(i).extractNewPathFrequency(forwardGraph, backwardGraph, i);// test the optimal
                 } else {
@@ -590,7 +588,7 @@ public class Yinyang extends Process {
                 center_drift.put(i, drfit);
                 overallDis += CENTERS.get(i).getSumDistance();
             }
-            computeDrift(k, groupNumber);// 	Step 3.1 compute the drift using PRE_CENS and CENTERS
+            computeDrift(k, k);// 	Step 3.1 compute the drift using PRE_CENS and CENTERS
             endtime = System.nanoTime();
             runRecord.addRefinementTime((endtime - startTime) / 1000000000.0);
             System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis + ", time cost: " + (endtime - startTime1) / 1000000000.0 + "s\n");
@@ -599,8 +597,7 @@ public class Yinyang extends Process {
                 break;//convergence
             }
         }
-        System.out.println("\n#Filtered (groups, by index, moved centers), #computation: (" + (numFilGroup + numFilWholGroup * groupNumber) + ", " + indexFil + ", " + numeMovedTrajectories + ", " + numCompute + ")");
-        return t;
+        System.out.println("\n#Filtered (groups, by index, moved centers), #computation: (" + (numFilGroup + numFilWholGroup * k) + ", " + indexFil + ", " + numeMovedTrajectories + ", " + numCompute + ")");
     }
 
 

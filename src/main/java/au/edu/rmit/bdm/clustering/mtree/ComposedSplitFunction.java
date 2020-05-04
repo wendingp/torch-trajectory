@@ -1,8 +1,8 @@
 package au.edu.rmit.bdm.clustering.mtree;
 
-import java.util.Set;
-
 import au.edu.rmit.bdm.clustering.mtree.utils.Pair;
+
+import java.util.Set;
 
 /**
  * A {@linkplain SplitFunction split function} that is defined by composing
@@ -13,8 +13,8 @@ import au.edu.rmit.bdm.clustering.mtree.utils.Pair;
  */
 public class ComposedSplitFunction<DATA> implements SplitFunction<DATA> {
 
-    private PromotionFunction<DATA> promotionFunction;
-    private PartitionFunction<DATA> partitionFunction;
+    private final PromotionFunction<DATA> promotionFunction;
+    private final PartitionFunction<DATA> partitionFunction;
 
     /**
      * The constructor of a {@link SplitFunction} composed by a

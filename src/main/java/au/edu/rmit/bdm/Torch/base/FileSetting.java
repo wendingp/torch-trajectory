@@ -29,11 +29,11 @@ public class FileSetting {
     public String TRAJECTORY_START_END_TIME_PARTIAL;
 
     //for Torch_Porto.db
-    public String DB_PREFIX = "jdbc:sqlite:";
+    public final String DB_PREFIX = "jdbc:sqlite:";
     public String DB_URL;
-    public String TRAJECTORY_VERTEX_TABLE = "vertex";
-    public String TRAJECTORY_EDGE_TABLE = "edge";
-    public String EDGENAME_ID_TABLE = "edgename";
+    public final String TRAJECTORY_VERTEX_TABLE = "vertex";
+    public final String TRAJECTORY_EDGE_TABLE = "edge";
+    public final String EDGENAME_ID_TABLE = "edgename";
 
     public String RAW_TRAJECTORY_INDEX;
 

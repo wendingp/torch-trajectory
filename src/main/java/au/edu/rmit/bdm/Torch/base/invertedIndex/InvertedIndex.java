@@ -16,7 +16,7 @@ import static au.edu.rmit.bdm.Torch.base.Torch.SEPARATOR_1;
 import static au.edu.rmit.bdm.Torch.base.helper.FileUtil.ensureExistence;
 
 public abstract class InvertedIndex implements Index {
-    private static Logger logger = LoggerFactory.getLogger(InvertedIndex.class);
+    private static final Logger logger = LoggerFactory.getLogger(InvertedIndex.class);
     public boolean loaded = false;
     public FileSetting setting;
 
@@ -227,7 +227,7 @@ public abstract class InvertedIndex implements Index {
             this.pos = pos;
         }
 
-        int trajid;
-        int pos;
+        final int trajid;
+        final int pos;
     }
 }

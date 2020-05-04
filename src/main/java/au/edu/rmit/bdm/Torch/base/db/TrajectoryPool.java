@@ -62,12 +62,12 @@ public abstract class TrajectoryPool {
             String[] trajectory = memPool.get(trajId);
             ret = new int[trajectory.length];
             for (int i = 0; i < ret.length; i++)
-                ret[i] = Integer.valueOf(trajectory[i]);
+                ret[i] = Integer.parseInt(trajectory[i]);
         } else {
             String[] temp = db.get(tableName, trajId).split(",");
             ret = new int[temp.length];
             for (int i = 0; i < temp.length; i++)
-                ret[i] = Integer.valueOf(temp[i]);
+                ret[i] = Integer.parseInt(temp[i]);
         }
         return ret;
     }

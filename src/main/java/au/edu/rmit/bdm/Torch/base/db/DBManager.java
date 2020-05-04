@@ -12,9 +12,9 @@ import java.sql.*;
 
 public class DBManager {
 
-    private static Logger logger = LoggerFactory.getLogger(DBManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(DBManager.class);
     private Connection conn;
-    private FileSetting setting;
+    private final FileSetting setting;
 
     public DBManager(FileSetting setting) {
         this.setting = setting;
@@ -26,7 +26,7 @@ public class DBManager {
         connect();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         FileSetting setting = new FileSetting("Torch_nantong");
         DBManager db = new DBManager(setting);
         db.buildFromFile(setting.TRAJECTORY_EDGE_TABLE, setting.TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL, true);
@@ -104,7 +104,7 @@ public class DBManager {
 
         } catch (SQLException e) {
             logger.error(e.getMessage());
-            logger.error("cannot insert record: id={}, content:{}" + id, content);
+            logger.error("cannot insert record: id={}, content:{}", id, content);
             System.exit(-1);
         }
     }

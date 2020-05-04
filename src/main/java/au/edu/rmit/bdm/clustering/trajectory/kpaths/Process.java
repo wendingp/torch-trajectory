@@ -1,5 +1,10 @@
 package au.edu.rmit.bdm.clustering.trajectory.kpaths;
 
+import au.edu.rmit.bdm.Torch.base.FileSetting;
+import au.edu.rmit.bdm.clustering.trajectory.TrajectoryMtree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -8,11 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import au.edu.rmit.bdm.Torch.base.FileSetting;
-import au.edu.rmit.bdm.clustering.trajectory.TrajectoryMtree;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * static kpath is used for clustering all the taxi trips, so we can find the k-paths for designing bus routes, this is not a real time problem, so we can
@@ -25,12 +25,12 @@ public class Process extends Thread {
     ArrayList<ClusterPath> PRE_CENS; // it stores the previous k clusters
 
     // the parameters
-    protected int TRY_TIMES = Integer.parseInt(LoadProperties.load("try_times"));//iteration times
+    protected int TRY_TIMES = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("try_times")));//iteration times
     String mapv_path = LoadProperties.load("vis_path");
     String mapv_path_traclu_sigmod07 = LoadProperties.load("TraClus");
-    int frequencyThreshold = Integer.parseInt(LoadProperties.load("frequencyThreshold"));
-    int streamingDuration = Integer.parseInt(LoadProperties.load("streamingDuration"));
-    int streamEdges = Integer.parseInt(LoadProperties.load("streamEdges"));
+    int frequencyThreshold = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("frequencyThreshold")));
+    int streamingDuration = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("streamingDuration")));
+    int streamEdges = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("streamEdges")));
     protected RunLog runRecord = new RunLog();
     ArrayList<Integer> cluslist;
     ArrayList<int[]> centroids;
@@ -69,8 +69,8 @@ public class Process extends Thread {
     Map<Integer, Integer> cluster2SearchLookup;
 
     //for graph
-    protected HashMap<Integer, ArrayList<Integer>> forwardGraph = new HashMap<Integer, ArrayList<Integer>>();//the linked edge whose start is the end of start
-    protected HashMap<Integer, ArrayList<Integer>> backwardGraph = new HashMap<Integer, ArrayList<Integer>>();//the linked edge whose start is the end of start
+    protected HashMap<Integer, ArrayList<Integer>> forwardGraph = new HashMap<>();//the linked edge whose start is the end of start
+    protected HashMap<Integer, ArrayList<Integer>> backwardGraph = new HashMap<>();//the linked edge whose start is the end of start
     protected ArrayList<int[]> centoridData = new ArrayList<>();//initialize the centroid
     HashMap<String, Integer> road_types;
 
@@ -85,8 +85,8 @@ public class Process extends Thread {
 
     public Process(String[] args) {
         datafile = args[0];
-        k = Integer.valueOf(args[1]);
-        trajectoryNumber = Integer.valueOf(args[2]);
+        k = Integer.parseInt(args[1]);
+        trajectoryNumber = Integer.parseInt(args[2]);
         edgefile = args[3];
         graphfile = args[4];
 
@@ -130,7 +130,7 @@ public class Process extends Thread {
         return true;
     }
 
-    public void loadData(String path, int number, String edgePath) throws IOException {
+    public void loadData(String path, int number, String edgePath) {
         int idx = 0;
         int gap = number / k;
         Random rand = new Random();
@@ -149,14 +149,14 @@ public class Process extends Thread {
 
                 int[] vertexes = new int[vertexSeries.length];
                 for (int t = 0; t < vertexSeries.length; t++) {
-                    vertexes[t] = Integer.valueOf(vertexSeries[t]);
+                    vertexes[t] = Integer.parseInt(vertexSeries[t]);
                     int edgeID = vertexes[t];
                     if (edgeIndex.containsKey(edgeID)) {
                         List<Integer> lists = edgeIndex.get(edgeID);
                         lists.add(idx);                    //enlarge the lists
                         edgeIndex.put(edgeID, lists);
                     } else {
-                        ArrayList<Integer> lists = new ArrayList<Integer>();
+                        ArrayList<Integer> lists = new ArrayList<>();
                         lists.add(idx);
                         edgeIndex.put(edgeID, lists);
                     }
@@ -183,8 +183,9 @@ public class Process extends Thread {
                     traLength.put(idx, vertexSeries.length);
                     datamap.put(idx++, vertexes);
                 }
-                if (idx > number)
+                if (idx > number) {
                     break;
+                }
             }
             in.close();
         } catch (FileNotFoundException e) {
@@ -213,7 +214,7 @@ public class Process extends Thread {
                 String[] abc = strr.split(";");
                 edgeInfo.put(Integer.valueOf(abc[0]), abc[1] + "," + abc[2]);
                 if (abc.length > 7) {
-                    int roadType = 0;
+                    int roadType;
                     if (!road_types.containsKey(abc[6])) {
                         road_types.put(abc[6], type);//we build the edge histogram
                         roadType = type++;
@@ -237,9 +238,9 @@ public class Process extends Thread {
         int[] a = new int[road_types.size() + 1];
         for (int t = 0; t < k; t++) {
             int[] trajectory = CENTERS.get(t).getTrajectoryData();
-            for (int i = 0; i < trajectory.length; i++) {
-                if (edgeType.containsKey(trajectory[i])) {
-                    int edgeTypes = edgeType.get(trajectory[i]);
+            for (int value : trajectory) {
+                if (edgeType.containsKey(value)) {
+                    int edgeTypes = edgeType.get(value);
                     a[edgeTypes]++;
                 } else {
                     a[road_types.size()]++;
@@ -267,8 +268,8 @@ public class Process extends Thread {
         for (int idx : datamap.keySet()) {    //scan each trajectory
             int[] tra = datamap.get(idx);
             int tra_fre = 0;
-            for (int t = 0; t < tra.length; t++) {    //scan each edge
-                tra_fre += edgeHistogram.get(tra[t]); //the frequency is the sum of edge frequency in each trajectory.
+            for (int i : tra) {    //scan each edge
+                tra_fre += edgeHistogram.get(i); //the frequency is the sum of edge frequency in each trajectory.
             }
             trajectoryHistogram.put(idx, tra_fre);
         }
@@ -330,8 +331,8 @@ public class Process extends Thread {
                 .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
                         (e1, e2) -> e1, LinkedHashMap::new));
 
-        ArrayList<Integer> keyset = new ArrayList<Integer>(sortedMap.keySet());
-        ArrayList<Integer> allEdges = new ArrayList<Integer>();
+        ArrayList<Integer> keyset = new ArrayList<>(sortedMap.keySet());
+        ArrayList<Integer> allEdges = new ArrayList<>();
         for (int t = 0; t < k; t++) {
             int n = rand.nextInt(range) + 1;
             int idx = keyset.get(n);
@@ -339,7 +340,6 @@ public class Process extends Thread {
             for (int i = 0; i < cluster.length; i++) {
                 if (allEdges.contains(i)) {
                     t--;
-                    continue;
                 }
             }
             Collections.addAll(allEdges, Arrays.stream(cluster).boxed().toArray(Integer[]::new));
@@ -351,21 +351,17 @@ public class Process extends Thread {
     /*
      *  print the cluster ids and generate the trajectory into file for mapv visualization
      */
-    public int[] printCluterTraID(int k, int iteration, String folder) {
-        int[] clusterid = new int[k];
-        cluslist = new ArrayList<Integer>();
+    public void printClusterTraID(int k, int iteration, String folder) {
         for (int t = 0; t < k; t++) {
             System.out.print(CENTERS.get(t).getTrajectoryID() + ",");
-            clusterid[t] = CENTERS.get(t).getTrajectoryID();
         }
         System.out.println();
-        return clusterid;
     }
 
     /*
      *  print the cluster ids and generate the trajectory into file for mapv visualization
      */
-    public void printCluterTrajectory(int k, int iteration, String folder) {
+    public void printClusterTrajectory(int k, int iteration, String folder) {
 
         centroids = new ArrayList<>();
         for (int t = 0; t < k; t++) {
@@ -381,19 +377,19 @@ public class Process extends Thread {
      */
     public ArrayList<ClusterPath> assignRebuildInvertedindex(int k, ArrayList<ClusterPath> new_CENTERS, boolean yinyang,
                                                              int groupnumber, Set<Integer> candidateset) {
-        Set<Integer> candidateofAllclusters = new HashSet<>();
+        Set<Integer> candidateofAllClusters = new HashSet<>();
         Map<Integer, int[]> clustData = new HashMap<>();
-        int minlength = Integer.MAX_VALUE;
-        int min_length_id = 0;
+        int minLength = Integer.MAX_VALUE;
+        int minLengthId = 0;
         for (int j = 0; j < k; j++) {
             Set<Integer> candilist = CENTERS.get(j).creatCandidateList(edgeIndex, datamap);//generate the candidate list
-            candidateofAllclusters.addAll(candilist);// merge it to a single list
+            candidateofAllClusters.addAll(candilist);// merge it to a single list
             int[] clustra = CENTERS.get(j).getTrajectoryData();
 
             clustData.put(j, clustra);
-            if (clustra.length < minlength) {// get the minimum length
-                minlength = clustra.length;
-                min_length_id = j;
+            if (clustra.length < minLength) {// get the minimum length
+                minLength = clustra.length;
+                minLengthId = j;
             }
         }
 
@@ -411,15 +407,15 @@ public class Process extends Thread {
                 bounds = new double[groupnumber + 2];
                 Arrays.fill(bounds, Double.MAX_VALUE);
             }
-            if (!candidateofAllclusters.contains(idx)) {//if it is never contained by any list, we can assign it to the cluster with minimum length
-                min_dist = Math.max(tra.length, minlength);
-                min_id = min_length_id;
+            if (!candidateofAllClusters.contains(idx)) {//if it is never contained by any list, we can assign it to the cluster with minimum length
+                min_dist = Math.max(tra.length, minLength);
+                min_id = minLengthId;
                 if (yinyang) {// initialize the lower bound
                     for (int j = 0; j < k; j++) {
                         int length = clustData.get(j).length;
                         double dist = Math.max(tra.length, length);
                         int groupNumber = centerGroup.get(j);
-                        if (j == min_length_id)
+                        if (j == minLengthId)
                             continue;//jump this best value
                         if (dist < bounds[groupNumber + 2]) {
                             bounds[groupNumber + 2] = dist;
@@ -429,7 +425,7 @@ public class Process extends Thread {
             } else {
                 for (int j = 0; j < k; j++) {
                     Set<Integer> canlist = CENTERS.get(j).getCandidateList();// get the candidate list of each cluster
-                    double dist = 0;
+                    double dist;
                     int[] clustra = clustData.get(j);
                     if (!canlist.contains(idx))                        // it is not contained
                         dist = Math.max(tra.length, clustra.length);
@@ -490,9 +486,9 @@ public class Process extends Thread {
     public double singleKpath(int k, double overallDis, boolean yinyang, int groupnumber, String folder,
                               Set<Integer> candidateset) {
         if (yinyang)
-            printCluterTraID(k, 1, folder);
-        PRE_CENS = new ArrayList<ClusterPath>(CENTERS);        //maintain current centers for judging convergence
-        ArrayList<ClusterPath> new_CENTERS = new ArrayList<ClusterPath>(); // it stores the k clusters
+            printClusterTraID(k, 1, folder);
+        PRE_CENS = new ArrayList<>(CENTERS);        //maintain current centers for judging convergence
+        ArrayList<ClusterPath> new_CENTERS = new ArrayList<>(); // it stores the k clusters
         for (int i = 0; i < k; i++) {
             ClusterPath newCluster = new ClusterPath(CENTERS.get(i).getClusterPath().getVIseries(), CENTERS.get(i).getTrajectoryID());
             new_CENTERS.add(newCluster);
@@ -525,7 +521,7 @@ public class Process extends Thread {
     public int kPath(int k, String folder) {
         int t = 0;
         for (; t < TRY_TIMES; t++) {
-            printCluterTraID(k, t, folder);
+            printClusterTraID(k, t, folder);
             double overallDis = 0;
             overallDis = singleKpath(k, overallDis, false, 0, folder, datamap.keySet());
             System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis);
@@ -547,7 +543,7 @@ public class Process extends Thread {
 
 
     public void init() throws IOException {
-        CENTERS = new ArrayList<ClusterPath>();
+        CENTERS = new ArrayList<>();
         interMinimumCentoridDis = new double[k];
         innerCentoridDis = new double[k][];
         datamap = new HashMap<>();// a btree map for easy search is created or read

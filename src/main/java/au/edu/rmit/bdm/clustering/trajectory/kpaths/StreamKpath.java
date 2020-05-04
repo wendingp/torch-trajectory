@@ -5,7 +5,6 @@ import au.edu.rmit.bdm.clustering.trajectory.streaming.streamEdge;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.sql.SQLException;
 import java.util.*;
 
 /*
@@ -51,7 +50,8 @@ public class StreamKpath extends Yinyang {
         System.out.println("Running " + threadName);
         try {
             readDataFromFile("E:\\dataset\\nantong\\nantong_traffic_record"); // FIXME
-        } catch (SQLException | InterruptedException e) {
+        } catch (InterruptedException e) {
+//        } catch (SQLException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -66,7 +66,7 @@ public class StreamKpath extends Yinyang {
 
 
     /*
-     * check every dataset, remove the old egdes, add new edges to support k-means clustering.
+     * check every dataset, remove the old edges, add new edges to support k-means clustering.
      */
     public void updateDataset(Map<Integer, int[]> dataset, Map<Integer, ArrayList<Integer>> olddata,
                               Map<Integer, ArrayList<Integer>> newdata) {
@@ -127,7 +127,7 @@ public class StreamKpath extends Yinyang {
     /*
      * our data is stored in the sql, and we will not change the format.
      */
-    public void readDataFromFile(String path) throws SQLException, InterruptedException {
+    public void readDataFromFile(String path) throws InterruptedException {
         long startTime = System.nanoTime();
         datamap = new HashMap<>();// a btree map for easy search is created or read
         Map<Integer, ArrayList<Integer>> dataset_new = new HashMap<>();
@@ -153,7 +153,7 @@ public class StreamKpath extends Yinyang {
                     streamEdge timeList = invertedIndex.get(edgeid);
                     timeList.addCars(cartime, carsid);//update the inverted index which will be used
                     for (int carid : carsid) {    //add to dataset_new for temporal storage
-                        ArrayList<Integer> edgeids = null;
+                        ArrayList<Integer> edgeids;
                         if (dataset_new.containsKey(carid))
                             edgeids = dataset_new.get(carid);
                         else

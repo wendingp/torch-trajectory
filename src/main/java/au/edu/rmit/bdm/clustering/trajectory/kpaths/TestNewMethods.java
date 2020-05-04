@@ -1,6 +1,5 @@
 package au.edu.rmit.bdm.clustering.trajectory.kpaths;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -44,7 +43,7 @@ public class TestNewMethods extends Process {
         //	System.out.println("End testing");
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         //	trajectoryNumber=100000;
         //	testTriangular();
     }

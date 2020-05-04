@@ -31,7 +31,7 @@ class QueryRetJsonModel {
         this.raw = queryResult.rawQuery == null ? null : new TrajJsonModel(queryResult.rawQuery);
         this.mapped = queryResult.mappedQuery == null ? null : new TrajJsonModel(queryResult.mappedQuery);
         this.retSize = queryResult.retSize;
-        this.ret = new ArrayList<>(retSize > maximum ? maximum : retSize);
+        this.ret = new ArrayList<>(Math.min(retSize, maximum));
         if (queryResult.retSize > maximum)
             ret.addAll(Formater.model(queryResult.resolvedRet.subList(0, maximum)));
         else

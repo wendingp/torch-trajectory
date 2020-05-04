@@ -16,7 +16,7 @@ public class Streaming {
 
     }
 
-    public Streaming start() throws InterruptedException {
+    public Streaming start() {
         simulator.start();
         return this;
     }

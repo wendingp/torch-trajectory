@@ -11,7 +11,7 @@ import java.util.*;
 public class ClusterPath {
     protected Set<Integer> clusterTrajectory; // stores all the indices of trajectories
     protected VIseries centroid; // store the centroid path
-    int iteration = 1000; // the maximum iteration times
+    final int NUM_ITERATIONS = 1000; // the maximum iteration times
 
     // build histogram for edges and length using hashmap and Guava
     protected Multiset<Integer> edgeOcc;
@@ -23,7 +23,7 @@ public class ClusterPath {
     PriorityQueue<Path> queue;
     ArrayList<Integer> sortedFrequency;
     double sumEdgeOcc;
-    int pathMinlength;
+//    int pathMinlength;
 
     protected int idx;// it stores the idx of the trajectory which is the centroid.
     protected double sumDistance = 0; // the sum distance in this cluster.
@@ -31,13 +31,14 @@ public class ClusterPath {
     protected int[] finalPath;
 
     public ClusterPath(int[] cl, int idx1) {
-        clusterTrajectory = new HashSet<Integer>();
+        clusterTrajectory = new HashSet<>();
         centroid = new VIseries();
         centroid.setVIseries(cl);
-        if (cl != null)
+        if (cl != null) {
             centroid.length = cl.length;
-        else
+        } else {
             centroid.length = 0;
+        }
         centroid.idx = idx1;
         this.idx = idx1;
         this.finalPath = cl;
@@ -66,8 +67,8 @@ public class ClusterPath {
     public Set<Integer> creatCandidateListNoDataMap(Map<Integer, List<Integer>> edgeIndex, int[] trajectory) {
         if (centerChanged) {//create a new list if changed, otherwise return previous to avoid rebuild
             candidateList = new HashSet<>();
-            for (int edgeid : trajectory) {
-                List<Integer> traidlist = edgeIndex.get(edgeid);
+            for (int edgeId : trajectory) {
+                List<Integer> traidlist = edgeIndex.get(edgeId);
                 Collections.addAll(candidateList, traidlist.toArray(new Integer[0]));
             }
         }
@@ -295,14 +296,13 @@ public class ClusterPath {
             }
         }
 
-        int cou = 0;
-
+        int iter = 0;
         while (!queue.isEmpty()) {
-            cou++;
+            iter++;
             Path candidate = queue.poll();
             double lowerBound = candidate.getLowerbound();// compute the score
             double score = candidate.getScore();
-            if (lowerBound > optimalScore || cou >= iteration) {//termination as all possible has been checked
+            if (lowerBound > optimalScore || iter >= NUM_ITERATIONS) {//termination as all possible has been checked
                 break;
             }
             ArrayList<Integer> Can = candidate.getPath();

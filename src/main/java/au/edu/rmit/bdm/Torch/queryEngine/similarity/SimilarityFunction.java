@@ -21,7 +21,7 @@ import static au.edu.rmit.bdm.Torch.base.helper.GeoUtil.min;
  */
 public class SimilarityFunction<T extends TrajEntry> {
 
-    private static Logger logger = LoggerFactory.getLogger(SimilarityFunction.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimilarityFunction.class);
     public static final SimilarityFunction<TrajEntry> DEFAULT;
 
     static { // TODO ?
@@ -37,7 +37,7 @@ public class SimilarityFunction<T extends TrajEntry> {
         DEFAULT = new SimilarityFunction<>(distFunc, comparator);
     }
 
-    private final DistanceFunction distFunc;
+    private final DistanceFunction<T, T> distFunc;
 
     public Comparator<T> comparator;
 

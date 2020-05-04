@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public class QueryProperties {
     public String similarityMeasure;
-    public String preferedIndex;
+    public String preferredIndex;
     public boolean useRaw;
     public Set<String> queryUsed;
     public boolean resolveAll;
@@ -25,7 +25,7 @@ public class QueryProperties {
     public QueryProperties(QueryProperties properties) {
         init();
         this.similarityMeasure = properties.similarityMeasure;
-        this.preferedIndex = properties.preferedIndex;
+        this.preferredIndex = properties.preferredIndex;
         this.resolveAll = properties.resolveAll;
         this.baseDir = properties.baseDir;
         this.uriPrefix = properties.uriPrefix;
@@ -43,7 +43,7 @@ public class QueryProperties {
 
     private void init() {
         similarityMeasure = Torch.Algorithms.DTW;
-        preferedIndex = Torch.Index.EDGE_INVERTED_INDEX;
+        preferredIndex = Torch.Index.EDGE_INVERTED_INDEX;
         baseDir = "Torch";
         uriPrefix = "";
         useRaw = false;

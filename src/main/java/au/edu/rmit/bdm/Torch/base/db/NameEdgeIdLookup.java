@@ -21,7 +21,7 @@ public class NameEdgeIdLookup {
         String[] temp = content.split(",");
         int[] ret = new int[temp.length];
         for (int i = 0; i < temp.length; i++)
-            ret[i] = Integer.valueOf(temp[i]);
+            ret[i] = Integer.parseInt(temp[i]);
         return ret;
     }
 

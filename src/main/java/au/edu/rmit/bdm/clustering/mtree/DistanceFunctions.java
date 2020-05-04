@@ -30,8 +30,8 @@ public final class DistanceFunctions {
     public static <Data> DistanceFunction<Data> cached(final DistanceFunction<Data> distanceFunction) {
         return new DistanceFunction<Data>() {
             class Pair {
-                Data data1;
-                Data data2;
+                final Data data1;
+                final Data data2;
 
                 public Pair(Data data1, Data data2) {
                     this.data1 = data1;
@@ -53,7 +53,7 @@ public final class DistanceFunctions {
                 }
             }
 
-            private final Map<Pair, Double> cache = new HashMap<Pair, Double>();
+            private final Map<Pair, Double> cache = new HashMap<>();
 
             @Override
             public double calculate(Data data1, Data data2) {

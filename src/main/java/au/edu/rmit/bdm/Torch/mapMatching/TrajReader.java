@@ -101,8 +101,8 @@ public class TrajReader {
                 String[] latLng;
                 for (int i = 0; i < trajTuples.length; i++) {
 
-                    double lat = 0.;
-                    double lon = 0.;
+                    double lat;
+                    double lon;
                     try {
                         latLng = trajTuples[i].split(",");
                         lat = Double.parseDouble(latLng[1]);

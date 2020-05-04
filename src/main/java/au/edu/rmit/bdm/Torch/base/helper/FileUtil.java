@@ -11,8 +11,8 @@ public class FileUtil {
      */
     public static void ensureExistence(String path) {
         File f = new File(path);
-        if (!f.getParentFile().exists()) {
-            f.getParentFile().mkdirs();
+        if (!f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
+            throw new AssertionError();
         }
     }
 }

@@ -36,7 +36,7 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
     private static final int INITIAL_ROUND_FOR_H_OR_F = 5;
 
     private FileSetting setting;
-    private static Logger logger = LoggerFactory.getLogger(LEVI.class);
+    private static final Logger logger = LoggerFactory.getLogger(LEVI.class);
     private VertexInvertedIndex vertexInvertedIndex;
     private VertexGridIndex gridIndex;
 
@@ -58,10 +58,12 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
 
     @Override
     public boolean build(String Null) {
-
-        if (!vertexInvertedIndex.loaded) vertexInvertedIndex.build(setting.VERTEX_INVERTED_INDEX);
-        if (!gridIndex.loaded) gridIndex.build(setting.GRID_INDEX);
-
+        if (!vertexInvertedIndex.loaded) {
+            vertexInvertedIndex.build(setting.VERTEX_INVERTED_INDEX);
+        }
+        if (!gridIndex.loaded) {
+            gridIndex.build(setting.GRID_INDEX);
+        }
         return vertexInvertedIndex.loaded && gridIndex.loaded;
     }
 
@@ -74,7 +76,6 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
     //todo
     @Override
     public List<String> findInRange(Geometry geometry) {
-
         Collection<Integer> points;
         if (geometry instanceof SearchWindow)
             points = gridIndex.pointsInWindow((SearchWindow) geometry);
@@ -120,32 +121,34 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
         Map<String, int[]> cache = new HashMap<>();
         int querySize = pointQuery.size();
 
-        for (T value : pointQuery) {
-            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(new Coordinate(value.getLat(), value.getLng()), epsilon));
+        for (T point : pointQuery) {
+            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(
+                    new Coordinate(point.getLat(), point.getLng()), epsilon));
             for (Integer vertexId : idSet) {
                 if (visited.contains(vertexId)) continue;
                 List<String> trajs = vertexInvertedIndex.getKeys(vertexId);
                 for (String trajId : trajs) {
-                    if (!cache.containsKey(trajId))
+                    if (!cache.containsKey(trajId)) {
                         cache.put(trajId, pool.get(trajId));
-                    trajUpperBound.merge(trajId, 1, (a, b) -> a + b);
+                    }
+                    trajUpperBound.merge(trajId, 1, Integer::sum);
                 }
             }
             visited.addAll(idSet);
         }
 
         // Pair.value contains the possible minimum number of edits.
-        PriorityQueue<Pair> candidateHeap = new PriorityQueue<>((p1, p2) -> (Double.compare(p1.score, p2.score)));
+        PriorityQueue<Pair> candidateHeap = new PriorityQueue<>(Comparator.comparingDouble(p -> p.score));
         // Pair.value contains actual number of edits
         PriorityQueue<Pair> topKHeap = new PriorityQueue<>((p1, p2) -> (Double.compare(p2.score, p1.score)));
 
-        for (Map.Entry<String, Integer> entry : trajUpperBound.entrySet())
-            candidateHeap.add(new Pair(entry.getKey(), Math.max(querySize, cache.get(entry.getKey()).length) - entry.getValue()));
+        for (Map.Entry<String, Integer> entry : trajUpperBound.entrySet()) {
+            candidateHeap.add(new Pair(entry.getKey(),
+                    Math.max(querySize, cache.get(entry.getKey()).length) - entry.getValue()));
+        }
         logger.debug("number of candidates: {}", candidateHeap.size());
 
-        int counter = 0;
         while (!candidateHeap.isEmpty()) {
-
             Pair pair = candidateHeap.poll();
 
             String curTrajId = pair.trajectoryID;
@@ -166,6 +169,7 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
             if (topKHeap.size() < k) {
                 topKHeap.offer(pair);
             } else {
+                assert topKHeap.peek() != null;
                 if (topKHeap.peek().score <= curUpperBound) {
                     logger.debug("current upper bound: {}, current real score: {}", curUpperBound, topKHeap.peek().score);
                     break;
@@ -190,25 +194,27 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
         Map<String, Integer> trajUpperBound = new HashMap<>();
         Set<Integer> visited = new HashSet<>();
 
-        for (T value : pointQuery) {
-            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(new Coordinate(value.getLat(), value.getLng()), epsilon));
+        for (T point : pointQuery) {
+            Collection<Integer> idSet = gridIndex.pointsInRange(new Circle(
+                    new Coordinate(point.getLat(), point.getLng()), epsilon));
             for (Integer vertexId : idSet) {
                 if (visited.contains(vertexId)) continue;
                 List<String> trajs = vertexInvertedIndex.getKeys(vertexId);
-                for (String trajId : trajs)
-                    trajUpperBound.merge(trajId, 1, (a, b) -> a + b);
+                for (String trajId : trajs) {
+                    trajUpperBound.merge(trajId, 1, Integer::sum);
+                }
             }
             visited.addAll(idSet);
         }
 
         PriorityQueue<Pair> candidateHeap = new PriorityQueue<>((p1, p2) -> (Double.compare(p2.score, p1.score)));
-        PriorityQueue<Pair> topKHeap = new PriorityQueue<>((p1, p2) -> (Double.compare(p1.score, p2.score)));
+        PriorityQueue<Pair> topKHeap = new PriorityQueue<>(Comparator.comparingDouble(p -> p.score));
 
-        for (Map.Entry<String, Integer> entry : trajUpperBound.entrySet())
+        for (Map.Entry<String, Integer> entry : trajUpperBound.entrySet()) {
             candidateHeap.add(new Pair(entry.getKey(), entry.getValue()));
+        }
         logger.debug("number of candidates: {}", candidateHeap.size());
 
-        int counter = 0;
         while (!candidateHeap.isEmpty()) {
 
             Pair pair = candidateHeap.poll();
@@ -232,6 +238,7 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
             if (topKHeap.size() < k) {
                 topKHeap.offer(pair);
             } else {
+                assert topKHeap.peek() != null;
                 if (topKHeap.peek().score >= curUpperBound) {
                     logger.debug("current upper bound: {}, current real score: {}", curUpperBound, topKHeap.peek().score);
                     break;
@@ -344,9 +351,7 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
                     t.add(idVertexLookup.get(entry));
                 }
 
-                double realDist = 0;
-
-                realDist = similarityFunction.DynamicTimeWarping(t, (List<TrajEntry>) pointQuery);
+                double realDist = similarityFunction.DynamicTimeWarping(t, (List<TrajEntry>) pointQuery);
 
                 double score = -realDist;
 
@@ -355,11 +360,13 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
                     topKHeap.offer(pair);
                 } else {
 
+                    assert topKHeap.peek() != null;
                     if (topKHeap.peek().score < pair.score) {
                         topKHeap.offer(pair);
                         topKHeap.poll();
                     }
 
+                    assert topKHeap.peek() != null;
                     bestKthSoFar = topKHeap.peek().score;
 
                     if (++j % 1500 == 0 || bestKthSoFar > curUpperBound)
@@ -431,13 +438,12 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
 
                 for (Integer vertexId : vertices) {
                     Double score = -GeoUtil.distance(idVertexLookup.get(vertexId), queryVertex);
-                    List<String> l = vertexInvertedIndex.getKeys(vertexId);
-                    for (String trajId : l) {
+                    for (String trajId : vertexInvertedIndex.getKeys(vertexId)) {
                         Map<TrajEntry, Double> map = trajUpperBoundDetailed.get(trajId);
                         if (map != null) {
-                            if (!map.containsKey(queryVertex) ||
-                                    score > map.get(queryVertex))
+                            if (!map.containsKey(queryVertex) || score > map.get(queryVertex)) {
                                 map.put(queryVertex, score);
+                            }
                         } else {
                             map = trajUpperBoundDetailed.computeIfAbsent(trajId, key -> new HashMap<>());
                             map.put(queryVertex, score);
@@ -505,11 +511,13 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
                 if (topKHeap.size() < k) {
                     topKHeap.offer(pair);
                 } else {
+                    assert topKHeap.peek() != null;
                     if (topKHeap.peek().score < pair.score) {
                         topKHeap.offer(pair);
                         topKHeap.poll();
                     }
 
+                    assert topKHeap.peek() != null;
                     bestKthSoFar = topKHeap.peek().score;
 
                     if (++j % 1500 == 0 || bestKthSoFar > curUpperBound)
@@ -551,7 +559,9 @@ public class LEVI implements WindowQueryIndex, TopKQueryIndex {
         this.epsilon = epsilon;
         similarityFunction.comparator = (p1, p2) -> {
             double dist = GeoUtil.distance(p1, p2);
-            if (dist <= epsilon) return 0;
+            if (dist <= epsilon) {
+                return 0;
+            }
             return 1;
         };
     }

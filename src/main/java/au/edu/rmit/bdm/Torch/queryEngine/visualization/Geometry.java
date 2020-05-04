@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 class Geometry {
-    private static Logger logger = LoggerFactory.getLogger(Geometry.class);
+    private static final Logger logger = LoggerFactory.getLogger(Geometry.class);
 
     // String type = "LineString";
 

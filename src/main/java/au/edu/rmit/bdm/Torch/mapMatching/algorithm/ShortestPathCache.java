@@ -221,7 +221,7 @@ class ShortestPathCache extends HashMap<String, ShortestPathCache.ShortestPathEn
     private List<TowerVertex> shortestPathBetweenTowerAndPillar(TowerVertex p1, PillarVertex p2) {
         List<TowerVertex> shortestPath = new ArrayList<>();
         double minDis = Double.MAX_VALUE;
-        Double distance = -1.;
+        Double distance;
 
         if (p2.edge.isForward) {
             distance = this.get(p1.hash).dist.get(p2.edge.baseVertex.hash);

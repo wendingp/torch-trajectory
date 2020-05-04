@@ -1,27 +1,16 @@
 package au.edu.rmit.bdm.clustering.mtree;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.PriorityQueue;
-import java.util.Scanner;
-import java.util.Set;
-
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 import au.edu.rmit.bdm.clustering.trajectory.kpaths.ClusterPath;
 import au.edu.rmit.bdm.clustering.trajectory.kpaths.Util;
 import au.edu.rmit.bdm.clustering.trajectory.kpaths.Yinyang;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import scala.collection.generic.BitOperations.Int;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.*;
 
 
 /**
@@ -56,32 +45,32 @@ public class MTree<DATA> {
 
 
     // Exception classes
-    private static class SplitNodeReplacement extends Exception {
+    private static class SplitNodeReplacementException extends Exception {
         // A subclass of Throwable cannot be generic.  :-(
         // So, we have newNodes declared as Object[] instead of Node[].
-        private Object[] newNodes;
+        private final Object[] newNodes;
 
-        private SplitNodeReplacement(Object... newNodes) {
+        private SplitNodeReplacementException(Object... newNodes) {
             this.newNodes = newNodes;
         }
     }
 
-    private static class RootNodeReplacement extends Exception {
+    private static class RootNodeReplacementException extends Exception {
         // A subclass of Throwable cannot be generic.  :-(
         // So, we have newRoot declared as Object instead of Node.
-        private Object newRoot;
+        private final Object newRoot;
 
-        private RootNodeReplacement(Object newRoot) {
+        private RootNodeReplacementException(Object newRoot) {
             this.newRoot = newRoot;
         }
     }
 
 
-    private static class NodeUnderCapacity extends Exception {
+    private static class NodeUnderCapacityException extends Exception {
     }
 
 
-    private static class DataNotFound extends Exception {
+    private static class DataNotFoundException extends Exception {
     }
 
     /*
@@ -92,6 +81,7 @@ public class MTree<DATA> {
         // construct the leaf node using the input
         // add the leaf node to the tree
         // return the root nodes
+        throw new UnsupportedOperationException();
     }
 
     /*
@@ -100,6 +90,7 @@ public class MTree<DATA> {
     public void runKpathsToGroup(int centroid, ArrayList<int[]> tralist) {
         // call the addLeafNode when found a good group which has a small radius and many uninserted trajectories.
         // update the radius of inserted parental nodes
+        throw new UnsupportedOperationException();
     }
 
     /*
@@ -168,11 +159,11 @@ public class MTree<DATA> {
                 String strr = str.trim();
                 String[] abc = strr.split(":");
                 String[] radius_data = abc[1].split(";");
-                double radius = Double.valueOf(radius_data[0]);
-                double distanceToFarther = Double.valueOf(radius_data[1]);
+                double radius = Double.parseDouble(radius_data[0]);
+                double distanceToFarther = Double.parseDouble(radius_data[1]);
                 String[] traids = radius_data[2].split(",");
                 for (String traidStr : traids) {
-                    int traid = Integer.valueOf(traidStr);
+                    int traid = Integer.parseInt(traidStr);
                     // read datamap
                 }
                 //read the leaf node file first
@@ -197,9 +188,9 @@ public class MTree<DATA> {
                 String str = in.nextLine();
                 String strr = str.trim();
                 String[] abc = strr.split(";");
-                int edge = Integer.valueOf(abc[0]);
+                int edge = Integer.parseInt(abc[0]);
                 if (!abc[1].equals("")) {
-                    int vertex1 = Integer.valueOf(abc[1]);
+                    int vertex1 = Integer.parseInt(abc[1]);
                     ArrayList<Integer> edgeids;
                     if (aMap.containsKey(vertex1)) {
                         edgeids = aMap.get(vertex1);
@@ -210,7 +201,7 @@ public class MTree<DATA> {
                     aMap.put(vertex1, edgeids);
                 }
                 if (!abc[2].equals("")) {
-                    int vertex2 = Integer.valueOf(abc[2]);
+                    int vertex2 = Integer.parseInt(abc[2]);
                     ArrayList<Integer> edgeids;
                     if (bMap.containsKey(vertex2)) {
                         edgeids = bMap.get(vertex2);
@@ -232,13 +223,13 @@ public class MTree<DATA> {
                 String str = in.nextLine();
                 String strr = str.trim();
                 String[] abc = strr.split(";");
-                int edge = Integer.valueOf(abc[0]);
+                int edge = Integer.parseInt(abc[0]);
                 if (!abc[1].equals("")) {
-                    int vertex1 = Integer.valueOf(abc[1]);
+                    int vertex1 = Integer.parseInt(abc[1]);
                     backwardGraph.put(edge, bMap.get(vertex1));
                 }
                 if (!abc[2].equals("")) {
-                    int vertex2 = Integer.valueOf(abc[2]);
+                    int vertex2 = Integer.parseInt(abc[2]);
                     forwardGraph.put(edge, aMap.get(vertex2));
                 }
             }
@@ -260,11 +251,11 @@ public class MTree<DATA> {
 
     public class KMeansAssignment extends Yinyang {
         ArrayList<Set<IndexItem>> candiList;
-        private PriorityQueue<ItemWithDistances<Node>> pendingQueue = new PriorityQueue<ItemWithDistances<Node>>();
+        private PriorityQueue<ItemWithDistances<Node>> pendingQueue = new PriorityQueue<>();
 
         public KMeansAssignment(String datapath) {
             super(datapath);
-            pendingQueue.add(new ItemWithDistances<Node>(root, null, 0));//start from the root
+            pendingQueue.add(new ItemWithDistances<>(root, null, 0));//start from the root
             candiList = new ArrayList<>();
         }
 
@@ -273,9 +264,8 @@ public class MTree<DATA> {
             try {
                 Scanner in = new Scanner(new BufferedReader(new FileReader(leafPath)));
                 while (in.hasNextLine()) {
-                    Node newleaf = null;
                     // read the file and enqueue all the leaf nodes to the queue.
-                    pendingQueue.add(new ItemWithDistances<Node>(newleaf, null, 0));//start from the root
+                    pendingQueue.add(new ItemWithDistances<>(null, null, 0));//start from the root
                 }
                 in.close();
             } catch (FileNotFoundException e) {
@@ -330,7 +320,7 @@ public class MTree<DATA> {
         public void runKpath(String folder) {
             int groupNumber = k;
             //divide the k centroids into t groups when k is big
-            center_drift = new HashMap<Integer, Double>();
+            center_drift = new HashMap<>();
             groupInitialClusters(groupNumber, k);
             assignmentNormal(centoridData);
             double overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centoridData);
@@ -338,7 +328,7 @@ public class MTree<DATA> {
             computeGroupDrift(k, groupNumber);
             int t = 1;
             for (; t < TRY_TIMES; t++) {
-                printCluterTrajectory(k, t, folder);
+                printClusterTrajectory(k, t, folder);
                 assignmentWithPrevious(centoridData);
                 overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centoridData);
                 computeGroupDrift(k, groupNumber);
@@ -349,7 +339,7 @@ public class MTree<DATA> {
                     break;//convergence
                 }
             }
-            printCluterTrajectory(k, t + 1, folder);
+            printClusterTrajectory(k, t + 1, folder);
         }
 
         /*
@@ -360,10 +350,10 @@ public class MTree<DATA> {
         public void assignmentNormal(ArrayList<int[]> centoridData) {
             long time1 = System.nanoTime();
             for (int i = 0; i < k; i++) {
-                Set<IndexItem> aNodes = new HashSet<IndexItem>();//store the candidate indexitem
+                Set<IndexItem> aNodes = new HashSet<>();//store the candidate indexitem
                 candiList.add(aNodes);
             }
-            Set<Integer> candidateofAllclusters = new HashSet<Integer>();
+            Set<Integer> candidateofAllclusters = new HashSet<>();
             int minlength = Integer.MAX_VALUE;
             int min_length_id = 0;
             System.out.println(centoridData.size());
@@ -401,7 +391,7 @@ public class MTree<DATA> {
                         } else {
                             for (int j = 0; j < k; j++) {
                                 Set<Integer> canlist = CENTERS.get(j).getCandidateList();// get the candidate list of each cluster
-                                double dist = 0;
+                                double dist;
                                 int[] clustra = centoridData.get(j);
                                 if (!canlist.contains(idx)) // it is not contained
                                     dist = Math.max(data.length, clustra.length);
@@ -427,7 +417,7 @@ public class MTree<DATA> {
                             aClusterPath.updateHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
                         } else {
 
-                            pendingQueue.add(new ItemWithDistances<Node>(childNode, childNode.bounds, minUpperBound));
+                            pendingQueue.add(new ItemWithDistances<>(childNode, childNode.bounds, minUpperBound));
                         }
                     }
                 }
@@ -520,10 +510,10 @@ public class MTree<DATA> {
         /*
          * when we have the previous assignment and update the histograms
          */
-        public void assignmentWithPrevious(ArrayList<int[]> centoridData) {
+        public void assignmentWithPrevious(ArrayList<int[]> centroidData) {
             long time1 = System.nanoTime();
-            Set<Integer> candidateofAllclusters = new HashSet<Integer>();
-            Map<Integer, int[]> clustData = new HashMap<Integer, int[]>();
+            Set<Integer> candidateOfAllClusters = new HashSet<>();
+            Map<Integer, int[]> clusterData = new HashMap<>();
             Map<Integer, ArrayList<IndexItem>> idxNeedsIn = new HashMap<>();//it stores all the idxs of trajectories that move in
             Map<Integer, ArrayList<IndexItem>> idxNeedsOut = new HashMap<>();
             int centerMinlength = Integer.MAX_VALUE;
@@ -531,12 +521,12 @@ public class MTree<DATA> {
             long startTime2 = System.nanoTime();
             for (int j = 0; j < k; j++) {
                 long startTime1 = System.nanoTime();
-                int[] clustra = centoridData.get(j);
+                int[] clustra = centroidData.get(j);
                 Set<Integer> candilist = CENTERS.get(j).creatCandidateListNoDataMap(edgeIndex, clustra);//generate the candidate list
-                Collections.addAll(candidateofAllclusters, candilist.toArray(new Integer[0]));
+                Collections.addAll(candidateOfAllClusters, candilist.toArray(new Integer[0]));
                 long endtime1 = System.nanoTime();
                 runRecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
-                clustData.put(j, clustra);
+                clusterData.put(j, clustra);
                 if (clustra.length < centerMinlength) {// get the minimum length
                     centerMinlength = clustra.length;
                     minLengthCenterid = j;// the center with minimum length
@@ -545,132 +535,128 @@ public class MTree<DATA> {
             long endtime = System.nanoTime();
             System.out.println("Index build time cost: " + (endtime - startTime2) / 1000000000.0 + "s");
             int movedtrajectory = 0;
-            computeInterCentorid(k, CENTERS, clustData);//compute the inter centroid bound martix
-            for (int group_i = 0; group_i < k; group_i++) {//check each group
-                int centerID = group_i;
-                {//check each center in the group
-                    int center_length = clustData.get(centerID).length;
-                    Set<IndexItem> tralist = candiList.get(centerID);
-                    for (IndexItem child : tralist) { // check every trajectory in the center to assign which integrate the group filtering and local filtering
-                        int idx = MTree.this.distanceFunction.getID(child.data);
-                        int[] tra = MTree.this.distanceFunction.getData(child.data);
-                        if (child instanceof MTree.Entry) {
-                            int tralength = tra.length; // the length of trajectory is read
-                            double min_dist = Double.MAX_VALUE;// to record the best center's distance
-                            int newCenterId = centerID;//initialize as the original center
-                            if (!checkInvertedIndex(candidateofAllclusters, idx)) { // if it is never contained by any list, we can assign it to the cluster with minimum length
-                                min_dist = Math.max(tralength, centerMinlength);
-                                double min_dist1 = Math.max(tralength, center_length);
-                                if (min_dist1 > min_dist) {//change to other center
-                                    newCenterId = minLengthCenterid;
-                                }
-                                indexFil += k;
-                            } else {//check whether we need to change the center by comparing the bounds
-                                double[] bounds = child.bounds;
-                                double lowerbound = getMinimumLowerboundInNode(bounds, k, centerID);    // bound from drift
-                                Set<Integer> canlist = CENTERS.get(centerID).getCandidateList();
-                                int[] clustra = clustData.get(centerID);
-                                if (checkInvertedIndex(canlist, idx)) {
-                                    min_dist = computeRealDistance(tra, clustra, idx);//compute the distance with new center
-                                } else {// do not need to read as no overlap
-                                    min_dist = Math.max(tralength, clustra.length);
-                                }
-                                double newupperbound = min_dist;// tighten the upper bound
-                                newCenterId = centerID;
-                                double centroidBound = interMinimumCentoridDis[centerID] / 2.0;
-                                lowerbound = Math.max(lowerbound, centroidBound);
-                                if (lowerbound < newupperbound) {//cannot not pass the group filtering
-                                    for (int group_j = 0; group_j < k; group_j++) {
-                                        if (group_j == group_i)//skip current group
-                                            continue;
-                                        double localbound = Math.max((bounds[group_j] - group_drift[group_j]), innerCentoridDis[centerID][group_j] / 2.0);
-                                        if (localbound < min_dist) {//the groups that cannot pass the filtering of bound and inverted index
-                                            double second_min_dist_local = Double.MAX_VALUE;
-                                            int center_j = group_j;
-                                            {// goto the local filtering on center in a group, by checking the candidate list and bounds
-                                                canlist = CENTERS.get(center_j).getCandidateList();// get the candidate list of each cluster
-                                                clustra = clustData.get(center_j);
-                                                double dist = 0;
-                                                if (checkInvertedIndex(canlist, idx)) {
-                                                    dist = computeRealDistance(tra, clustra, idx);
-                                                } else {
-                                                    indexFil++;
-                                                    dist = Math.max(tralength, clustra.length);
-                                                }
-                                                if (min_dist > dist) {
-                                                    min_dist = dist; // maintain the one with min distance, and second min distance
-                                                    newCenterId = center_j;
-                                                }
-                                                if (second_min_dist_local > dist) {
-                                                    second_min_dist_local = dist;
-                                                }
-                                            }
-                                            child.bounds[group_j] = second_min_dist_local;
+            computeInterCentorid(k, CENTERS, clusterData);//compute the inter centroid bound martix
+            for (int group_i = 0; group_i < k; group_i++) {
+                //check each center in the group
+                int center_length = clusterData.get(group_i).length;
+                Set<IndexItem> tralist = candiList.get(group_i);
+                for (IndexItem child : tralist) { // check every trajectory in the center to assign which integrate the group filtering and local filtering
+                    int idx = MTree.this.distanceFunction.getID(child.data);
+                    int[] tra = MTree.this.distanceFunction.getData(child.data);
+                    if (child instanceof MTree.Entry) {
+                        int tralength = tra.length; // the length of trajectory is read
+                        double min_dist;// to record the best center's distance
+                        int newCenterId = group_i;//initialize as the original center
+                        if (!checkInvertedIndex(candidateOfAllClusters, idx)) { // if it is never contained by any list, we can assign it to the cluster with minimum length
+                            min_dist = Math.max(tralength, centerMinlength);
+                            double min_dist1 = Math.max(tralength, center_length);
+                            if (min_dist1 > min_dist) {//change to other center
+                                newCenterId = minLengthCenterid;
+                            }
+                            indexFil += k;
+                        } else {//check whether we need to change the center by comparing the bounds
+                            double[] bounds = child.bounds;
+                            double lowerbound = getMinimumLowerboundInNode(bounds, k, group_i);    // bound from drift
+                            Set<Integer> canlist = CENTERS.get(group_i).getCandidateList();
+                            int[] clustra = clusterData.get(group_i);
+                            if (checkInvertedIndex(canlist, idx)) {
+                                min_dist = computeRealDistance(tra, clustra, idx);//compute the distance with new center
+                            } else {// do not need to read as no overlap
+                                min_dist = Math.max(tralength, clustra.length);
+                            }
+                            double newupperbound = min_dist;// tighten the upper bound
+                            newCenterId = group_i;
+                            double centroidBound = interMinimumCentoridDis[group_i] / 2.0;
+                            lowerbound = Math.max(lowerbound, centroidBound);
+                            if (lowerbound < newupperbound) {//cannot not pass the group filtering
+                                for (int group_j = 0; group_j < k; group_j++) {
+                                    if (group_j == group_i)//skip current group
+                                        continue;
+                                    double localbound = Math.max((bounds[group_j] - group_drift[group_j]), innerCentoridDis[group_i][group_j] / 2.0);
+                                    if (localbound < min_dist) {//the groups that cannot pass the filtering of bound and inverted index
+                                        double second_min_dist_local = Double.MAX_VALUE;
+                                        // goto the local filtering on center in a group, by checking the candidate list and bounds
+                                        canlist = CENTERS.get(group_j).getCandidateList();// get the candidate list of each cluster
+                                        clustra = clusterData.get(group_j);
+                                        double dist;
+                                        if (checkInvertedIndex(canlist, idx)) {
+                                            dist = computeRealDistance(tra, clustra, idx);
                                         } else {
-                                            numFilGroup++;
-                                            child.bounds[group_j] = bounds[group_j] - group_drift[group_j];
+                                            indexFil++;
+                                            dist = Math.max(tralength, clustra.length);
                                         }
+                                        if (min_dist > dist) {
+                                            min_dist = dist; // maintain the one with min distance, and second min distance
+                                            newCenterId = group_j;
+                                        }
+                                        if (second_min_dist_local > dist) {
+                                            second_min_dist_local = dist;
+                                        }
+                                        child.bounds[group_j] = second_min_dist_local;
+                                    } else {
+                                        numFilGroup++;
+                                        child.bounds[group_j] = bounds[group_j] - group_drift[group_j];
                                     }
-                                } else {
-                                    numFilWholGroup++;
-                                }
-                            }
-                            if (newCenterId != centerID) {// the trajectory moves to other center, this should be counted into the time of refinement.
-                                movedtrajectory++;
-                                numeMovedTrajectories++;
-                                long Time1 = System.nanoTime();
-                                ArrayList<IndexItem> idxlist;
-                                if (idxNeedsIn.containsKey(newCenterId))
-                                    idxlist = idxNeedsIn.get(newCenterId);
-                                else
-                                    idxlist = new ArrayList<IndexItem>();
-                                idxlist.add(child);
-                                idxNeedsIn.put(newCenterId, idxlist);// temporal store as we cannot add them the trajectory list which will be scanned later, batch remove later
-                                if (idxNeedsOut.containsKey(centerID))
-                                    idxlist = idxNeedsOut.get(centerID);
-                                else
-                                    idxlist = new ArrayList<IndexItem>();
-                                idxlist.add(child);
-                                idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
-                                accumulateHistogramGuava(tra, idx, newCenterId, centerID);    // update the histogram directly
-                                long Time2 = System.nanoTime();
-                                runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
-                            }
-                        } else {
-                            Node childNode = (Node) child;//if this node cannot be pruned, we will further enqueue this to the queue with the bounds
-                            ClusterPath bClusterPath = CENTERS.get(centerID);
-                            if (assignNode(childNode, centoridData, tra, child.radius)) {    // if the histogram is not equal to the original centroids, we move
-                                System.out.println("bbbbbb");
-                                if (centerID != minId) {
-                                    ArrayList<IndexItem> idxlist;
-                                    if (idxNeedsIn.containsKey(minId))
-                                        idxlist = idxNeedsIn.get(minId);
-                                    else
-                                        idxlist = new ArrayList<IndexItem>();
-                                    idxlist.add(child);
-                                    idxNeedsIn.put(minId, idxlist);// temporal store as we cannot add them the trajectory list which will be scanned later, batch remove later
-                                    if (idxNeedsOut.containsKey(centerID))
-                                        idxlist = idxNeedsOut.get(centerID);
-                                    else
-                                        idxlist = new ArrayList<IndexItem>();
-                                    idxlist.add(child);
-                                    idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
-
-                                    ClusterPath aClusterPath = CENTERS.get(minId);
-                                    bClusterPath.removeHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
-                                    aClusterPath.updateHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
                                 }
                             } else {
-                                ArrayList<IndexItem> idxlist;
-                                if (idxNeedsOut.containsKey(centerID))
-                                    idxlist = idxNeedsOut.get(centerID);
-                                else
-                                    idxlist = new ArrayList<IndexItem>();
-                                idxlist.add(child);
-                                idxNeedsOut.put(centerID, idxlist);// temporal store, batch remove later
-                                bClusterPath.removeHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);//remove the histogram from original histogram
-                                pendingQueue.add(new ItemWithDistances<Node>(childNode, childNode.bounds, minUpperBound));
+                                numFilWholGroup++;
                             }
+                        }
+                        if (newCenterId != group_i) {// the trajectory moves to other center, this should be counted into the time of refinement.
+                            movedtrajectory++;
+                            numeMovedTrajectories++;
+                            long Time1 = System.nanoTime();
+                            ArrayList<IndexItem> idxlist;
+                            if (idxNeedsIn.containsKey(newCenterId))
+                                idxlist = idxNeedsIn.get(newCenterId);
+                            else
+                                idxlist = new ArrayList<>();
+                            idxlist.add(child);
+                            idxNeedsIn.put(newCenterId, idxlist);// temporal store as we cannot add them the trajectory list which will be scanned later, batch remove later
+                            if (idxNeedsOut.containsKey(group_i))
+                                idxlist = idxNeedsOut.get(group_i);
+                            else
+                                idxlist = new ArrayList<>();
+                            idxlist.add(child);
+                            idxNeedsOut.put(group_i, idxlist);// temporal store, batch remove later
+                            accumulateHistogramGuava(tra, idx, newCenterId, group_i);    // update the histogram directly
+                            long Time2 = System.nanoTime();
+                            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+                        }
+                    } else {
+                        Node childNode = (Node) child;//if this node cannot be pruned, we will further enqueue this to the queue with the bounds
+                        ClusterPath bClusterPath = CENTERS.get(group_i);
+                        if (assignNode(childNode, centroidData, tra, child.radius)) {    // if the histogram is not equal to the original centroids, we move
+                            System.out.println("bbbbbb???????????");
+                            if (group_i != minId) {
+                                ArrayList<IndexItem> idxlist;
+                                if (idxNeedsIn.containsKey(minId))
+                                    idxlist = idxNeedsIn.get(minId);
+                                else
+                                    idxlist = new ArrayList<>();
+                                idxlist.add(child);
+                                idxNeedsIn.put(minId, idxlist);// temporal store as we cannot add them the trajectory list which will be scanned later, batch remove later
+                                if (idxNeedsOut.containsKey(group_i))
+                                    idxlist = idxNeedsOut.get(group_i);
+                                else
+                                    idxlist = new ArrayList<>();
+                                idxlist.add(child);
+                                idxNeedsOut.put(group_i, idxlist);// temporal store, batch remove later
+
+                                ClusterPath aClusterPath = CENTERS.get(minId);
+                                bClusterPath.removeHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
+                                aClusterPath.updateHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);
+                            }
+                        } else {
+                            ArrayList<IndexItem> idxlist;
+                            if (idxNeedsOut.containsKey(group_i))
+                                idxlist = idxNeedsOut.get(group_i);
+                            else
+                                idxlist = new ArrayList<>();
+                            idxlist.add(child);
+                            idxNeedsOut.put(group_i, idxlist);// temporal store, batch remove later
+                            bClusterPath.removeHistogramGuava(childNode.edgeOcc, childNode.lengthOcc);//remove the histogram from original histogram
+                            pendingQueue.add(new ItemWithDistances<>(childNode, childNode.bounds, minUpperBound));
                         }
                     }
                 }
@@ -679,22 +665,23 @@ public class MTree<DATA> {
             updateCentersNew(idxNeedsIn, idxNeedsOut);//add to the new
             long Time2 = System.nanoTime();
             runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
-            assignmentNormal(centoridData);//assign the nodes in the pending queue using the same method
+            assignmentNormal(centroidData);//assign the nodes in the pending queue using the same method
             System.out.println(movedtrajectory);
             long time2 = System.nanoTime();
             runRecord.addAssignmentTime((time2 - time1) / 1000000000.0);
         }
 
         /*
-         * choose the centers in the index as the centroid, randomly scan the tree to choose k centroids from node
+         * TODO choose the centers in the index as the centroid, randomly scan the tree to choose k centroids from node
          */
         public void InitializeCentroids(Node rootnode, ArrayList<Int[]> centoridData) {
             //get all the levels, and do not need to access the
-            if (rootnode.getChildren().size() > k) {//choose the centroid randomly
-
-            } else {
-                //go deeper to check if there are more than k centroid
-            }
+            throw new UnsupportedOperationException("TODO");
+//            if (rootnode.getChildren().size() > k) {//choose the centroid randomly
+//
+//            } else {
+//                //go deeper to check if there are more than k centroid
+//            }
         }
 
         /*
@@ -716,9 +703,9 @@ public class MTree<DATA> {
             return overallDis;
         }
 
-        private void updateCentroids(ArrayList<int[]> centoridData) {
+        private void updateCentroids(ArrayList<int[]> centroidData) {
             for (int i = 0; i < k; i++) {
-                centoridData.set(i, CENTERS.get(i).getTrajectoryData());
+                centroidData.set(i, CENTERS.get(i).getTrajectoryData());
             }
         }
     }
@@ -762,9 +749,9 @@ public class MTree<DATA> {
 
             private ResultItem nextResultItem = null;
             private boolean finished = false;
-            private PriorityQueue<ItemWithDistances<Node>> pendingQueue = new PriorityQueue<ItemWithDistances<Node>>();
+            private PriorityQueue<ItemWithDistances<Node>> pendingQueue = new PriorityQueue<>();
             private double nextPendingMinDistance;
-            private PriorityQueue<ItemWithDistances<Entry>> nearestQueue = new PriorityQueue<ItemWithDistances<Entry>>();
+            private PriorityQueue<ItemWithDistances<Entry>> nearestQueue = new PriorityQueue<>();
             private int yieldedCount;
 
             private ResultsIterator() {
@@ -776,7 +763,7 @@ public class MTree<DATA> {
                 double distance = MTree.this.distanceFunction.calculate(Query.this.data, MTree.this.root.data);
                 double minDistance = Math.max(distance - MTree.this.root.radius, 0.0);
 
-                pendingQueue.add(new ItemWithDistances<Node>(MTree.this.root, distance, minDistance));
+                pendingQueue.add(new ItemWithDistances<>(MTree.this.root, distance, minDistance));
                 nextPendingMinDistance = minDistance;
             }
 
@@ -957,9 +944,9 @@ public class MTree<DATA> {
         }
 
         if (splitFunction == null) {
-            splitFunction = new ComposedSplitFunction<DATA>(
-                    new PromotionFunctions.RandomPromotion<DATA>(),
-                    new PartitionFunctions.BalancedPartition<DATA>()
+            splitFunction = new ComposedSplitFunction<>(
+                    new PromotionFunctions.RandomPromotion<>(),
+                    new PartitionFunctions.BalancedPartition<>()
             );
         }
 
@@ -983,18 +970,16 @@ public class MTree<DATA> {
             root = new RootLeafNode(data);
             try {
                 root.addData(data, 0);
-            } catch (SplitNodeReplacement e) {
+            } catch (SplitNodeReplacementException e) {
                 throw new RuntimeException("Should never happen!");
             }
         } else {
             double distance = distanceFunction.calculate(data, root.data);
             try {
                 root.addData(data, distance);
-            } catch (SplitNodeReplacement e) {
-                Node newRoot = new RootNode(data);
-                root = newRoot;
+            } catch (SplitNodeReplacementException e) {
+                root = new RootNode(data);
                 for (int i = 0; i < e.newNodes.length; i++) {
-                    @SuppressWarnings("unchecked")
                     Node newNode = (Node) e.newNodes[i];
                     distance = distanceFunction.calculate(root.data, newNode.data);
                     root.addChild(newNode, distance);
@@ -1018,13 +1003,13 @@ public class MTree<DATA> {
         double distanceToRoot = distanceFunction.calculate(data, root.data);
         try {
             root.removeData(data, distanceToRoot);
-        } catch (RootNodeReplacement e) {
+        } catch (RootNodeReplacementException e) {
             @SuppressWarnings("unchecked")
             Node newRoot = (Node) e.newRoot;
             root = newRoot;
-        } catch (DataNotFound e) {
+        } catch (DataNotFoundException e) {
             return false;
-        } catch (NodeUnderCapacity e) {
+        } catch (NodeUnderCapacityException e) {
             throw new RuntimeException("Should have never happened", e);
         }
         return true;
@@ -1132,7 +1117,7 @@ public class MTree<DATA> {
         /*
          * we can add additional information here, such as the histogram
          */
-        protected Map<DATA, IndexItem> children = new HashMap<DATA, IndexItem>();
+        protected Map<DATA, IndexItem> children = new HashMap<>();
         protected Rootness rootness;
         protected Leafness<DATA> leafness;
 
@@ -1163,7 +1148,7 @@ public class MTree<DATA> {
             this.leafness = leafness;
         }
 
-        private final void addData(DATA data, double distance) throws SplitNodeReplacement {
+        private void addData(DATA data, double distance) throws SplitNodeReplacementException {
             doAddData(data, distance);
             checkMaxCapacity();
         }
@@ -1198,11 +1183,11 @@ public class MTree<DATA> {
             leafness.doAddData(data, distance);
         }
 
-        protected void doRemoveData(DATA data, double distance) throws DataNotFound {
+        protected void doRemoveData(DATA data, double distance) throws DataNotFoundException {
             leafness.doRemoveData(data, distance);
         }
 
-        private final void checkMaxCapacity() throws SplitNodeReplacement {
+        private void checkMaxCapacity() throws SplitNodeReplacementException {
             if (children.size() > MTree.this.maxNodeCapacity) {
                 DistanceFunction<? super DATA> cachedDistanceFunction = DistanceFunctions.cached(MTree.this.distanceFunction);
                 SplitFunction.SplitResult<DATA> splitResult = MTree.this.splitFunction.process(children.keySet(), cachedDistanceFunction);
@@ -1229,7 +1214,7 @@ public class MTree<DATA> {
                 }
                 assert children.isEmpty();
 
-                throw new SplitNodeReplacement(newNode0, newNode1);
+                throw new SplitNodeReplacementException(newNode0, newNode1);
             }
 
         }
@@ -1242,10 +1227,10 @@ public class MTree<DATA> {
             leafness.addChild(child, distance);
         }
 
-        void removeData(DATA data, double distance) throws RootNodeReplacement, NodeUnderCapacity, DataNotFound {
+        void removeData(DATA data, double distance) throws RootNodeReplacementException, NodeUnderCapacityException, DataNotFoundException {
             doRemoveData(data, distance);
             if (children.size() < getMinCapacity()) {
-                throw new NodeUnderCapacity();
+                throw new NodeUnderCapacityException();
             }
         }
 
@@ -1301,7 +1286,7 @@ public class MTree<DATA> {
 
         void addChild(MTree<DATA>.IndexItem child, double distance);
 
-        void doRemoveData(DATA data, double distance) throws DataNotFound;
+        void doRemoveData(DATA data, double distance) throws DataNotFoundException;
 
         MTree<DATA>.Node newSplitNodeReplacement(DATA data);
 
@@ -1379,9 +1364,9 @@ public class MTree<DATA> {
 
 
         @Override
-        public void doRemoveData(DATA data, double distance) throws DataNotFound {
+        public void doRemoveData(DATA data, double distance) throws DataNotFoundException {
             if (thisNode.children.remove(data) == null) {
-                throw new DataNotFound();
+                throw new DataNotFoundException();
             }
         }
 
@@ -1432,13 +1417,13 @@ public class MTree<DATA> {
             try {
                 child.addData(data, chosen.distance);
                 thisNode.updateRadius(child);
-            } catch (SplitNodeReplacement e) {
+            } catch (SplitNodeReplacementException e) {
                 // Replace current child with new nodes
-                IndexItem _ = thisNode.children.remove(child.data);
-                assert _ != null;
+                if (thisNode.children.remove(child.data) == null) {
+                    throw new AssertionError();
+                }
 
                 for (int i = 0; i < e.newNodes.length; ++i) {
-                    @SuppressWarnings("unchecked")
                     Node newChild = (Node) e.newNodes[i];
                     distance = thisNode.mtree().distanceFunction.calculate(thisNode.data, newChild.data);
                     thisNode.addChild(newChild, distance);
@@ -1460,7 +1445,7 @@ public class MTree<DATA> {
                 }
             }
 
-            Deque<ChildWithDistance> newChildren = new ArrayDeque<ChildWithDistance>();
+            Deque<ChildWithDistance> newChildren = new ArrayDeque<>();
             newChildren.addFirst(new ChildWithDistance(newChild, distance));
 
             while (!newChildren.isEmpty()) {
@@ -1480,12 +1465,11 @@ public class MTree<DATA> {
 
                     try {
                         existingChild.checkMaxCapacity();
-                    } catch (SplitNodeReplacement e) {
-                        IndexItem _ = thisNode.children.remove(existingChild.data);
-                        assert _ != null;
-
+                    } catch (SplitNodeReplacementException e) {
+                        if (thisNode.children.remove(existingChild.data) == null) {
+                            throw new AssertionError();
+                        }
                         for (int i = 0; i < e.newNodes.length; ++i) {
-                            @SuppressWarnings("unchecked")
                             Node newNode = (Node) e.newNodes[i];
                             distance = thisNode.mtree().distanceFunction.calculate(thisNode.data, newNode.data);
                             newChildren.addFirst(new ChildWithDistance(newNode, distance));
@@ -1504,7 +1488,7 @@ public class MTree<DATA> {
         }
 
 
-        public void doRemoveData(DATA data, double distance) throws DataNotFound {
+        public void doRemoveData(DATA data, double distance) throws DataNotFoundException {
             for (IndexItem childItem : thisNode.children.values()) {
                 Node child = (Node) childItem;
                 if (Math.abs(distance - child.distanceToParent) <= child.radius) {
@@ -1514,20 +1498,19 @@ public class MTree<DATA> {
                             child.removeData(data, distanceToChild);
                             thisNode.updateRadius(child);
                             return;
-                        } catch (DataNotFound e) {
+                        } catch (DataNotFoundException e) {
                             // If DataNotFound was thrown, then the data was not found in the child
-                        } catch (NodeUnderCapacity e) {
+                        } catch (NodeUnderCapacityException e) {
                             Node expandedChild = balanceChildren(child);
                             thisNode.updateRadius(expandedChild);
                             return;
-                        } catch (RootNodeReplacement e) {
+                        } catch (RootNodeReplacementException e) {
                             throw new RuntimeException("Should never happen!");
                         }
                     }
                 }
             }
-
-            throw new DataNotFound();
+            throw new DataNotFoundException();
         }
 
 
@@ -1564,9 +1547,9 @@ public class MTree<DATA> {
                     double distance = thisNode.mtree().distanceFunction.calculate(grandchild.data, nearestMergeCandidate.data);
                     nearestMergeCandidate.addChild(grandchild, distance);
                 }
-
-                IndexItem removed = thisNode.children.remove(theChild.data);
-                assert removed != null;
+                if (thisNode.children.remove(theChild.data) == null) {
+                    throw new AssertionError();
+                }
                 return nearestMergeCandidate;
             } else {
                 // Donate
@@ -1580,9 +1563,10 @@ public class MTree<DATA> {
                         nearestGrandchild = grandchild;
                     }
                 }
-
-                IndexItem _ = nearestDonor.children.remove(nearestGrandchild.data);
-                assert _ != null;
+                assert nearestGrandchild != null;
+                if (nearestDonor.children.remove(nearestGrandchild.data) == null) {
+                    throw new AssertionError();
+                }
                 theChild.addChild(nearestGrandchild, nearestGrandchildDistance);
                 return theChild;
             }
@@ -1590,8 +1574,7 @@ public class MTree<DATA> {
 
 
         public void _checkChildClass(IndexItem child) {
-            assert child instanceof MTree.InternalNode
-                    || child instanceof MTree.LeafNode;
+            assert child instanceof MTree.InternalNode || child instanceof MTree.LeafNode;
         }
     }
 
@@ -1602,12 +1585,12 @@ public class MTree<DATA> {
             super(data, new RootNodeTrait(), new LeafNodeTrait());
         }
 
-        void removeData(DATA data, double distance) throws RootNodeReplacement, DataNotFound {
+        void removeData(DATA data, double distance) throws RootNodeReplacementException, DataNotFoundException {
             try {
                 super.removeData(data, distance);
-            } catch (NodeUnderCapacity e) {
+            } catch (NodeUnderCapacityException e) {
                 assert children.isEmpty();
-                throw new RootNodeReplacement(null);
+                throw new RootNodeReplacementException(null);
             }
         }
 
@@ -1626,10 +1609,10 @@ public class MTree<DATA> {
             super(data, new RootNodeTrait(), new NonLeafNodeTrait());
         }
 
-        void removeData(DATA data, double distance) throws RootNodeReplacement, NodeUnderCapacity, DataNotFound {
+        void removeData(DATA data, double distance) throws RootNodeReplacementException, DataNotFoundException {
             try {
                 super.removeData(data, distance);
-            } catch (NodeUnderCapacity e) {
+            } catch (NodeUnderCapacityException e) {
                 // Promote the only child to root
                 Node theChild = (Node) (children.values().iterator().next());
                 Node newRoot;
@@ -1646,7 +1629,7 @@ public class MTree<DATA> {
                 }
                 theChild.children.clear();
 
-                throw new RootNodeReplacement(newRoot);
+                throw new RootNodeReplacementException(newRoot);
             }
         }
 
