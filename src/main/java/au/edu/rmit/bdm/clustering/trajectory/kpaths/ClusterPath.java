@@ -11,7 +11,7 @@ import java.util.*;
 public class ClusterPath {
     protected Set<Integer> clusterTrajectory; // stores all the indices of trajectories
     protected VIseries centroid; // store the centroid path
-    final int NUM_ITERATIONS = 1000; // the maximum iteration times
+    final int MAX_NUM_ITERATIONS = 1000; // the maximum iteration times
 
     // build histogram for edges and length using hashmap and Guava
     protected Multiset<Integer> edgeOcc;
@@ -302,7 +302,7 @@ public class ClusterPath {
             Path candidate = queue.poll();
             double lowerBound = candidate.getLowerbound();// compute the score
             double score = candidate.getScore();
-            if (lowerBound > optimalScore || iter >= NUM_ITERATIONS) {//termination as all possible has been checked
+            if (lowerBound > optimalScore || iter >= MAX_NUM_ITERATIONS) {//termination as all possible has been checked
                 break;
             }
             ArrayList<Integer> Can = candidate.getPath();
@@ -333,8 +333,7 @@ public class ClusterPath {
                                 continue;
                             }
                             if (lowerBound < optimalScore) {
-                                Path newpath = new Path(newCan, newscore, lowerBound);
-                                queue.add(newpath);
+                                queue.add(new Path(newCan, newscore, lowerBound));
                             }
                         }
                     }
@@ -364,8 +363,7 @@ public class ClusterPath {
                             if (neverChecked(signature, lowerBound))    //repetitive path
                                 continue;
                             if (lowerBound < optimalScore) {//if this path is promising
-                                Path newpath = new Path(newCan, newscore, lowerBound);
-                                queue.add(newpath);
+                                queue.add(new Path(newCan, newscore, lowerBound));
                             }
                         }
                     }

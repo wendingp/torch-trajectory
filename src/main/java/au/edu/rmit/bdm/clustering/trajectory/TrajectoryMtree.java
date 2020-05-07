@@ -5,34 +5,33 @@ import au.edu.rmit.bdm.clustering.mtree.tests.Data;
 import au.edu.rmit.bdm.clustering.mtree.utils.Utils;
 
 public class TrajectoryMtree extends MTree<Data> {
-    private static final PromotionFunction<Data> nonRandomPromotion1 = (dataSet, distanceFunction) -> Utils.minMax(dataSet);
+    private static final PromotionFunction<Data> nonRandomPromotion1 =
+            (dataSet, distanceFunction) -> Utils.minMax(dataSet);
+    private static final int DEFAULT_MIN_NODE_CAPACITY = 20;
 
     /*
-     * initialize our trajectory functions, we can specify the capacity and distance function
+     * initialize our trajectory functions with DEFAULT_MIN_NODE_CAPACITY
      */
-    public TrajectoryMtree() {//DEFAULT_MIN_NODE_CAPACITY
-        super(20, DistanceFunctions.EBD,
-                new ComposedSplitFunction<>(nonRandomPromotion1, new PartitionFunctions.BalancedPartition<>())
-        );
+    public TrajectoryMtree() {
+        super(DEFAULT_MIN_NODE_CAPACITY, DistanceFunctions.EBD,
+                new ComposedSplitFunction<>(nonRandomPromotion1, new PartitionFunctions.BalancedPartition<>()));
     }
 
     /*
      * initialize our trajectory functions, we can specify the capacity and distance function
      */
-    public TrajectoryMtree(int capacity) {//DEFAULT_MIN_NODE_CAPACITY
+    public TrajectoryMtree(int capacity) {
         super(capacity, DistanceFunctions.EBD,
-                new ComposedSplitFunction<>(
-                        nonRandomPromotion1,
-                        new PartitionFunctions.BalancedPartition<>()
-                )
-        );
+                new ComposedSplitFunction<>(nonRandomPromotion1, new PartitionFunctions.BalancedPartition<>()));
     }
 
+    @Override
     public void add(Data data) {
         super.add(data);
         _check();
     }
 
+    @Override
     public boolean remove(Data data) {
         boolean result = super.remove(data);
         _check();
@@ -43,8 +42,8 @@ public class TrajectoryMtree extends MTree<Data> {
         return distanceFunction;
     }
 
-    public void buildMtree(int[] trajectory, int traid) {
-        Data data = new Data(trajectory, traid);
+    public void buildMtree(int[] trajectory, int trajId) {
+        Data data = new Data(trajectory, trajId);
         add(data);
     }
 

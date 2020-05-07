@@ -542,7 +542,7 @@ public class Process extends Thread {
     }
 
 
-    public void init() throws IOException {
+    public void init() {
         CENTERS = new ArrayList<>();
         interMinimumCentoridDis = new double[k];
         innerCentoridDis = new double[k][];

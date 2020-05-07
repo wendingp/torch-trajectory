@@ -429,6 +429,7 @@ public class MTree<DATA> {
         /*
          * the data needs to be sorted before the intersection
          */
+        @Override
         public int Intersection(int[] arr1, int[] arr2, int m, int n) {
             int i = 0, j = 0;
             int dist = 0;
@@ -938,8 +939,7 @@ public class MTree<DATA> {
     public MTree(int minNodeCapacity, int maxNodeCapacity,
                  DistanceFunction<? super DATA> distanceFunction,
                  SplitFunction<DATA> splitFunction) {
-        if (minNodeCapacity < 2 || maxNodeCapacity <= minNodeCapacity ||
-                distanceFunction == null) {
+        if (minNodeCapacity < 2 || maxNodeCapacity <= minNodeCapacity || distanceFunction == null) {
             throw new IllegalArgumentException();
         }
 
@@ -1004,9 +1004,7 @@ public class MTree<DATA> {
         try {
             root.removeData(data, distanceToRoot);
         } catch (RootNodeReplacementException e) {
-            @SuppressWarnings("unchecked")
-            Node newRoot = (Node) e.newRoot;
-            root = newRoot;
+            root = (Node) e.newRoot;
         } catch (DataNotFoundException e) {
             return false;
         } catch (NodeUnderCapacityException e) {
@@ -1154,6 +1152,7 @@ public class MTree<DATA> {
         }
 
 
+        @Override
         int _check() {
             super._check();
             _checkMinCapacity();
@@ -1267,6 +1266,7 @@ public class MTree<DATA> {
             assert sum <= this.radius;
         }
 
+        @Override
         protected void _checkDistanceToParent() {
             rootness._checkDistanceToParent();
         }
@@ -1343,6 +1343,7 @@ public class MTree<DATA> {
 
     private class LeafNodeTrait extends NodeTrait implements Leafness<DATA> {
 
+        @Override
         public void doAddData(DATA data, double distance) {
             Entry entry = thisNode.mtree().new Entry(data);
             assert !thisNode.children.containsKey(data);
@@ -1351,6 +1352,7 @@ public class MTree<DATA> {
             thisNode.updateMetrics(entry, distance);
         }
 
+        @Override
         public void addChild(IndexItem child, double distance) {
             assert !thisNode.children.containsKey(child.data);
             thisNode.children.put(child.data, child);
@@ -1358,6 +1360,7 @@ public class MTree<DATA> {
             thisNode.updateMetrics(child, distance);
         }
 
+        @Override
         public Node newSplitNodeReplacement(DATA data) {
             return thisNode.mtree().new LeafNode(data);
         }
@@ -1370,6 +1373,7 @@ public class MTree<DATA> {
             }
         }
 
+        @Override
         public void _checkChildClass(IndexItem child) {
             assert child instanceof MTree.Entry;
         }
@@ -1378,6 +1382,7 @@ public class MTree<DATA> {
 
     class NonLeafNodeTrait extends NodeTrait implements Leafness<DATA> {
 
+        @Override
         public void doAddData(DATA data, double distance) {
             class CandidateChild {
                 Node node;
@@ -1432,6 +1437,7 @@ public class MTree<DATA> {
         }
 
 
+        @Override
         public void addChild(IndexItem newChild_, double distance) {
             Node newChild = (Node) newChild_;
 
@@ -1483,11 +1489,13 @@ public class MTree<DATA> {
         }
 
 
+        @Override
         public Node newSplitNodeReplacement(DATA data) {
             return new InternalNode(data);
         }
 
 
+        @Override
         public void doRemoveData(DATA data, double distance) throws DataNotFoundException {
             for (IndexItem childItem : thisNode.children.values()) {
                 Node child = (Node) childItem;
@@ -1573,6 +1581,7 @@ public class MTree<DATA> {
         }
 
 
+        @Override
         public void _checkChildClass(IndexItem child) {
             assert child instanceof MTree.InternalNode || child instanceof MTree.LeafNode;
         }
@@ -1585,6 +1594,7 @@ public class MTree<DATA> {
             super(data, new RootNodeTrait(), new LeafNodeTrait());
         }
 
+        @Override
         void removeData(DATA data, double distance) throws RootNodeReplacementException, DataNotFoundException {
             try {
                 super.removeData(data, distance);
@@ -1594,10 +1604,12 @@ public class MTree<DATA> {
             }
         }
 
+        @Override
         protected int getMinCapacity() {
             return 1;
         }
 
+        @Override
         void _checkMinCapacity() {
             assert children.size() >= 1;
         }
@@ -1609,6 +1621,7 @@ public class MTree<DATA> {
             super(data, new RootNodeTrait(), new NonLeafNodeTrait());
         }
 
+        @Override
         void removeData(DATA data, double distance) throws RootNodeReplacementException, DataNotFoundException {
             try {
                 super.removeData(data, distance);

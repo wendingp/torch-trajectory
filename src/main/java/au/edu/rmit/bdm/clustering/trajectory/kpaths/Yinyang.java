@@ -40,6 +40,7 @@ public class Yinyang extends Process {
     }
 
     // the kpath should be put here
+    @Override
     public void run() {
         System.out.println("Running " + threadName);
         long startTime = System.nanoTime();
@@ -100,6 +101,7 @@ public class Yinyang extends Process {
         }
     }
 
+    @Override
     public void start() {
         System.out.println("Starting " + threadName);
         if (runningThread == null) {
@@ -200,6 +202,7 @@ public class Yinyang extends Process {
     /*
      * the data needs to be sorted before the intersection
      */
+    @Override
     public int Intersection(int[] arr1, int[] arr2, int m, int n) {
         int i = 0, j = 0;
         int dist = 0;

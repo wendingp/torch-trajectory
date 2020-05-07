@@ -46,6 +46,7 @@ public class StreamKpath extends Yinyang {
     /*
      * keep reading data from the file
      */
+    @Override
     public void run() {
         System.out.println("Running " + threadName);
         try {
@@ -56,6 +57,7 @@ public class StreamKpath extends Yinyang {
         }
     }
 
+    @Override
     public void start() {
         System.out.println("Starting " + threadName);
         if (runingThread == null) {

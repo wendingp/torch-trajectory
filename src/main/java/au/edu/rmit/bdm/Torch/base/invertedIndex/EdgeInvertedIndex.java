@@ -32,6 +32,7 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
      *
      * @param trajectories trajectories to be indexed
      */
+    @Override
     public <T extends TrajEntry> void indexAll(List<Trajectory<T>> trajectories) {
 
         for (Trajectory<T> trajectory : trajectories)

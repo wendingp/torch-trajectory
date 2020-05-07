@@ -170,6 +170,7 @@ public abstract class InvertedIndex implements Index {
      * @return true if the dataStructure file can be build and construct successfully
      * false if indexes cannot be construct( cannot find dataStructure file or some other reasons)
      */
+    @Override
     public boolean build(String path) {
         logger.info("build up inverted index");
         if (!path.equals(setting.EDGE_INVERTED_INDEX) && !path.equals(setting.VERTEX_INVERTED_INDEX)) {
