@@ -7,8 +7,8 @@ import au.edu.rmit.bdm.Torch.mapMatching.algorithm.Mapper;
 import java.util.List;
 
 abstract class QueryImpl implements Query {
-    protected List<TrajEntry> raw;
-    protected Trajectory<TrajEntry> mapped;
+    protected List<TrajEntry> raw = null;
+    protected Trajectory<TrajEntry> mapped = null;
     protected Mapper mapper;
     protected TrajectoryResolver resolver;
 

@@ -19,8 +19,8 @@ public class mapv {
             int[] cluster = map.get(clusterID);
             // System.out.println(Arrays.toString(cluster));
             for (int value : cluster) {
-                String single_edge = edgeInfo.get(value);
-                String[] abc = single_edge.split(",");
+                String singleEdge = edgeInfo.get(value);
+                String[] abc = singleEdge.split(",");
                 for (int i = 0; i < abc.length / 2; i++) {
                     content.append("[").append(abc[i + abc.length / 2]).append(",").append(abc[i]).append("],");
                 }

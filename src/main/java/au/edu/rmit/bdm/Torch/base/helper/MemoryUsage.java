@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MemoryUsage {
 
-    private static Logger logger = LoggerFactory.getLogger(MemoryUsage.class);
+    private static final Logger logger = LoggerFactory.getLogger(MemoryUsage.class);
     private static long memoryUsage = 0;
     private static boolean debug = true;
 
@@ -22,8 +22,8 @@ public class MemoryUsage {
         if (!debug) return;
 
         long curUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        long _memUsed = curUsedMem - memoryUsage;     //metric byte
-        double memUsed = _memUsed / 1024. / 1024.;       //metric mega byte
+        long memUsedInByte = curUsedMem - memoryUsage;     //metric byte
+        double memUsed = memUsedInByte / 1024. / 1024.;       //metric mega byte
         logger.debug("current memory usage {} is {}", location, memUsed);
     }
 }

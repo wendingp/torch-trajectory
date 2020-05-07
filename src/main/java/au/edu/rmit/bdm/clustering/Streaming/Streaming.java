@@ -5,8 +5,8 @@ import java.util.*;
 
 public class Streaming {
     private Simulator simulator;
-    private Map<Integer, List<Integer>> edgeInvertedIndex;
-    private Map<Integer, List<Integer>> trajectories;
+    private Map<Integer, List<Integer>> edgeInvertedIndex = null;
+    private Map<Integer, List<Integer>> trajectories = null;
 
     /**
      * @param windowSize sliding window in time dimension

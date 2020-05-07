@@ -21,7 +21,7 @@ class QueryRetJsonModel {
         this.mapped = queryResult.mappedQuery == null ? null : new TrajJsonModel(queryResult.mappedQuery);
         this.retSize = queryResult.retSize;
         this.ret = new ArrayList<>(queryResult.resolvedRet.size());
-        ret.addAll(Formater.model(queryResult.resolvedRet));
+        ret.addAll(Formatter.model(queryResult.resolvedRet));
     }
 
     QueryRetJsonModel(QueryResult queryResult, int maximum) {
@@ -33,9 +33,9 @@ class QueryRetJsonModel {
         this.retSize = queryResult.retSize;
         this.ret = new ArrayList<>(Math.min(retSize, maximum));
         if (queryResult.retSize > maximum)
-            ret.addAll(Formater.model(queryResult.resolvedRet.subList(0, maximum)));
+            ret.addAll(Formatter.model(queryResult.resolvedRet.subList(0, maximum)));
         else
-            ret.addAll(Formater.model(queryResult.resolvedRet));
+            ret.addAll(Formatter.model(queryResult.resolvedRet));
     }
 
 }

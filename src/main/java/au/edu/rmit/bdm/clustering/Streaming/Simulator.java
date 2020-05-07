@@ -13,7 +13,7 @@ class Simulator {
     private int window;
     private AtomicInteger cur;
     private int startFrom;
-    private Tuple preT;
+    private Tuple preT = null;
     private int speedupFactor;
 
     /**

@@ -21,7 +21,7 @@ class PathQuery extends QueryImpl {
     private static final Logger logger = LoggerFactory.getLogger(PathQuery.class);
     private PathQueryIndex index;
     private NameEdgeIdLookup lookup;
-    private boolean isByStName;
+    private boolean isByStName = false;
 
     PathQuery(PathQueryIndex index, Mapper mapper, TrajectoryResolver resolver) {
         super(mapper, resolver);

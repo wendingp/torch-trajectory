@@ -12,11 +12,11 @@ import java.util.Map;
 
 public abstract class TrajectoryPool {
 
-    String tableName;
-    private Logger logger = LoggerFactory.getLogger(TrajVertexRepresentationPool.class);
+    String tableName = null;
+    private final Logger logger = LoggerFactory.getLogger(TrajVertexRepresentationPool.class);
     private boolean isMem;
     private Map<String, String[]> memPool;
-    private DBManager db;
+    private DBManager db = null;
 
     TrajectoryPool(boolean isMem, FileSetting setting) {
 

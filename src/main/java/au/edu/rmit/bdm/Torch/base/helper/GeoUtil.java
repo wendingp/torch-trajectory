@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GeoUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(GeoUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(GeoUtil.class);
 
     public static double distance(TrajEntry v1, TrajEntry v2) {
         return distance(v1.getLat(), v2.getLat(), v1.getLng(), v2.getLng());
@@ -66,8 +66,8 @@ public class GeoUtil {
      */
     public static double increaseLat(double lat, double meters) {
         double ret;
-        double coef = meters * 0.0000089;
-        ret = lat + coef;
+        double coefficient = meters * 0.0000089;
+        ret = lat + coefficient;
         if (ret > 90) ret = 90;
         if (ret < -90) ret = -90;
         return ret;
@@ -86,8 +86,8 @@ public class GeoUtil {
      */
     public static double increaseLng(double lat, double lon, double meters) {
         double ret;
-        double coef = meters * 0.0000089;
-        ret = lon + coef / Math.cos(lat * 0.018);
+        double coefficient = meters * 0.0000089;
+        ret = lon + coefficient / Math.cos(lat * 0.018);
         if (ret > 180) ret -= 360;
         if (ret < -180) ret += 360;
         return ret;

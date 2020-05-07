@@ -4,6 +4,7 @@ import au.edu.rmit.bdm.clustering.mtree.DistanceFunctions;
 
 public class Data implements DistanceFunctions.EuclideanCoordinate, Comparable<Data> {
 
+    public static final int PRIME = 31;
     private final int[] values;
     private final int hashCode;
 
@@ -12,7 +13,7 @@ public class Data implements DistanceFunctions.EuclideanCoordinate, Comparable<D
 
         int hashCode = 1;
         for (int value : values) {
-            hashCode = 31 * hashCode + value;
+            hashCode = PRIME * hashCode + value;
         }
         this.hashCode = hashCode;
     }

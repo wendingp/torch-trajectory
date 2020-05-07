@@ -10,13 +10,13 @@ public class Pair<T> {
     /**
      * The first object.
      */
-    public T first;
+    public T first = null;
 
 
     /**
      * The second object.
      */
-    public T second;
+    public T second = null;
 
     /**
      * Creates a pair of {@code null} objects.

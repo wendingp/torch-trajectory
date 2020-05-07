@@ -4,7 +4,7 @@ import au.edu.rmit.bdm.Torch.base.Torch;
 import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
 import au.edu.rmit.bdm.Torch.base.model.Trajectory;
 import au.edu.rmit.bdm.Torch.queryEngine.model.TimeInterval;
-import au.edu.rmit.bdm.Torch.queryEngine.visualization.Formater;
+import au.edu.rmit.bdm.Torch.queryEngine.visualization.Formatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,11 +173,11 @@ public class QueryResult {
      * value: array of qualified trajectories in mapV format
      */
     public String toJSON(int maximum) {
-        return Formater.toMapVJSON(this, maximum);
+        return Formatter.toMapVJSON(this, maximum);
     }
 
     public String toJSON() {
-        return Formater.toMapVJSON(this);
+        return Formatter.toMapVJSON(this);
     }
 
     /**
@@ -188,7 +188,7 @@ public class QueryResult {
      */
     public String getRawQueryjMapVformat() {
         if (rawQuery == null) return null;
-        return Formater.toMapVJSON(rawQuery);
+        return Formatter.toMapVJSON(rawQuery);
     }
 
     /**
@@ -201,11 +201,11 @@ public class QueryResult {
     public String getMappedQueryMapVformat() {
         if (queryType.equals(Torch.QueryType.RangeQ)) return null;
         if (!mappingSucceed) return null;
-        return Formater.toMapVJSON(mappedQuery);
+        return Formatter.toMapVJSON(mappedQuery);
     }
 
     public String getRetMapVformat() {
         if (resolvedRet.isEmpty()) return "[]";
-        return Formater.toMapVJSON(resolvedRet);
+        return Formatter.toMapVJSON(resolvedRet);
     }
 }

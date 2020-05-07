@@ -20,30 +20,30 @@ public class Process extends Thread {
 
     Logger logger = LoggerFactory.getLogger(Process.class);
     // stores the clusters
-    protected ArrayList<ClusterPath> CENTERS; // it stores the k clusters
-    ArrayList<ClusterPath> PRE_CENS; // it stores the previous k clusters
+    protected ArrayList<ClusterPath> CENTERS = null; // it stores the k clusters
+    ArrayList<ClusterPath> PRE_CENS = null; // it stores the previous k clusters
 
     // the parameters
     protected int TRY_TIMES = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("try_times")));//iteration times
-    String mapv_path = LoadProperties.load("vis_path");
-    String mapv_path_traclu_sigmod07 = LoadProperties.load("TraClus");
-    int frequencyThreshold = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("frequencyThreshold")));
+    final String MAPV_PATH = LoadProperties.load("vis_path");
+//    String mapv_path_traclu_sigmod07 = LoadProperties.load("TraClus");
+//    int frequencyThreshold = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("frequencyThreshold")));
     int streamingDuration = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("streamingDuration")));
     int streamEdges = Integer.parseInt(Objects.requireNonNull(LoadProperties.load("streamEdges")));
     protected RunLog runRecord = new RunLog();
-    ArrayList<Integer> cluslist;
-    ArrayList<int[]> centroids;
+//    ArrayList<Integer> cluslist = null;
+    ArrayList<int[]> centroids = null;
     int trajectoryNumber;// the number of trajectories in the dataset
-    String folder;
+    String folder = null;
     protected int k = 10;
-    boolean dataEnough;
-    boolean dataOut;
-    boolean iterationStops;
-    boolean readingdata;
-    String datafile;
-    int traNumber;
-    String edgefile;
-    String graphfile;
+    boolean dataEnough = false;
+    boolean dataOut = false;
+    boolean iterationStops = false;
+    boolean readingData = false;
+    String datafile = null;
+//    int traNumber = 0;
+    String edgefile = null;
+    String graphfile = null;
     int slidingwindow = 10;//a window to control the inverted index,
 
     //for Yinyang and bound computation
@@ -52,26 +52,26 @@ public class Process extends Thread {
     protected Map<Integer, ArrayList<Integer>> group = null;// group id, centers id belong to this group
     Map<Integer, Integer> centerGroup = null;//center id, group id
 
-    protected double[][] innerCentoridDis;//stores the distance between every two centorids
-    protected double[] interMinimumCentoridDis;//store the distance to nearest neighbor of each centorid
+    protected double[][] innerCentroidDis = null;//stores the distance between every two centorids
+    protected double[] interMinimumCentroidDis = null;//store the distance to nearest neighbor of each centorid
 
     //for storage
-    protected Map<Integer, int[]> datamap; // the trajectory dataset
-    protected Map<Integer, Integer> traLength; // the trajectory dataset
-    protected Map<Integer, Integer> trajectoryHistogram;//the histogram of each trajectory
-    protected Map<Integer, List<Integer>> edgeIndex;// the index used for similarity search
-    protected Map<Integer, Integer> edgeHistogram;// the index used for similarity search
-    protected Map<Integer, String> edgeInfo;// the points information
-    Map<Integer, Integer> edgeType;
+    protected Map<Integer, int[]> datamap = null; // the trajectory dataset
+    protected Map<Integer, Integer> traLength = null; // the trajectory dataset
+    protected Map<Integer, Integer> trajectoryHistogram = null;//the histogram of each trajectory
+    protected Map<Integer, List<Integer>> edgeIndex = null;// the index used for similarity search
+    protected Map<Integer, Integer> edgeHistogram = null;// the index used for similarity search
+    protected Map<Integer, String> edgeInfo = null;// the points information
+    Map<Integer, Integer> edgeType = null;
 
-    Map<Integer, Integer> search2ClusterLookup;
-    Map<Integer, Integer> cluster2SearchLookup;
+    Map<Integer, Integer> search2ClusterLookup = null;
+    Map<Integer, Integer> cluster2SearchLookup = null;
 
     //for graph
     protected HashMap<Integer, ArrayList<Integer>> forwardGraph = new HashMap<>();//the linked edge whose start is the end of start
     protected HashMap<Integer, ArrayList<Integer>> backwardGraph = new HashMap<>();//the linked edge whose start is the end of start
-    protected ArrayList<int[]> centoridData = new ArrayList<>();//initialize the centroid
-    HashMap<String, Integer> road_types;
+    protected ArrayList<int[]> centroidData = new ArrayList<>();//initialize the centroid
+    HashMap<String, Integer> roadTypes = null;
 
     //Mtree index
     TrajectoryMtree mindex = new TrajectoryMtree();
@@ -107,11 +107,11 @@ public class Process extends Thread {
     }
 
     // stop the iteration when the clusters do not change compared with last time
-    protected boolean timeToEnd() {
+    protected boolean isClusteringFinished() {
         //	if (PRE_CENS == null)
         //		return false;
         for (ClusterPath cc : CENTERS) {
-            if (cc.getCenterChanged()) {
+            if (cc.isCenterChanged()) {
                 return false;
             }
         }
@@ -120,7 +120,7 @@ public class Process extends Thread {
 
     public void loadData(String path, int number, String edgePath) {
         int idx = 0;
-        int gap = number / k;
+        final int gap = number / k;
         Random rand = new Random();
         int counter = 0;
         readRoadNetwork(edgePath);
@@ -138,28 +138,28 @@ public class Process extends Thread {
                 int[] vertexes = new int[vertexSeries.length];
                 for (int t = 0; t < vertexSeries.length; t++) {
                     vertexes[t] = Integer.parseInt(vertexSeries[t]);
-                    int edgeID = vertexes[t];
-                    if (edgeIndex.containsKey(edgeID)) {
-                        List<Integer> lists = edgeIndex.get(edgeID);
+                    int edgeId = vertexes[t];
+                    if (edgeIndex.containsKey(edgeId)) {
+                        List<Integer> lists = edgeIndex.get(edgeId);
                         lists.add(idx);                    //enlarge the lists
-                        edgeIndex.put(edgeID, lists);
+                        edgeIndex.put(edgeId, lists);
                     } else {
                         ArrayList<Integer> lists = new ArrayList<>();
                         lists.add(idx);
-                        edgeIndex.put(edgeID, lists);
+                        edgeIndex.put(edgeId, lists);
                     }
-                    if (edgeHistogram.containsKey(edgeID)) {
-                        edgeHistogram.put(edgeID, edgeHistogram.get(edgeID) + 1);
+                    if (edgeHistogram.containsKey(edgeId)) {
+                        edgeHistogram.put(edgeId, edgeHistogram.get(edgeId) + 1);
                     } else {
-                        edgeHistogram.put(edgeID, 1);
+                        edgeHistogram.put(edgeId, 1);
                     }
                 }
                 Arrays.sort(vertexes);// this sort the array
                 if (mtreebuild) {//build the mtree
                     mindex.buildMtree(vertexes, idx);//create the M-tree
                     System.out.println(idx);
-                    if (idx == counter && centoridData.size() < k) {// initialize the centroid
-                        centoridData.add(vertexes);
+                    if (idx == counter && centroidData.size() < k) {// initialize the centroid
+                        centroidData.add(vertexes);
                         System.out.print(vertexes.length + ", ");
                         counter += rand.nextInt(gap);
                         //	counter += 100;
@@ -186,16 +186,16 @@ public class Process extends Thread {
 
         if (mtreebuild) {
             mindex.buildHistogram();//build the histogram
-            mindex.writeMtree(mapv_path);//write to the disk
+            mindex.writeMtree(MAPV_PATH);//write to the disk
         }
     }
 
     void readRoadNetwork(String edgePath) {
-        road_types = new HashMap<>();
+        roadTypes = new HashMap<>();
         edgeType = new HashMap<>();
-        int type = 0;
         try {
             Scanner in = new Scanner(new BufferedReader(new FileReader(edgePath)));
+            int type = 0;
             while (in.hasNextLine()) {        // load the geo-information of all the edges in the graph
                 String str = in.nextLine();
                 String strr = str.trim();
@@ -203,11 +203,11 @@ public class Process extends Thread {
                 edgeInfo.put(Integer.valueOf(abc[0]), abc[1] + "," + abc[2]);
                 if (abc.length > 7) {
                     int roadType;
-                    if (!road_types.containsKey(abc[6])) {
-                        road_types.put(abc[6], type);//we build the edge histogram
+                    if (!roadTypes.containsKey(abc[6])) {
+                        roadTypes.put(abc[6], type);//we build the edge histogram
                         roadType = type++;
                     } else {
-                        roadType = road_types.get(abc[6]);
+                        roadType = roadTypes.get(abc[6]);
                     }
                     edgeType.put(Integer.valueOf(abc[0]), roadType);
                 }
@@ -223,7 +223,7 @@ public class Process extends Thread {
      * conclude the edge information
      */
     void concludeCenter() {
-        int[] a = new int[road_types.size() + 1];
+        int[] a = new int[roadTypes.size() + 1];
         for (int t = 0; t < k; t++) {
             int[] trajectory = CENTERS.get(t).getTrajectoryData();
             for (int value : trajectory) {
@@ -231,7 +231,7 @@ public class Process extends Thread {
                     int edgeTypes = edgeType.get(value);
                     a[edgeTypes]++;
                 } else {
-                    a[road_types.size()]++;
+                    a[roadTypes.size()]++;
                 }
             }
         }
@@ -370,7 +370,7 @@ public class Process extends Thread {
         int minLength = Integer.MAX_VALUE;
         int minLengthId = 0;
         for (int j = 0; j < k; j++) {
-            Set<Integer> candilist = CENTERS.get(j).creatCandidateList(edgeIndex, datamap);//generate the candidate list
+            Set<Integer> candilist = CENTERS.get(j).createCandidateList(edgeIndex, datamap);//generate the candidate list
             candidateofAllClusters.addAll(candilist);// merge it to a single list
             int[] clustra = CENTERS.get(j).getTrajectoryData();
 
@@ -489,7 +489,7 @@ public class Process extends Thread {
         long startTime = System.nanoTime();
         for (int i = 0; i < k; i++) {// generate the new centroid for each cluster
             if (graphPathExtraction)
-                CENTERS.get(i).extractNewPathFrequency(forwardGraph, backwardGraph, i);// test the optimal
+                CENTERS.get(i).extractNewPathFrequency(forwardGraph, backwardGraph);// test the optimal
             else {
                 CENTERS.get(i).extractNewPathGuava(datamap, runRecord, traLength, trajectoryHistogram);
             }
@@ -513,7 +513,7 @@ public class Process extends Thread {
             double overallDis = 0;
             overallDis = singleKpath(k, overallDis, false, 0, folder, datamap.keySet());
             System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis);
-            if (timeToEnd()) {
+            if (isClusteringFinished()) {
                 System.out.println("\nIteration stops now");
                 runRecord.setIterationtimes(t + 1);
                 break;//convergence
@@ -532,8 +532,8 @@ public class Process extends Thread {
 
     public void init() {
         CENTERS = new ArrayList<>();
-        interMinimumCentoridDis = new double[k];
-        innerCentoridDis = new double[k][];
+        interMinimumCentroidDis = new double[k];
+        innerCentroidDis = new double[k][];
         datamap = new HashMap<>();// a btree map for easy search is created or read
         traLength = new HashMap<>();
         edgeInfo = new HashMap<>();

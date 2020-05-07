@@ -59,7 +59,7 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
     private final TorGraph graph;
     private final ShortestPathCache shortestPathCache;
     private final Logger logger = LoggerFactory.getLogger(PrecomputedHiddenMarkovModel.class);
-    private DistanceCalc distanceCalc = new DistancePlaneProjection();
+    private final DistanceCalc distanceCalc = new DistancePlaneProjection();
 
     private static final double GPS_ERROR_SIGMA = 50;
     private static final double TRANSITION_PROBABILITY_BETA = 2;
@@ -397,7 +397,7 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
          *
          * @see com.graphhopper.matching.MapMatching
          */
-        final double SIGMA = 50;
+        static final double SIGMA = 50;
 
         /**
          * query.txt entry: the entry in a query.txt
@@ -409,14 +409,14 @@ public class PrecomputedHiddenMarkovModel implements Mapper {
          */
         TorVertex candidateVertex;
 
-        double probability;
+        double probability = 0.0;
 
         /**
          * measurement probability, in this case, it indicates how close between query.txt points and map-matched entry.
          */
         double emissionProbability;
 
-        Candidate preCandidate;
+        Candidate preCandidate = null;
 
         /**
          * vertex is the query.txt entry, nearestVertex is the candidate vertex of the query.txt vertex

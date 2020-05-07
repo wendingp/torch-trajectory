@@ -11,9 +11,9 @@ import static au.edu.rmit.bdm.Torch.base.helper.GeoUtil.min;
  * @date 2/6/2018
  */
 public class VIseries {
-    int[] trajectory;// the trajectory
-    int length;// the number of vertex inside the trajectory
-    int idx;// the id of VI series.
+    int[] trajectory = null;// the trajectory
+    int length = 0;// the number of vertex inside the trajectory
+    int idx = 0;// the id of VI series.
 
     public VIseries() {
         // TODO Auto-generated constructor stub

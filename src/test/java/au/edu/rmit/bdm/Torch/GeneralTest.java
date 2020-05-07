@@ -66,9 +66,9 @@ public class GeneralTest {
         EdgeExplorer explorer = g.createEdgeExplorer();
         EdgeIterator iterator = g.getAllEdges();
 
-        int dual_direction = 0;
-        int single_direction = 0;
-        int illigal = 0;
+        int dualDirection = 0;
+        int singleDirection = 0;
+        int numIllegals = 0;
         int total = 0;
 
         while(iterator.next()){
@@ -76,7 +76,7 @@ public class GeneralTest {
             if (iterator.isBackward(flagEncoder) == iterator.isForward(flagEncoder)){
                 if (!iterator.isForward(flagEncoder)){
                     System.err.println("double false. edge hash: "+ iterator.getEdge());
-                    illigal++;
+                    numIllegals++;
 //                    System.out.println("isForward for foot: "+ iterator.isForward(flagEncoder));
 //                    System.out.println("isBackward for foot: "+ iterator.isBackward(flagEncoder));
 
@@ -95,17 +95,17 @@ public class GeneralTest {
 //                        }
 //                    }
                 }else{
-                    dual_direction++;
+                    dualDirection++;
                 }
             }else{
-                single_direction++;
+                singleDirection++;
 
             }
         }
 
-        System.out.println("single direction: "+ single_direction);
-        System.out.println("dual direction: "+ dual_direction);
-        System.out.println("cannot pass by car: "+ illigal);
+        System.out.println("single direction: "+ singleDirection);
+        System.out.println("dual direction: "+ dualDirection);
+        System.out.println("cannot pass by car: "+ numIllegals);
         System.out.println("total: "+ total);
     }
 

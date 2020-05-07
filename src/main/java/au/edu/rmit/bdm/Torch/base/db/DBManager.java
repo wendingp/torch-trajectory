@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
@@ -13,7 +14,8 @@ import java.sql.*;
 public class DBManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DBManager.class);
-    private Connection conn;
+    public static final int LOG_INTERVAL = 20000;
+    private Connection conn = null;
     private final FileSetting setting;
 
     public DBManager(FileSetting setting) {
@@ -66,7 +68,6 @@ public class DBManager {
     }
 
     public DBManager buildFromFile(String tableName, String path2file, boolean override) {
-
         connect();
         buildTable(tableName, override);
 
@@ -77,7 +78,7 @@ public class DBManager {
             String line;
             int counter = 0;
             while ((line = reader.readLine()) != null) {
-                if (counter++ % 20000 == 0)
+                if (counter++ % LOG_INTERVAL == 0)
                     logger.info("has insert " + counter + " records into db");
                 String[] tokens = line.split("\t");
                 String id = tokens[0];
@@ -85,7 +86,8 @@ public class DBManager {
 
                 insert(tableName, Integer.parseInt(id), content);
             }
-
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             logger.error(e.getMessage());
             logger.error("cannot find " + path2file);

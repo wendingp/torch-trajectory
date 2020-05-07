@@ -18,7 +18,7 @@ import java.util.List;
 public class TrajReader {
 
     private final int BATCH_SIZE;
-    private static Logger logger = LoggerFactory.getLogger(TrajReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(TrajReader.class);
     private static LineNumberReader trajReader;
     private static BufferedReader dateReader = null;
 
@@ -83,7 +83,7 @@ public class TrajReader {
                         dateContent = dateLine.split("\t")[1];
                         dateContent = dateContent.substring(1, dateContent.length() - 1); //remove head "[" and tail "]"
                     }
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                     logger.warn("trajectory id {} is excluded, either too short or contain illegal chars", trajId);
                     continue;
                 }
@@ -107,7 +107,7 @@ public class TrajReader {
                         latLng = trajTuples[i].split(",");
                         lat = Double.parseDouble(latLng[1]);
                         lon = Double.parseDouble(latLng[0]);
-                    } catch (Exception e) {
+                    } catch (RuntimeException e) {
                         logger.warn("node of trajectory ID {} contains illegal gps location, which will be excluded. "
                                 + trajId);
                         continue;

@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class Trajectory<T extends TrajEntry> extends LinkedList<T> {
 
-    public String id;
-    public boolean hasTime;
+    public String id = null;
+    public boolean hasTime = false;
     public List<TorEdge> edges = new ArrayList<>();
 
     public Trajectory() {

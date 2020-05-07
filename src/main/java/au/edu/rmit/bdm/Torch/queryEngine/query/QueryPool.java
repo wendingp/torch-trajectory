@@ -33,12 +33,12 @@ public class QueryPool extends HashMap<String, Query> {
     private final QueryProperties props;
     private Mapper mapper;
     private EdgeInvertedIndex edgeInvertedIndex;
-    private LEVI LEVI;
+    private LEVI LEVI = null;
     private static AtomicInteger gNameGen = new AtomicInteger();
     private String graphId;
 
     private Map<Integer, TowerVertex> idVertexLookup;
-    private FileSetting setting;
+    private final FileSetting setting;
     private TrajectoryResolver resolver;
 
     /**
@@ -109,12 +109,11 @@ public class QueryPool extends HashMap<String, Query> {
     }
 
     private Query initTopKQuery() {
-
         // edge based top K
         if (props.preferredIndex.equals(Torch.Index.EDGE_INVERTED_INDEX)) {
             initEdgeInvertedIndex();
-            return props.resolveAll ? new TopKQuery(edgeInvertedIndex, mapper, resolver) :
-                    new TopKQuery(edgeInvertedIndex, mapper, resolver);
+//            return props.resolveAll ? new TopKQuery(edgeInvertedIndex, mapper, resolver) : new TopKQuery(edgeInvertedIndex, mapper, resolver); // TODO ????
+            return new TopKQuery(edgeInvertedIndex, mapper, resolver); // TODO ????
         }
 
         // point based topK with GVI
@@ -124,23 +123,24 @@ public class QueryPool extends HashMap<String, Query> {
 
     private Query initRangeQuery() {
         initEdgeInvertedIndex();
-        if (LEVI == null) initLEVI();
+        if (LEVI == null) {
+            initLEVI();
+        }
         return new WindowQuery(LEVI, resolver);
     }
 
     private void initEdgeInvertedIndex() {
         if (!edgeInvertedIndex.loaded) {
-            if (!edgeInvertedIndex.build(setting.EDGE_INVERTED_INDEX))
+            if (!edgeInvertedIndex.build(setting.EDGE_INVERTED_INDEX)) {
                 throw new RuntimeException("some critical data is missing, system on exit...");
+            }
             edgeInvertedIndex.loaded = true;
         }
     }
 
 
     private void initLEVI() {
-
         if (LEVI != null) return;
-
         VertexInvertedIndex vertexInvertedIndex = new VertexInvertedIndex(setting);
         VertexGridIndex vertexGridIndex = new VertexGridIndex(idVertexLookup, 100);
         TrajVertexRepresentationPool trajVertexRepresentationPool = new TrajVertexRepresentationPool(false, setting);
@@ -164,7 +164,6 @@ public class QueryPool extends HashMap<String, Query> {
         Query q = get(queryType);
 
         if (props.containsKey("simFunc") && LEVI != null) {
-
             String simFunc = props.get("simFunc");
             if (simFunc.equals("LORS")) {
                 q.updateIdx(convertIndex(Torch.Index.EDGE_INVERTED_INDEX));

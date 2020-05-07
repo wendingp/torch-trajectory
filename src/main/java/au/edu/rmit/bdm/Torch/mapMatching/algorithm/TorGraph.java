@@ -44,20 +44,20 @@ public class TorGraph {
     private static Map<String, TorGraph> instances = new HashMap<>();
     private static final double SPARSE_THRESHOLD = 50;
 
-    public String vehicleType;
-    public String OSMPath;
+    public String vehicleType = null;
+    public String OSMPath = null;
 
 
-    private GraphHopper hopper;
-    private static Logger logger = LoggerFactory.getLogger(TorGraph.class);
+    private GraphHopper hopper = null;
+    private static final Logger logger = LoggerFactory.getLogger(TorGraph.class);
 
     public boolean isBuilt = false;
-    public FlagEncoder vehicle;
-    private FileSetting setting;
+    public FlagEncoder vehicle = null;
+    private FileSetting setting = null;
 
     final Map<String, TorVertex> allPoints;
 
-    int preComputationRange;
+    int preComputationRange = 0;
     ShortestPathCache pool;
 
     // note the values of the map are not unique.
@@ -71,7 +71,7 @@ public class TorGraph {
     //key -- lat, lng hash using GeoHash library
     //value -- id
     public final Map<String, Integer> vertexIdLookup;
-    public Map<Integer, TowerVertex> idVertexLookup;
+    public Map<Integer, TowerVertex> idVertexLookup = null;
     //key -- concat hash of two tower points
     //value -- id
     public final Map<String, Integer> edgeIdLookup;

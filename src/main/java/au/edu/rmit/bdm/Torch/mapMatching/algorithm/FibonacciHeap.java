@@ -79,9 +79,9 @@ public final class FibonacciHeap<T> {
         private Entry<T> mNext;   // Next and previous elements in the list
         private Entry<T> mPrev;
 
-        private Entry<T> mParent; // Parent in the tree, if any.
+        private Entry<T> mParent = null; // Parent in the tree, if any.
 
-        private Entry<T> mChild;  // Child node, if any.
+        private Entry<T> mChild = null;  // Child node, if any.
 
         private T mElem;     // Element being stored here
         private double mPriority; // Its priority
@@ -286,7 +286,7 @@ public final class FibonacciHeap<T> {
         /* If there are no entries left, we're done. */
         if (mMin == null) return minElem;
 
-        /* Next, we need to coalsce all of the roots so that there is only one
+        /* Next, we need to coalesce all of the roots so that there is only one
          * tree of each degree.  To track trees of each size, we allocate an
          * ArrayList where the entry at position i is either null or the
          * unique tree of degree i.
@@ -310,7 +310,7 @@ public final class FibonacciHeap<T> {
         for (Entry<T> curr = mMin; toVisit.isEmpty() || toVisit.get(0) != curr; curr = curr.mNext)
             toVisit.add(curr);
 
-        /* Traverse this list and perform the appropriate unioning steps. */
+        /* Traverse this list and perform the appropriate union steps. */
         for (Entry<T> curr : toVisit) {
             /* Keep merging until a match arises. */
             while (true) {

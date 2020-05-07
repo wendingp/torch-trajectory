@@ -6,8 +6,8 @@ public class MMProperties {
 
     public String vehicleType = Torch.vehicleType.CAR;
     public String mmAlg = Torch.Algorithms.HMM_PRECOMPUTED;
-    public String trajSrcPath;
-    public String osmPath;
+    public String trajSrcPath = null;
+    public String osmPath = null;
     public int batchSize = 10000;
     public int preComputationRange = 1000;
     public String baseDir = "Torch";

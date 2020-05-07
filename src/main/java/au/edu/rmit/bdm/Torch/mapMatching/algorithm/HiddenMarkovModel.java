@@ -33,9 +33,9 @@ import java.util.Map;
  */
 public class HiddenMarkovModel implements Mapper {
 
-    private static Logger logger = LoggerFactory.getLogger(HiddenMarkovModel.class);
+    private static final Logger logger = LoggerFactory.getLogger(HiddenMarkovModel.class);
     private final com.graphhopper.matching.MapMatching hmm;
-    private TorGraph torGraph;
+    private final TorGraph torGraph;
 
     HiddenMarkovModel(TorGraph torGraph, AlgorithmOptions options) {
         hmm = new com.graphhopper.matching.MapMatching(torGraph.getGH(), options);

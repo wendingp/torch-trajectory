@@ -190,7 +190,7 @@ public class Engine {
          * @param similarityMeasure similarityMeasure to use for Top K retrieval
          * @see Torch.Algorithms for currently supported similarity measure.
          */
-        public Builder preferedSimilarityMeasure(String similarityMeasure) { // TODO fix hard coding
+        public Builder preferredSimilarityMeasure(String similarityMeasure) { // TODO fix hard coding
             if (!similarityMeasure.equals(Torch.Algorithms.DTW) &&
                     !similarityMeasure.equals(Torch.Algorithms.Hausdorff) &&
                     !similarityMeasure.equals(Torch.Algorithms.Frechet) &&
@@ -210,7 +210,7 @@ public class Engine {
          * @param index the index you prefer over others.
          * @see Torch.Index for currently implemented indexes.
          */
-        public Builder preferedIndex(String index) {
+        public Builder preferredIndex(String index) {
             if (!index.equals(Torch.Index.EDGE_INVERTED_INDEX) &&
                     !index.equals(Torch.Index.LEVI)) {
                 throw new IllegalArgumentException("checkout supported index type options at Torch.Index");
@@ -252,7 +252,7 @@ public class Engine {
          * @param uriPrefix
          * @return
          */
-        public Builder URIprefix(String uriPrefix) {
+        public Builder URIPrefix(String uriPrefix) {
             if (uriPrefix.charAt(uriPrefix.length() - 1) != '/') {
                 uriPrefix += "/";
             }

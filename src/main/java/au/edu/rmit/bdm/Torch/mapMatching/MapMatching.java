@@ -34,11 +34,11 @@ import java.util.List;
 public class MapMatching {
 
     public static final String GRAPHNAME = "g";
-    private static Logger logger = LoggerFactory.getLogger(MapMatching.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapMatching.class);
     private static Builder builder = new Builder();
     private MMProperties props;
-    private TorGraph graph;
-    private Mapper mapper;
+    private TorGraph graph = null;
+    private Mapper mapper = null;
 
     public static Builder getBuilder() {
         return builder;

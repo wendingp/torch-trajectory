@@ -278,16 +278,16 @@ public class MTree<DATA> {
          * compute the drift between current center and previous center
          */
         protected void computeGroupDrift(int k, int t) {
-            group_drift = new double[t];
+            groupDrift = new double[t];
             for (int group_i = 0; group_i < t; group_i++) {
                 ArrayList<Integer> centers = group.get(group_i);
                 double max_drift = 0;
                 for (int centerid : centers) {
-                    if (max_drift < center_drift.get(centerid)) {
-                        max_drift = center_drift.get(centerid);
+                    if (max_drift < centerDrift.get(centerid)) {
+                        max_drift = centerDrift.get(centerid);
                     }
                 }
-                group_drift[group_i] = max_drift;
+                groupDrift[group_i] = max_drift;
             }
         }
 
@@ -311,8 +311,8 @@ public class MTree<DATA> {
             }
         }
 
-        double minUpperBound;
-        int minId;
+        double minUpperBound = 0.0;
+        int minId = 0;
 
         /*
          * the main running function
@@ -320,20 +320,20 @@ public class MTree<DATA> {
         public void runKpath(String folder) {
             int groupNumber = k;
             //divide the k centroids into t groups when k is big
-            center_drift = new HashMap<>();
+            centerDrift = new HashMap<>();
             groupInitialClusters(groupNumber, k);
-            assignmentNormal(centoridData);
-            double overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centoridData);
+            assignmentNormal(centroidData);
+            double overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centroidData);
             System.out.println("iteration 0, the sum distance is " + overallDis);
             computeGroupDrift(k, groupNumber);
             int t = 1;
             for (; t < TRY_TIMES; t++) {
                 printClusterTrajectory(k, t, folder);
-                assignmentWithPrevious(centoridData);
-                overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centoridData);
+                assignmentWithPrevious(centroidData);
+                overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centroidData);
                 computeGroupDrift(k, groupNumber);
                 System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis);
-                if (timeToEnd()) {
+                if (isClusteringFinished()) {
                     System.out.println("\nIteration stops now, the final centers are:");
                     runRecord.setIterationtimes(t + 1);
                     break;//convergence
@@ -358,7 +358,7 @@ public class MTree<DATA> {
             int min_length_id = 0;
             System.out.println(centoridData.size());
             for (int j = 0; j < k; j++) {
-                Set<Integer> candilist = CENTERS.get(j).creatCandidateListNoDataMap(edgeIndex, centoridData.get(j));//generate the candidate list
+                Set<Integer> candilist = CENTERS.get(j).createCandidateListNoDataMap(edgeIndex, centoridData.get(j));//generate the candidate list
                 candidateofAllclusters.addAll(candilist);// merge it to a single list
                 int length = centoridData.get(j).length;
                 if (length < minlength) {// get the minimum length
@@ -484,7 +484,7 @@ public class MTree<DATA> {
             for (int group_j = 0; group_j < groupNumber; group_j++) {//get the minimum lower bound of all group
                 if (group_j == owngroup)
                     continue;
-                double lowerboud_temp = Math.abs(bounds[group_j] - group_drift[group_j]);
+                double lowerboud_temp = Math.abs(bounds[group_j] - groupDrift[group_j]);
                 if (lowerboud_temp < lowerboud)
                     lowerboud = lowerboud_temp;
             }
@@ -523,7 +523,7 @@ public class MTree<DATA> {
             for (int j = 0; j < k; j++) {
                 long startTime1 = System.nanoTime();
                 int[] clustra = centroidData.get(j);
-                Set<Integer> candilist = CENTERS.get(j).creatCandidateListNoDataMap(edgeIndex, clustra);//generate the candidate list
+                Set<Integer> candilist = CENTERS.get(j).createCandidateListNoDataMap(edgeIndex, clustra);//generate the candidate list
                 Collections.addAll(candidateOfAllClusters, candilist.toArray(new Integer[0]));
                 long endtime1 = System.nanoTime();
                 runRecord.addIOTime((endtime1 - startTime1) / 1000000000.0);
@@ -567,13 +567,13 @@ public class MTree<DATA> {
                             }
                             double newupperbound = min_dist;// tighten the upper bound
                             newCenterId = group_i;
-                            double centroidBound = interMinimumCentoridDis[group_i] / 2.0;
+                            double centroidBound = interMinimumCentroidDis[group_i] / 2.0;
                             lowerbound = Math.max(lowerbound, centroidBound);
                             if (lowerbound < newupperbound) {//cannot not pass the group filtering
                                 for (int group_j = 0; group_j < k; group_j++) {
                                     if (group_j == group_i)//skip current group
                                         continue;
-                                    double localbound = Math.max((bounds[group_j] - group_drift[group_j]), innerCentoridDis[group_i][group_j] / 2.0);
+                                    double localbound = Math.max((bounds[group_j] - groupDrift[group_j]), innerCentroidDis[group_i][group_j] / 2.0);
                                     if (localbound < min_dist) {//the groups that cannot pass the filtering of bound and inverted index
                                         double second_min_dist_local = Double.MAX_VALUE;
                                         // goto the local filtering on center in a group, by checking the candidate list and bounds
@@ -596,16 +596,16 @@ public class MTree<DATA> {
                                         child.bounds[group_j] = second_min_dist_local;
                                     } else {
                                         numFilGroup++;
-                                        child.bounds[group_j] = bounds[group_j] - group_drift[group_j];
+                                        child.bounds[group_j] = bounds[group_j] - groupDrift[group_j];
                                     }
                                 }
                             } else {
-                                numFilWholGroup++;
+                                numFilWholeGroup++;
                             }
                         }
                         if (newCenterId != group_i) {// the trajectory moves to other center, this should be counted into the time of refinement.
                             movedtrajectory++;
-                            numeMovedTrajectories++;
+                            numMovedTrajectories++;
                             long Time1 = System.nanoTime();
                             ArrayList<IndexItem> idxlist;
                             if (idxNeedsIn.containsKey(newCenterId))
@@ -694,9 +694,9 @@ public class MTree<DATA> {
             double overallDis = 0;
             for (int i = 0; i < k; i++) {
                 ClusterPath aClusterPath = CENTERS.get(i);
-                double drfit = aClusterPath.extractNewPathFrequency(forwardGraph, backwardGraph, i);
+                double drfit = aClusterPath.extractNewPathFrequency(forwardGraph, backwardGraph);
                 updateCentroids(centoridData);
-                center_drift.put(i, drfit);
+                centerDrift.put(i, drfit);
                 overallDis += CENTERS.get(i).getSumDistance();
             }
             long Time2 = System.nanoTime();
@@ -753,7 +753,7 @@ public class MTree<DATA> {
             private PriorityQueue<ItemWithDistances<Node>> pendingQueue = new PriorityQueue<>();
             private double nextPendingMinDistance;
             private PriorityQueue<ItemWithDistances<Entry>> nearestQueue = new PriorityQueue<>();
-            private int yieldedCount;
+            private int yieldedCount = 0;
 
             private ResultsIterator() {
                 if (MTree.this.root == null) {
@@ -1073,7 +1073,7 @@ public class MTree<DATA> {
      * this is the
      */
     public class IndexItem {
-        public double[] bounds;//this stores the lower bound
+        public double[] bounds = null;//this stores the lower bound
         DATA data;
         protected double radius;
         double distanceToParent;
@@ -1119,8 +1119,8 @@ public class MTree<DATA> {
         protected Rootness rootness;
         protected Leafness<DATA> leafness;
 
-        private Multiset<Integer> edgeOcc;
-        private Multiset<Integer> lengthOcc;
+        private Multiset<Integer> edgeOcc = null;
+        private Multiset<Integer> lengthOcc = null;
 
         public Multiset<Integer> getEdgeOcc() {
             return edgeOcc;
@@ -1278,7 +1278,7 @@ public class MTree<DATA> {
 
 
     private abstract class NodeTrait {
-        protected Node thisNode;
+        protected Node thisNode = null;
     }
 
     private interface Leafness<DATA> {

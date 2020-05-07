@@ -29,13 +29,13 @@ import static au.edu.rmit.bdm.Torch.queryEngine.similarity.SimilarityFunction.Me
  * This two level indexes structure supports range query.txt as well as top k query.txt over vertices.
  */
 public class LEVI implements WindowQueryIndex, TopKQueryIndex {
-
-    public int epsilon = 50; // within which range the point are considered match in parameter based similarity function
+    public static final int DEFAULT_EPSILON = 50;
+    public int epsilon = DEFAULT_EPSILON; // within which range the point are considered match in parameter based similarity function
     private static final int THETA = 10; // within which querySpan the point in one sequence are considered to match the point in the other sequence.
     private static final int INITIAL_ROUND_FOR_DTW = 4;
     private static final int INITIAL_ROUND_FOR_H_OR_F = 5;
 
-    private FileSetting setting;
+    private final FileSetting setting;
     private static final Logger logger = LoggerFactory.getLogger(LEVI.class);
     private VertexInvertedIndex vertexInvertedIndex;
     private VertexGridIndex gridIndex;

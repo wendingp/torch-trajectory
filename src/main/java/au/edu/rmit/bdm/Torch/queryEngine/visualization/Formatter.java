@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class Formater {
+public abstract class Formatter {
 
-    private static final Logger logger = LoggerFactory.getLogger(Formater.class);
+    private static final Logger logger = LoggerFactory.getLogger(Formatter.class);
     final static Gson gson = new Gson();
 
     public static String toMapVJSON(QueryResult queryResult, int maximum) {

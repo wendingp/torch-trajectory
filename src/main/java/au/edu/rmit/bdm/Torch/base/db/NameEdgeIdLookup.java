@@ -5,9 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NameEdgeIdLookup {
-    private Logger logger = LoggerFactory.getLogger(NameEdgeIdLookup.class);
+    private final Logger logger = LoggerFactory.getLogger(NameEdgeIdLookup.class);
     private DBManager db;
-    private FileSetting setting;
+    private final FileSetting setting;
 
     public NameEdgeIdLookup(FileSetting setting) {
         this.setting = setting;

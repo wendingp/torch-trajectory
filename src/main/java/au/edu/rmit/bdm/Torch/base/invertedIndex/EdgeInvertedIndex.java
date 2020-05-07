@@ -190,12 +190,12 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
      *                     if the query.txt contains 3 edges, which are 3 meters, 1 meters and 2 meters respectively in length.
      *                     Then the restDistance contains [3, 2, 0], which means that if it getList to the first one, then the rest is 3( 2 + 1).
      *                     If it getList to the second, then the rest is 2. And if it getList to dataStructure 3, then the rest is 0.
-     * @param bestKthSofar score for the min score element in the heap.
+     * @param bestKthSoFar score for the min score element in the heap.
      * @return similarity score computed using LEVI sim measure.
      */
 
     private double lors(List<? extends LightEdge> qEdges, List<? extends LightEdge> cEdges, int theta,
-                        double[] restDistance, double bestKthSofar) {
+                        double[] restDistance, double bestKthSoFar) {
 
         if (qEdges == null || cEdges == null || qEdges.size() == 0 || cEdges.size() == 0)
             return 0;
@@ -225,7 +225,7 @@ public class EdgeInvertedIndex extends InvertedIndex implements PathQueryIndex, 
                         dpInts[i][j] = Math.max(dpInts[i - 1][j], dpInts[i][j - 1]);
                     }
                     //todo
-                    if (restDistance != null && dpInts[i][j] + restDistance[i] < bestKthSofar)
+                    if (restDistance != null && dpInts[i][j] + restDistance[i] < bestKthSoFar)
                         return dpInts[i][j] + restDistance[i];
                 }
             }

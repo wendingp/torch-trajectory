@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class TrajNode extends Coordinate {
     private final long INVALID_TIME_VAL = -1;
-    public int id;
+    public int id = 0;
     private long _time = INVALID_TIME_VAL;
     List<String> _bundle = new ArrayList<>(3);
 

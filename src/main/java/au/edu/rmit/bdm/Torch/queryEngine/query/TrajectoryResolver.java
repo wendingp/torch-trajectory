@@ -20,17 +20,17 @@ import java.util.*;
 
 public class TrajectoryResolver {
 
-    private Logger logger = LoggerFactory.getLogger(TrajectoryResolver.class);
-    private TrajEdgeRepresentationPool trajectoryPool;
-    private TrajVertexRepresentationPool trajVertexRepresentationPool;
-    private Map<Integer, String[]> rawEdgeLookup;
-    private Map<String, TimeInterval> timeSpanLookup;
-    private Map<Integer, Coordinate> vertexLookup;
+    private final Logger logger = LoggerFactory.getLogger(TrajectoryResolver.class);
+    private TrajEdgeRepresentationPool trajectoryPool = null;
+    private TrajVertexRepresentationPool trajVertexRepresentationPool = null;
+    private Map<Integer, String[]> rawEdgeLookup = null;
+    private Map<String, TimeInterval> timeSpanLookup = null;
+    private Map<Integer, Coordinate> vertexLookup = null;
     private boolean resolveAll;
-    public FileSetting setting;
-    public TimeInterval querySpan;
-    public boolean contain;
-    public boolean isNantong;
+    public FileSetting setting = null;
+    public TimeInterval querySpan = null;
+    public boolean contain = false;
+    public boolean isNantong = false;
 
     public TrajectoryResolver(TrajEdgeRepresentationPool trajectoryPool, Map<Integer, String[]> rawEdgeLookup,
                               boolean resolveAll) {

@@ -23,10 +23,10 @@ import java.util.*;
 //todo
 public abstract class RTreeWrapper implements WindowQueryIndex, TopKQueryIndex {
 
-    private static Logger logger = LoggerFactory.getLogger(RTreeWrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(RTreeWrapper.class);
 
     private static final double MAX_LENGTH = 500;
-    private FileSetting setting;
+    private final FileSetting setting;
 
     /*
      * This is the threshold for number of points in MBR (Envelope)

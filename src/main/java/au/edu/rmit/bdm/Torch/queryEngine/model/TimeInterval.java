@@ -1,7 +1,7 @@
 package au.edu.rmit.bdm.Torch.queryEngine.model;
 
 public class TimeInterval {
-    public String id;
+    public String id = null;
     public TorchDate start;
     public TorchDate end;
 

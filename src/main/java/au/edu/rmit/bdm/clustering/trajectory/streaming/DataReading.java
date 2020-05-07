@@ -11,11 +11,8 @@ public class DataReading extends Thread {
 
     private static Map<String, Integer> edgeMapping; // the key stores the composition of camera id, lane id, direction, the value stores the new id
     private static Map<String, Integer> vehicleMapping;// the key stores the original plate number, the value is the new id.
-    static int globalStartTime = 151792;
+    // static int globalStartTime = 151792;
 
-    public DataReading() {
-
-    }
 
     /*
      * convert the raw data from oracle to a simple version
@@ -41,31 +38,31 @@ public class DataReading extends Thread {
                     newEdge = edgeCounter++;
                     edgeMapping.put(oldEdge, newEdge);
                 }
-                int newcar;
+                int newCar;
                 if (vehicleMapping.containsKey(record[3])) {
-                    newcar = vehicleMapping.get(record[3]);
+                    newCar = vehicleMapping.get(record[3]);
                 } else {
-                    newcar = carCounter++;
-                    vehicleMapping.put(record[3], newcar);
+                    newCar = carCounter++;
+                    vehicleMapping.put(record[3], newCar);
                 }
                 double normalizedTime = Double.parseDouble(record[5]);
-                String newrecord = (int) normalizedTime + "," + newcar + "," + newEdge + "\n";
-                System.out.println(newrecord);
-                Util.write(output, newrecord);
+                String newRecord = (int) normalizedTime + "," + newCar + "," + newEdge + "\n";
+                System.out.println(newRecord);
+                Util.write(output, newRecord);
             }
             in.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        for (String oldcar : vehicleMapping.keySet()) {
-            int newcar = vehicleMapping.get(oldcar);
-            String newrecord = newcar + "," + oldcar + "\n";
-            Util.write(newCarFile, newrecord);
+        for (String oldCar : vehicleMapping.keySet()) {
+            int newCar = vehicleMapping.get(oldCar);
+            String newRecord = newCar + "," + oldCar + "\n";
+            Util.write(newCarFile, newRecord);
         }
-        for (String oldedge : edgeMapping.keySet()) {
-            int newedge = edgeMapping.get(oldedge);
-            String newrecord = newedge + "," + oldedge + "\n";
-            Util.write(newEdgeFile, newrecord);
+        for (String oldEdge : edgeMapping.keySet()) {
+            int newEdge = edgeMapping.get(oldEdge);
+            String newRecord = newEdge + "," + oldEdge + "\n";
+            Util.write(newEdgeFile, newRecord);
         }
     }
 

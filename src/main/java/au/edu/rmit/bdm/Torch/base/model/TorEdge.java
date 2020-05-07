@@ -21,7 +21,7 @@ public class TorEdge {
     /**
      * First and last point on edge.
      */
-    public TowerVertex baseVertex, adjVertex;
+    public TowerVertex baseVertex = null, adjVertex = null;
 
     /**
      * a sum of distance between each point with its adjacent points on edge.
@@ -34,9 +34,9 @@ public class TorEdge {
      */
     private List<PillarVertex> pillarVertexes = new LinkedList<>();
 
-    public boolean isForward;
+    public boolean isForward = false;
 
-    public boolean isBackward;
+    public boolean isBackward = false;
 
     public int getPosition() {
         return position;
@@ -49,7 +49,7 @@ public class TorEdge {
     /**
      * for LEVI, representing the edge position in a trajectory
      */
-    private transient int position;
+    private transient int position = 0;
 
     /**
      * for database

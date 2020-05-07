@@ -18,7 +18,7 @@ import static au.edu.rmit.bdm.Torch.base.helper.FileUtil.ensureExistence;
 public abstract class InvertedIndex implements Index {
     private static final Logger logger = LoggerFactory.getLogger(InvertedIndex.class);
     public boolean loaded = false;
-    public FileSetting setting;
+    public final FileSetting setting;
 
     HashMap<Integer, Map<String, Integer>> index = new HashMap<>();
 
@@ -213,8 +213,8 @@ public abstract class InvertedIndex implements Index {
     }
 
     public static class CompressedPairs {
-        public int[] trajIds;
-        public int[] posis;
+        public int[] trajIds = null;
+        public int[] posis = null;
     }
 
     public static class Pair {

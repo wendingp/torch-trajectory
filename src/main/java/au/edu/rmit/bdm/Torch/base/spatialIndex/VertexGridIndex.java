@@ -23,7 +23,7 @@ import java.util.*;
 public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> implements Index {
 
     public boolean loaded = false;
-    private static Logger logger = LoggerFactory.getLogger(VertexGridIndex.class);
+    private static final Logger logger = LoggerFactory.getLogger(VertexGridIndex.class);
 
     private final String INDEX_FILE_POINT = "dataStructure/ComplexRoadGridIndex.TowerVertex.idx";
 
@@ -33,9 +33,9 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
 
     private float lowerLat = Float.MAX_VALUE, leftLng = Float.MAX_VALUE,
             upperLat = -Float.MAX_VALUE, rightLng = -Float.MAX_VALUE,
-            deltaLat, deltaLon, tileLen;
+            deltaLat = 0.0F, deltaLon = 0.0F, tileLen;
 
-    int horizontalTileNumber, verticalTileNumber;
+    int horizontalTileNumber = 0, verticalTileNumber = 0;
 
     private Map<Integer, TowerVertex> allPointMap;
     private Map<Integer, Tile> tileInfo;
@@ -64,16 +64,14 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
 
         logger.info("build spatial vertexGridIndex");
         //if (load(path)) return true;
-
-        _build();
+        buildHelper();
         loaded = true;
         //saveUncompressed();
         logger.info("grid index build complete");
         return true;
     }
 
-    private void _build() {
-
+    private void buildHelper() {
         // find bounding box for all points
         lowerLat = Float.MAX_VALUE;
         leftLng = Float.MAX_VALUE;
@@ -89,15 +87,17 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
         }
 
         //create grid
-        double horizontal_span = GeoUtil.distance(upperLat, upperLat, leftLng, rightLng);  //horizontal width of the grid
-        double vertical_span = GeoUtil.distance(upperLat, lowerLat, leftLng, leftLng);    //vertical width of the grid
+        double horizontalSpan = GeoUtil.distance(upperLat, upperLat, leftLng, rightLng);  //horizontal width of the grid
+        double verticalSpan = GeoUtil.distance(upperLat, lowerLat, leftLng, leftLng);    //vertical width of the grid
 
-        this.horizontalTileNumber = (int) (horizontal_span / tileLen);
-        this.verticalTileNumber = (int) (vertical_span / tileLen);
+        this.horizontalTileNumber = (int) (horizontalSpan / tileLen);
+        this.verticalTileNumber = (int) (verticalSpan / tileLen);
         this.deltaLat = (upperLat - lowerLat) / this.verticalTileNumber;
         this.deltaLon = (rightLng - leftLng) / this.horizontalTileNumber;
 
-        logger.info("start to insert points, grid location: (lowerLat,leftLng)=({},{}), (upperLat,rightLng)=({},{}), (deltaLat,deltaLon,horizontalTileNumber,verticalTileNumber)=({},{},{},{})  grid size: {}*{}={}, point size: {}", lowerLat, leftLng, upperLat, rightLng, deltaLat, deltaLon, horizontalTileNumber, verticalTileNumber, this.horizontalTileNumber, this.verticalTileNumber, this.horizontalTileNumber * this.verticalTileNumber, allTrajEntries.size());
+        logger.info("start to insert points, grid location: (lowerLat,leftLng)=({},{}), (upperLat,rightLng)=({},{}), " +
+                "(deltaLat,deltaLon,horizontalTileNumber,verticalTileNumber)=({},{},{},{})  " +
+                "grid size: {}*{}={}, point size: {}", lowerLat, leftLng, upperLat, rightLng, deltaLat, deltaLon, horizontalTileNumber, verticalTileNumber, this.horizontalTileNumber, this.verticalTileNumber, this.horizontalTileNumber * this.verticalTileNumber, allTrajEntries.size());
 
         //key for tile id, value for point id list
         Map<Integer, Set<Integer>> grid = new HashMap<>(this.horizontalTileNumber * this.verticalTileNumber + 1);
@@ -111,7 +111,6 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
     }
 
     void computeTileInfo() {
-
         int numTiles = horizontalTileNumber * verticalTileNumber;
         for (int tileId = 1; tileId < numTiles; tileId++) {
             int temp = tileId % horizontalTileNumber;
@@ -266,7 +265,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
 
     Collection<Integer> pointsInWindow(SearchWindow window) {
 
-        Collection<Integer> vertices = _pointsInWindow(window);
+        Collection<Integer> vertices = pointsInWindowHelper(window);
 
         //refine
         Iterator<Integer> iter = vertices.iterator();
@@ -284,7 +283,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
     }
 
     Collection<Integer> pointsInRange(Circle circle) {
-        Collection<Integer> vertices = _pointsInWindow(new SearchWindow(circle.center, circle.radius));
+        Collection<Integer> vertices = pointsInWindowHelper(new SearchWindow(circle.center, circle.radius));
         //refine
         Iterator<Integer> iter = vertices.iterator();
         while (iter.hasNext()) {
@@ -296,7 +295,7 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
         return vertices;
     }
 
-    private Collection<Integer> _pointsInWindow(SearchWindow window) {
+    private Collection<Integer> pointsInWindowHelper(SearchWindow window) {
 //        int pos = calculateTileID(window.middle);
         int leftUpperID = calculateTileID(window.upperLat, window.leftLng);
         int rightUpperID = calculateTileID(window.upperLat, window.rightLng);
@@ -310,7 +309,6 @@ public class VertexGridIndex extends HashMap<Integer, Collection<Integer>> imple
             int numRows = (leftLowerID - leftUpperID) / horizontalTileNumber + 1;
 
             while (numRows > 0) {
-
                 Collection<Integer> verticesOnTile = get(id);
                 if (verticesOnTile != null) {
                     vertices.addAll(verticesOnTile);

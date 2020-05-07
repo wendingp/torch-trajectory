@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class TorDijkstra {
 
-    private static Logger logger = LoggerFactory.getLogger(TorDijkstra.class);
+    private static final Logger logger = LoggerFactory.getLogger(TorDijkstra.class);
 
     // search radius around src entry
     // metric: meter

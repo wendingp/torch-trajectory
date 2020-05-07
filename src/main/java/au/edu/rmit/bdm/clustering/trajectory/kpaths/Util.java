@@ -1,5 +1,6 @@
 package au.edu.rmit.bdm.clustering.trajectory.kpaths;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -17,6 +18,8 @@ public class Util {
             long fileLength = randomFile.length();
             randomFile.seek(fileLength);
             randomFile.writeBytes(content);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

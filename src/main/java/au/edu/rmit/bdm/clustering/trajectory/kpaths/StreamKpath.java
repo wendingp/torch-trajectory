@@ -15,14 +15,14 @@ import java.util.*;
  * 3) continue the clustering with new updated data based on previous cluster
  */
 public class StreamKpath extends Yinyang {
-    private Thread runingThread;
+    private Thread runingThread = null;
     private String threadName;
     private static ArrayList<streamEdge> invertedIndex;//store the inverted index in a window.
     int globalStarttime;
     int globalEndtime;
     int sleepingTime;
     int speedingratio;//the smallest time interval,
-    int currentime;
+    int currentime = 0;
 
 
     //one thread read the new data into buffer
@@ -134,7 +134,7 @@ public class StreamKpath extends Yinyang {
         datamap = new HashMap<>();// a btree map for easy search is created or read
         Map<Integer, ArrayList<Integer>> dataset_new = new HashMap<>();
         int formerexpired = 0;
-        readingdata = true;
+        readingData = true;
         try {
             Scanner in = new Scanner(new BufferedReader(new FileReader(path)));
             while (in.hasNextLine()) {// load the trajectory dataset, and we can efficiently find the trajectory by their id.
@@ -172,12 +172,12 @@ public class StreamKpath extends Yinyang {
                 System.out.println(iterationStops);
                 if (!dataEnough) {//to accumulate enough data for clustering
                     if (cartime >= slidingwindow - 1) {
-                        readingdata = true;
+                        readingData = true;
                         updateDataset(datamap, null, dataset_new);// update to the new data
                         dataset_new = new HashMap<>();//a new round
                         trajectoryNumber = datamap.size();
                         dataEnough = true;
-                        readingdata = false;
+                        readingData = false;
                     }
                 } else if (iterationStops) {//it is time to delete the expired data in the index, update the dataset
                     Map<Integer, ArrayList<Integer>> dataset_remove = new HashMap<>();
@@ -186,9 +186,9 @@ public class StreamKpath extends Yinyang {
                         edgeid1.removeExpired(expiredtime, formerexpired, dataset_remove);
                     }
                     formerexpired = expiredtime;
-                    readingdata = true;
+                    readingData = true;
                     //	updateDataset(datamap, dataset_remove, dataset_new);// update to the new data
-                    readingdata = false;
+                    readingData = false;
                     dataset_new = new HashMap<>();//a new round*/
                 }
             }
