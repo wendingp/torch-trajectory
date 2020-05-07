@@ -158,10 +158,10 @@ public class MTree<DATA> {
                 String str = in.nextLine();
                 String strr = str.trim();
                 String[] abc = strr.split(":");
-                String[] radius_data = abc[1].split(";");
-                double radius = Double.parseDouble(radius_data[0]);
-                double distanceToFarther = Double.parseDouble(radius_data[1]);
-                String[] traids = radius_data[2].split(",");
+                String[] radiusData = abc[1].split(";");
+                double radius = Double.parseDouble(radiusData[0]);
+                double distanceToFarther = Double.parseDouble(radiusData[1]);
+                String[] traids = radiusData[2].split(",");
                 for (String traidStr : traids) {
                     int traid = Integer.parseInt(traidStr);
                     // read datamap
@@ -277,17 +277,15 @@ public class MTree<DATA> {
         /*
          * compute the drift between current center and previous center
          */
-        protected void computeGroupDrift(int k, int t) {
-            groupDrift = new double[t];
-            for (int group_i = 0; group_i < t; group_i++) {
-                ArrayList<Integer> centers = group.get(group_i);
-                double max_drift = 0;
-                for (int centerid : centers) {
-                    if (max_drift < centerDrift.get(centerid)) {
-                        max_drift = centerDrift.get(centerid);
-                    }
+        protected void computeGroupDrift(int groupCount) {
+            groupDrift = new double[groupCount];
+            for (int groupId = 0; groupId < groupCount; groupId++) {
+                ArrayList<Integer> centers = group.get(groupId);
+                double maxDrift = 0;
+                for (int centerId : centers) {
+                    maxDrift = Math.max(maxDrift, centerDrift.get(centerId));
                 }
-                groupDrift[group_i] = max_drift;
+                groupDrift[groupId] = maxDrift;
             }
         }
 
@@ -318,20 +316,20 @@ public class MTree<DATA> {
          * the main running function
          */
         public void runKpath(String folder) {
-            int groupNumber = k;
+            int groupCount = k;
             //divide the k centroids into t groups when k is big
             centerDrift = new HashMap<>();
-            groupInitialClusters(groupNumber, k);
+            groupInitialClusters(groupCount, k);
             assignmentNormal(centroidData);
             double overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centroidData);
             System.out.println("iteration 0, the sum distance is " + overallDis);
-            computeGroupDrift(k, groupNumber);
+            computeGroupDrift(groupCount);
             int t = 1;
             for (; t < TRY_TIMES; t++) {
                 printClusterTrajectory(k, t, folder);
                 assignmentWithPrevious(centroidData);
                 overallDis = pathExtractionHistogram(forwardGraph, backwardGraph, centroidData);
-                computeGroupDrift(k, groupNumber);
+                computeGroupDrift(groupCount);
                 System.out.println("iteration " + (t + 1) + ", the sum distance is " + overallDis);
                 if (isClusteringFinished()) {
                     System.out.println("\nIteration stops now, the final centers are:");
@@ -355,7 +353,7 @@ public class MTree<DATA> {
             }
             Set<Integer> candidateofAllclusters = new HashSet<>();
             int minlength = Integer.MAX_VALUE;
-            int min_length_id = 0;
+            int minLengthId = 0;
             System.out.println(centoridData.size());
             for (int j = 0; j < k; j++) {
                 Set<Integer> candilist = CENTERS.get(j).createCandidateListNoDataMap(edgeIndex, centoridData.get(j));//generate the candidate list
@@ -363,7 +361,7 @@ public class MTree<DATA> {
                 int length = centoridData.get(j).length;
                 if (length < minlength) {// get the minimum length
                     minlength = length;
-                    min_length_id = j;
+                    minLengthId = j;
                 }
             }
             while (!pendingQueue.isEmpty()) {
@@ -374,15 +372,15 @@ public class MTree<DATA> {
                     int idx = MTree.this.distanceFunction.getID(child.data);// used for inverted index
                     int[] data = MTree.this.distanceFunction.getData(child.data);
                     if (child instanceof MTree.Entry) {//the data
-                        double min_dist = Double.MAX_VALUE;
+                        double minDist = Double.MAX_VALUE;
                         int minId = 0;
                         child.bounds = new double[k];
                         if (!candidateofAllclusters.contains(idx)) {// if it is never contained by any list
-                            min_dist = Math.max(data.length, minlength);
+                            minDist = Math.max(data.length, minlength);
                             for (int j = 0; j < k; j++) {
                                 int length = centoridData.get(j).length;
                                 double dist = Math.max(data.length, length);
-                                if (j == min_length_id) {
+                                if (j == minLengthId) {
                                     child.bounds[j] = Double.MAX_VALUE;
                                     continue;// jump this best value
                                 }
@@ -390,16 +388,16 @@ public class MTree<DATA> {
                             }
                         } else {
                             for (int j = 0; j < k; j++) {
-                                Set<Integer> canlist = CENTERS.get(j).getCandidateList();// get the candidate list of each cluster
+                                Set<Integer> candidatesSet = CENTERS.get(j).getCandidateList();// get the candidate list of each cluster
                                 double dist;
-                                int[] clustra = centoridData.get(j);
-                                if (!canlist.contains(idx)) // it is not contained
-                                    dist = Math.max(data.length, clustra.length);
+                                int[] cluster = centoridData.get(j);
+                                if (!candidatesSet.contains(idx)) // it is not contained
+                                    dist = Math.max(data.length, cluster.length);
                                 else {
-                                    dist = Intersection(data, clustra, data.length, clustra.length);
+                                    dist = Intersection(data, cluster, data.length, cluster.length);
                                 }
-                                if (min_dist > dist) {
-                                    min_dist = dist; // maintain the one with min distance
+                                if (minDist > dist) {
+                                    minDist = dist; // maintain the one with min distance
                                     minId = j;
                                 }
                                 child.bounds[j] = dist;
@@ -505,7 +503,7 @@ public class MTree<DATA> {
                 candiList.get(idx).removeAll(idxs);
             }
             long Time2 = System.nanoTime();
-            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addHistogramTime((Time2 - Time1) / 1000000000.0);
         }
 
         /*
@@ -546,12 +544,12 @@ public class MTree<DATA> {
                     int[] tra = MTree.this.distanceFunction.getData(child.data);
                     if (child instanceof MTree.Entry) {
                         int tralength = tra.length; // the length of trajectory is read
-                        double min_dist;// to record the best center's distance
+                        double minDist;// to record the best center's distance
                         int newCenterId = group_i;//initialize as the original center
                         if (!checkInvertedIndex(candidateOfAllClusters, idx)) { // if it is never contained by any list, we can assign it to the cluster with minimum length
-                            min_dist = Math.max(tralength, centerMinlength);
-                            double min_dist1 = Math.max(tralength, center_length);
-                            if (min_dist1 > min_dist) {//change to other center
+                            minDist = Math.max(tralength, centerMinlength);
+                            double curMinDist = Math.max(tralength, center_length);
+                            if (curMinDist > minDist) {//change to other center
                                 newCenterId = minLengthCenterid;
                             }
                             indexFil += k;
@@ -561,21 +559,21 @@ public class MTree<DATA> {
                             Set<Integer> canlist = CENTERS.get(group_i).getCandidateList();
                             int[] clustra = clusterData.get(group_i);
                             if (checkInvertedIndex(canlist, idx)) {
-                                min_dist = computeRealDistance(tra, clustra, idx);//compute the distance with new center
+                                minDist = computeRealDistance(tra, clustra, idx);//compute the distance with new center
                             } else {// do not need to read as no overlap
-                                min_dist = Math.max(tralength, clustra.length);
+                                minDist = Math.max(tralength, clustra.length);
                             }
-                            double newupperbound = min_dist;// tighten the upper bound
+                            double newUpperBound = minDist;// tighten the upper bound
                             newCenterId = group_i;
                             double centroidBound = interMinimumCentroidDis[group_i] / 2.0;
                             lowerbound = Math.max(lowerbound, centroidBound);
-                            if (lowerbound < newupperbound) {//cannot not pass the group filtering
+                            if (lowerbound < newUpperBound) {//cannot not pass the group filtering
                                 for (int group_j = 0; group_j < k; group_j++) {
                                     if (group_j == group_i)//skip current group
                                         continue;
                                     double localbound = Math.max((bounds[group_j] - groupDrift[group_j]), innerCentroidDis[group_i][group_j] / 2.0);
-                                    if (localbound < min_dist) {//the groups that cannot pass the filtering of bound and inverted index
-                                        double second_min_dist_local = Double.MAX_VALUE;
+                                    if (localbound < minDist) {//the groups that cannot pass the filtering of bound and inverted index
+                                        double secondMinDistLocal = Double.MAX_VALUE;
                                         // goto the local filtering on center in a group, by checking the candidate list and bounds
                                         canlist = CENTERS.get(group_j).getCandidateList();// get the candidate list of each cluster
                                         clustra = clusterData.get(group_j);
@@ -586,14 +584,14 @@ public class MTree<DATA> {
                                             indexFil++;
                                             dist = Math.max(tralength, clustra.length);
                                         }
-                                        if (min_dist > dist) {
-                                            min_dist = dist; // maintain the one with min distance, and second min distance
+                                        if (minDist > dist) {
+                                            minDist = dist; // maintain the one with min distance, and second min distance
                                             newCenterId = group_j;
                                         }
-                                        if (second_min_dist_local > dist) {
-                                            second_min_dist_local = dist;
+                                        if (secondMinDistLocal > dist) {
+                                            secondMinDistLocal = dist;
                                         }
-                                        child.bounds[group_j] = second_min_dist_local;
+                                        child.bounds[group_j] = secondMinDistLocal;
                                     } else {
                                         numFilGroup++;
                                         child.bounds[group_j] = bounds[group_j] - groupDrift[group_j];
@@ -622,7 +620,7 @@ public class MTree<DATA> {
                             idxNeedsOut.put(group_i, idxlist);// temporal store, batch remove later
                             accumulateHistogramGuava(tra, idx, newCenterId, group_i);    // update the histogram directly
                             long Time2 = System.nanoTime();
-                            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+                            runRecord.addHistogramTime((Time2 - Time1) / 1000000000.0);
                         }
                     } else {
                         Node childNode = (Node) child;//if this node cannot be pruned, we will further enqueue this to the queue with the bounds
@@ -665,7 +663,7 @@ public class MTree<DATA> {
             long Time1 = System.nanoTime();
             updateCentersNew(idxNeedsIn, idxNeedsOut);//add to the new
             long Time2 = System.nanoTime();
-            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addHistogramTime((Time2 - Time1) / 1000000000.0);
             assignmentNormal(centroidData);//assign the nodes in the pending queue using the same method
             System.out.println(movedtrajectory);
             long time2 = System.nanoTime();
@@ -694,9 +692,9 @@ public class MTree<DATA> {
             double overallDis = 0;
             for (int i = 0; i < k; i++) {
                 ClusterPath aClusterPath = CENTERS.get(i);
-                double drfit = aClusterPath.extractNewPathFrequency(forwardGraph, backwardGraph);
+                double drift = aClusterPath.extractNewPathFrequency(forwardGraph, backwardGraph);
                 updateCentroids(centoridData);
-                centerDrift.put(i, drfit);
+                centerDrift.put(i, drift);
                 overallDis += CENTERS.get(i).getSumDistance();
             }
             long Time2 = System.nanoTime();

@@ -442,7 +442,7 @@ public class Process extends Thread {
             Time1 = System.nanoTime();
             newCluster.updateHistogramGuava(tra, idx); //update the edge histogram using every new trajectory
             Time2 = System.nanoTime();
-            runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+            runRecord.addHistogramTime((Time2 - Time1) / 1000000000.0);
             newCluster.addTrajectoryToCluster(idx);    // update the new trajectory to this cluster.
         }
         return new_CENTERS;

@@ -80,11 +80,11 @@ public class Yinyang extends Process {
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("DDHHmmss");
                 folder = sdf.format(cal.getTime());
-                String newFolder = MAPV_PATH + folder;
-                boolean creat_folder = new File(newFolder).mkdirs();
+                String newFolderPath = MAPV_PATH + folder;
+                boolean createFolder = new File(newFolderPath).mkdirs();
                 //		System.out.println("ccccccccccc");
-                //		if (!creat_folder)
-                //			return;
+                if (!createFolder)
+                    return;
 
                 initializeClustersIncrease1(k, 10);
                 //		yinyangkPath(k, folder);
@@ -150,9 +150,9 @@ public class Yinyang extends Process {
     /*
      * update the lower bound of trajectory toward group i
      */
-    protected void updateSingleLowerBound(Map<Integer, double[]> trajectoryBounds, int traid, int group_i, double newbound) {
+    protected void updateSingleLowerBound(Map<Integer, double[]> trajectoryBounds, int traid, int groupId, double newbound) {
         double[] bounds = trajectoryBounds.get(traid);
-        bounds[group_i + 2] = newbound;
+        bounds[groupId + 2] = newbound;
         trajectoryBounds.put(traid, bounds);
     }
 
@@ -169,15 +169,13 @@ public class Yinyang extends Process {
                 centerDrift.put(i, dis);
             }
         //choose the max one as the group
-        for (int group_i = 0; group_i < t; group_i++) {
-            ArrayList<Integer> centers = group.get(group_i);
-            double max_drift = 0;
+        for (int groupId = 0; groupId < t; groupId++) {
+            ArrayList<Integer> centers = group.get(groupId);
+            double maxDrift = 0;
             for (int centerid : centers) {
-                if (max_drift < centerDrift.get(centerid)) {
-                    max_drift = centerDrift.get(centerid);
-                }
+                maxDrift = Math.max(maxDrift, centerDrift.get(centerid));
             }
-            groupDrift[group_i] = max_drift;
+            groupDrift[groupId] = maxDrift;
         }
     }
 
@@ -250,7 +248,7 @@ public class Yinyang extends Process {
             ClusterPath newCluster = CENTERS.get(idx);
             newCluster.removeTrajectoryToCluster(idxs);
         }
-        runRecord.addHistorgramTime((System.nanoTime() - Time1) / 1000000000.0);
+        runRecord.addHistogramTime((System.nanoTime() - Time1) / 1000000000.0);
     }
 
     public double getMinimumLowerBound(double[] bounds, int groupNumber) {
@@ -416,7 +414,7 @@ public class Yinyang extends Process {
                         idxNeedsOut.put(group_i, idxlist);// temporal store, batch remove later
                         accumulateHistogramGuava(tra, idx, newCenterId, group_i);    // update the histogram directly
                         long Time2 = System.nanoTime();
-                        runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+                        runRecord.addHistogramTime((Time2 - Time1) / 1000000000.0);
                     }
                 }
             }
@@ -425,7 +423,7 @@ public class Yinyang extends Process {
         long Time1 = System.nanoTime();
         updateCenters(idxNeedsIn, idxNeedsOut);
         long Time2 = System.nanoTime();
-        runRecord.addHistorgramTime((Time2 - Time1) / 1000000000.0);
+        runRecord.addHistogramTime((Time2 - Time1) / 1000000000.0);
     }
 
     /*
@@ -580,13 +578,13 @@ public class Yinyang extends Process {
             long startTime = System.nanoTime();
             double overallDis = 0;
             for (int i = 0; i < k; i++) {
-                double drfit;
+                double drift;
                 if (graphPathExtraction) {
-                    drfit = CENTERS.get(i).extractNewPathFrequency(forwardGraph, backwardGraph);// test the optimal
+                    drift = CENTERS.get(i).extractNewPathFrequency(forwardGraph, backwardGraph);// test the optimal
                 } else {
-                    drfit = CENTERS.get(i).extractNewPathGuava(datamap, runRecord, traLength, trajectoryHistogram); //update the centroid of each cluster
+                    drift = CENTERS.get(i).extractNewPathGuava(datamap, runRecord, traLength, trajectoryHistogram); //update the centroid of each cluster
                 }
-                centerDrift.put(i, drfit);
+                centerDrift.put(i, drift);
                 overallDis += CENTERS.get(i).getSumDistance();
             }
             computeDrift(k, k);// 	Step 3.1 compute the drift using PRE_CENS and CENTERS

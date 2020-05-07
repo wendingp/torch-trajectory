@@ -9,7 +9,7 @@ public class RunLog {
     private int iterationTimes;
     private double simiComputationTime;
     private double ioTime;
-    private double historgramTime;
+    private double histogramTime;
     private double accumulatedTime;
 
     public RunLog() {
@@ -18,7 +18,7 @@ public class RunLog {
         iterationTimes = 0;
         simiComputationTime = 0;
         ioTime = 0;
-        historgramTime = 0;
+        histogramTime = 0;
         accumulatedTime = 0;
     }
 
@@ -28,7 +28,7 @@ public class RunLog {
         iterationTimes = 0;
         simiComputationTime = 0;
         ioTime = 0;
-        historgramTime = 0;
+        histogramTime = 0;
         accumulatedTime = 0;
     }
 
@@ -48,8 +48,8 @@ public class RunLog {
         ioTime += time;
     }
 
-    public void addHistorgramTime(double time) {
-        historgramTime += time;
+    public void addHistogramTime(double time) {
+        histogramTime += time;
     }
 
     public void addAccumulatedTime(double time) {
@@ -81,11 +81,11 @@ public class RunLog {
         System.out.println("\n==============================================================");
         System.out.println("it used " + iterationTimes + " iterations to find the centroids");
         System.out.println("the overall running time: " + alltime + "s");
-        System.out.println("\tthe assignment time: " + (assignmentTime - historgramTime) + "s");
+        System.out.println("\tthe assignment time: " + (assignmentTime - histogramTime) + "s");
         System.out.println("\t\tthe IO and Index access time: " + ioTime + "s");
         System.out.println("\t\tthe similarity computation time: " + simiComputationTime + "s");
-        System.out.println("\tthe refinement time: " + (refinementTime + historgramTime) + "s");
-        System.out.println("\t\tthe edge histogram building time: " + historgramTime + "s");
+        System.out.println("\tthe refinement time: " + (refinementTime + histogramTime) + "s");
+        System.out.println("\t\tthe edge histogram building time: " + histogramTime + "s");
         System.out.println("\t\tthe accumulated histogram time: " + accumulatedTime + "s");
         System.out.println("==============================================================\n");
     }

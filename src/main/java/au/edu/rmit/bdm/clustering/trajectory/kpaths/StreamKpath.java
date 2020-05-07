@@ -15,7 +15,7 @@ import java.util.*;
  * 3) continue the clustering with new updated data based on previous cluster
  */
 public class StreamKpath extends Yinyang {
-    private Thread runingThread = null;
+    private Thread runningThread = null;
     private String threadName;
     private static ArrayList<streamEdge> invertedIndex;//store the inverted index in a window.
     int globalStarttime;
@@ -60,9 +60,9 @@ public class StreamKpath extends Yinyang {
     @Override
     public void start() {
         System.out.println("Starting " + threadName);
-        if (runingThread == null) {
-            runingThread = new Thread(this, threadName);
-            runingThread.start();
+        if (runningThread == null) {
+            runningThread = new Thread(this, threadName);
+            runningThread.start();
         }
     }
 

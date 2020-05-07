@@ -13,7 +13,7 @@ public class TrajectoryMtree extends MTree<Data> {
      * initialize our trajectory functions with DEFAULT_MIN_NODE_CAPACITY
      */
     public TrajectoryMtree() {
-        super(DEFAULT_MIN_NODE_CAPACITY, DistanceFunctions.EBD,
+        super(DEFAULT_MIN_NODE_CAPACITY, DistanceFunctions.EDGE_BASED_DISTANCE,
                 new ComposedSplitFunction<>(nonRandomPromotion1, new PartitionFunctions.BalancedPartition<>()));
     }
 
@@ -21,7 +21,7 @@ public class TrajectoryMtree extends MTree<Data> {
      * initialize our trajectory functions, we can specify the capacity and distance function
      */
     public TrajectoryMtree(int capacity) {
-        super(capacity, DistanceFunctions.EBD,
+        super(capacity, DistanceFunctions.EDGE_BASED_DISTANCE,
                 new ComposedSplitFunction<>(nonRandomPromotion1, new PartitionFunctions.BalancedPartition<>()));
     }
 

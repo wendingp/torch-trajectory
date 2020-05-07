@@ -58,18 +58,16 @@ public final class DistanceFunctions {
             @Override
             public double calculate(Data data1, Data data2) {
                 Pair pair1 = new Pair(data1, data2);
-                Double distance = cache.get(pair1);
-                if (distance != null) {
-                    return distance;
+                if (cache.get(pair1) != null) {
+                    return cache.get(pair1);
                 }
 
                 Pair pair2 = new Pair(data2, data1);
-                distance = cache.get(pair2);
-                if (distance != null) {
-                    return distance;
+                if (cache.get(pair2) != null) {
+                    return cache.get(pair2);
                 }
 
-                distance = distanceFunction.calculate(data1, data2);
+                Double distance = distanceFunction.calculate(data1, data2);
                 cache.put(pair1, distance);
                 cache.put(pair2, distance);
                 return distance;
@@ -136,7 +134,7 @@ public final class DistanceFunctions {
      * this is the edge based distance for trajectory clustering
      * input: two sorted trajectory list
      */
-    public static final DistanceFunction<EuclideanCoordinate> EBD = new DistanceFunction<EuclideanCoordinate>() {
+    public static final DistanceFunction<EuclideanCoordinate> EDGE_BASED_DISTANCE = new DistanceFunction<EuclideanCoordinate>() {
         @Override
         public double calculate(EuclideanCoordinate coord1, EuclideanCoordinate coord2) {
             int i = 0, j = 0;

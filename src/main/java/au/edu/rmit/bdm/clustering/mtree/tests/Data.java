@@ -10,17 +10,20 @@ public class Data implements DistanceFunctions.EuclideanCoordinate, Comparable<D
 
     public Data(int... values) {
         this.values = values;
-
-        int hashCode = 1;
-        for (int value : values) {
-            hashCode = PRIME * hashCode + value;
-        }
-        this.hashCode = hashCode;
+        this.hashCode = hash(values);
     }
 
     public Data(int[] values, int id) {
         this.values = values;
         this.hashCode = id;
+    }
+
+    private int hash(int[] values) {
+        int hashCode = 1;
+        for (int value : values) {
+            hashCode = PRIME * hashCode + value;
+        }
+        return hashCode;
     }
 
     @Override
