@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -90,15 +89,8 @@ public class Process extends Thread {
         edgefile = args[3];
         graphfile = args[4];
 
-        try {
-            init();
-        } catch (IOException e) {
-            logger.error("IO exception in clustering module. {}", e.getMessage());
-        }
-    }
-
-    public Process() {
-
+        init();
+//        } catch (IOException e) { // TODO ?
     }
 
     public Process(FileSetting setting, int trajNumber) {
@@ -111,11 +103,7 @@ public class Process extends Thread {
         search2ClusterLookup = new HashMap<>();
         cluster2SearchLookup = new HashMap<>();
 
-        try {
-            init();
-        } catch (IOException e) {
-            logger.error("IO exception in clustering module. {}", e.getMessage());
-        }
+        init();
     }
 
     // stop the iteration when the clusters do not change compared with last time
