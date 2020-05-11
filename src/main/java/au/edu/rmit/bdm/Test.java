@@ -47,7 +47,7 @@ public class Test {
             String trajId = temp[0];
             String trajContent = temp[1];
 
-            trajContent = trajContent.substring(2, trajContent.length() - 2); //remove head "[[" and tail "]]"
+            trajContent = trajContent.substring(2, trajContent.length() - 2); // remove head "[[" and tail "]]"
             String[] trajTuples = trajContent.split("],\\[");
             List<TrajEntry> query = new ArrayList<>();
 
@@ -69,7 +69,7 @@ public class Test {
         BufferedReader reader = new BufferedReader(new FileReader(setting.TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL));
         BufferedWriter writer = new BufferedWriter(new FileWriter(setting.TRAJECTORY_START_END_TIME_PARTIAL));
         String line;
-        Map<String, Integer> map = new LinkedHashMap<>(); //trajectory id - number of edges
+        Map<String, Integer> map = new LinkedHashMap<>(); // trajectory id - number of edges
         while ((line = reader.readLine()) != null) {
             String[] tokens = line.split("\t");
             map.put(tokens[0], tokens[1].split(",").length);
@@ -77,8 +77,8 @@ public class Test {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         long cur = System.currentTimeMillis();
-        long begin = cur - 60 * 60 * 24 * 164 * 1000L; //150 days ago
-        long end = cur - 60 * 60 * 24 * 154 * 1000L; //140 days age
+        long begin = cur - 60 * 60 * 24 * 164 * 1000L; // 150 days ago
+        long end = cur - 60 * 60 * 24 * 154 * 1000L; // 140 days age
         long max = end - begin;
 
         System.out.println("begin date: " + sdf.format(begin));
@@ -101,10 +101,12 @@ public class Test {
 
             while (true) {
                 long temp = initial_span.nextLong();
-                if (temp < 0L) continue;
+                if (temp < 0L)
+                    continue;
                 individual_start = begin + temp % max;
                 individual_end = individual_start + entry.getValue() * (span.nextInt(60 * 1000) + 100000);
-                if (individual_end < end) break;
+                if (individual_end < end)
+                    break;
             }
 
             Date d1 = new Date(individual_start);
@@ -117,7 +119,7 @@ public class Test {
         writer.flush();
         writer.close();
 
-        //range
+        // range
     }
 
     private static void buildStreetNameLookupDBfromFile() throws IOException {
@@ -131,7 +133,8 @@ public class Test {
             String name = tokens[lastIdx];
             String id = tokens[0];
 
-            if (name.length() == 0) continue;
+            if (name.length() == 0)
+                continue;
             lookup.merge(name, id, (a, b) -> a + "," + b);
         }
 
@@ -157,7 +160,6 @@ public class Test {
             if (name.equals("Largo 5 de Outubro"))
                 System.out.println(id);
         }
-
 
         System.out.println(nameIdLookup.get("Largo 5 de Outubro"));
 
@@ -203,8 +205,10 @@ public class Test {
 
     private static void getAfew() throws IOException {
 
-        BufferedReader edgeReader = new BufferedReader(new FileReader(setting.TRAJECTORY_EDGE_REPRESENTATION_PATH + ".txt"));
-        BufferedReader vertexReader = new BufferedReader(new FileReader(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH + ".txt"));
+        BufferedReader edgeReader = new BufferedReader(
+                new FileReader(setting.TRAJECTORY_EDGE_REPRESENTATION_PATH + ".txt"));
+        BufferedReader vertexReader = new BufferedReader(
+                new FileReader(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH + ".txt"));
 
         List<String> edgeList = new ArrayList<>(200001);
         List<String> vertexList = new ArrayList<>(200001);
@@ -219,7 +223,8 @@ public class Test {
             }
         }
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH + "_partial.txt"));
+        BufferedWriter writer = new BufferedWriter(
+                new FileWriter(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH + "_partial.txt"));
         for (String line : vertexList) {
             writer.write(line);
             writer.newLine();
@@ -238,7 +243,8 @@ public class Test {
 
     private static void genEdgeInvertedIndex() throws IOException {
 
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(setting.TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL));
+        BufferedReader bufferedReader = new BufferedReader(
+                new FileReader(setting.TRAJECTORY_EDGE_REPRESENTATION_PATH_PARTIAL));
         EdgeInvertedIndex edgeInvertedIndex = new EdgeInvertedIndex(setting);
 
         String line;
@@ -253,7 +259,8 @@ public class Test {
             if (++i % 10000 == 0) {
                 System.err.println("current progress: " + i);
                 MemoryUsage.printCurrentMemUsage("");
-                if (i == 100000) break;
+                if (i == 100000)
+                    break;
             }
             tokens = line.split("\t");
             edges = tokens[1].split(",");
@@ -264,7 +271,6 @@ public class Test {
             for (String edge : edges)
                 t.edges.add(new TorEdge(Integer.parseInt(edge), null, null, 0));
 
-
             edgeInvertedIndex.index(t);
         }
         MemoryUsage.printCurrentMemUsage("");
@@ -273,8 +279,8 @@ public class Test {
     }
 
     private static void genVertexInvertedIndex() throws IOException {
-
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH_PARTIAL));
+        BufferedReader bufferedReader = new BufferedReader(
+                new FileReader(setting.TRAJECTORY_VERTEX_REPRESENTATION_PATH_PARTIAL));
         VertexInvertedIndex vertexInvertedIndex = new VertexInvertedIndex(setting);
 
         String line;
@@ -285,11 +291,11 @@ public class Test {
 
         int i = 0;
         while ((line = bufferedReader.readLine()) != null) {
-
             if (++i % 10000 == 0) {
                 System.err.println("current progress: " + i);
                 MemoryUsage.printCurrentMemUsage("");
-                if (i == 100000) break;
+                if (i == 100000)
+                    break;
             }
             tokens = line.split("\t");
             vertices = tokens[1].split(",");
@@ -299,7 +305,6 @@ public class Test {
 
             for (String vertex : vertices)
                 t.add(new TowerVertex(0, 0, Integer.parseInt(vertex)));
-
 
             vertexInvertedIndex.index(t);
         }
