@@ -47,10 +47,10 @@ public class Engine {
      * @see QueryResult#mappingSucceed
      */
     public QueryResult findTopK(List<? extends TrajEntry> raw, int k) {
-
         Query topK = pool.get(Torch.QueryType.TopK);
-        if (!topK.prepare(raw))
+        if (!topK.prepare(raw)) {
             return QueryResult.genFailedRet(Torch.QueryType.TopK, raw, "Cannot map raw trajectory properly");
+        }
         return topK.execute(k);
     }
 
@@ -69,8 +69,9 @@ public class Engine {
      */
     public QueryResult findOnPath(List<? extends TrajEntry> raw) {
         Query pathQ = pool.get(Torch.QueryType.PathQ);
-        if (!pathQ.prepare(raw))
+        if (!pathQ.prepare(raw)) {
             return QueryResult.genFailedRet(Torch.QueryType.PathQ, raw, "");
+        }
         return pathQ.execute(false);
     }
 
@@ -141,13 +142,11 @@ public class Engine {
      * @return qualified trajectories modeled by QueryResult
      */
     public QueryResult findInRange(SearchWindow window) {
-
         Query rangeQ = pool.get(Torch.QueryType.RangeQ);
         return rangeQ.execute(window);
     }
 
     public QueryResult findInRange(double lat, double lng, double squareRadius) {
-
         Query rangeQ = pool.get(Torch.QueryType.RangeQ);
         return rangeQ.execute(new SearchWindow(new Coordinate(lat, lng), squareRadius));
     }
@@ -290,9 +289,10 @@ public class Engine {
          * T-Torch use map-matched trajectories as default data-set.
          * However you could tell it to perform queries over raw trajectories by calling this method.
          */
-//        public Builder useRawData(){
+        public Builder useRawData(){
 //            useRaw = true;
 //            return this;
-//        }
+            throw new UnsupportedOperationException("Use raw data not supported now");
+        }
     }
 }

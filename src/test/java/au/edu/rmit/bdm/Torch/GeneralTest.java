@@ -1,5 +1,9 @@
 package au.edu.rmit.bdm.Torch;
 
+import au.edu.rmit.bdm.Torch.base.model.Coordinate;
+import au.edu.rmit.bdm.Torch.base.model.TrajEntry;
+import au.edu.rmit.bdm.Torch.queryEngine.Engine;
+import au.edu.rmit.bdm.Torch.queryEngine.query.QueryResult;
 import com.github.davidmoten.geo.GeoHash;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.osm.GraphHopperOSM;
@@ -16,7 +20,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class GeneralTest {
@@ -37,7 +46,6 @@ public class GeneralTest {
         hopper.setEncodingManager(new EncodingManager(encoder));
         hopper.getCHFactoryDecorator().setEnabled(false);
         hopper.importOrLoad();
-
     }
 
     /**

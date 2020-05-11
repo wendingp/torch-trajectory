@@ -58,7 +58,7 @@ After setup, call start() method to convert raw trajectories to mapped trajector
 
 ### 2. Query
 After map-matching, we could perform trajectory retrieval over mapped trajectories. T-Torch provides high level class *Engine* containing simple APIs for query processing. 
-To get the engine ready( loading or building necessary indexes to support different types of query), 
+To get the engine ready (loading or building necessary indexes to support different types of query), 
 only a line of code is required: 
 ```java
    Engine engine = Engine.getBuilder().build();

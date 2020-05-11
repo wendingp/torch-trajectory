@@ -19,9 +19,9 @@
     <dependencies>
 
         <!--<dependency>-->
-        <!--<groupId>org.mapdb</groupId>-->
-        <!--<artifactId>mapdb</artifactId>-->
-        <!--<version>3.0.</version>-->
+            <!--<groupId>org.mapdb</groupId>-->
+            <!--<artifactId>mapdb</artifactId>-->
+            <!--<version>3.0.</version>-->
         <!--</dependency>-->
 
         <!-- https://mvnrepository.com/artifact/ojdbc/ojdbc -->
@@ -80,6 +80,13 @@
 
         <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.25</version>
@@ -133,12 +140,6 @@
             <version>26.0-jre</version>
         </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
     <build>
@@ -164,5 +165,5 @@
         </plugins>
     </build>
 
-
+    
 </project>

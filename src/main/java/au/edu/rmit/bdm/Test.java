@@ -31,13 +31,10 @@ public class Test {
     static FileSetting setting = new FileSetting("Torch_nantong");
 
     public static void main(String[] args) throws IOException {
-
         Engine engine = Engine.getBuilder().baseDir("Torch_Porto").build();
-
         List<List<TrajEntry>> queries = read();
         QueryResult result = engine.findOnPath(queries.get(0));
         System.out.println((result.toJSON(10)));
-
     }
 
     private static List<List<TrajEntry>> read() throws IOException {
