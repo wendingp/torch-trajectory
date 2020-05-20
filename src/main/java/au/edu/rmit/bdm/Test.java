@@ -31,10 +31,13 @@ public class Test {
     static FileSetting setting = new FileSetting("Torch_nantong");
 
     public static void main(String[] args) throws IOException {
-        Engine engine = Engine.getBuilder().baseDir("Torch_Porto").build();
+//        Engine engine = Engine.getBuilder().baseDir("Torch_Porto").build();
+        Engine engine = Engine.getBuilder().baseDir("Torch").build();
         List<List<TrajEntry>> queries = read();
         QueryResult result = engine.findOnPath(queries.get(0));
-        System.out.println((result.toJSON(10)));
+        QueryResult topK = engine.findTopK(queries.get(0), 15);
+        System.out.println(topK.toJSON(1));
+//        System.out.println((result.toJSON(10)));
     }
 
     private static List<List<TrajEntry>> read() throws IOException {
@@ -44,7 +47,7 @@ public class Test {
         String line;
         while ((line = reader.readLine()) != null) {
             String[] temp = line.split("\t");
-            String trajId = temp[0];
+            // String trajId = temp[0];
             String trajContent = temp[1];
 
             trajContent = trajContent.substring(2, trajContent.length() - 2); // remove head "[[" and tail "]]"

@@ -69,6 +69,7 @@ public class MapMatching {
 
         //check output directory
         File dir = new File(setting.TorchBase);
+        System.out.println(setting.TorchBase);
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 logger.error("{} cannot make directory, possibly Torch do not have permission for it.", setting.TorchBase);

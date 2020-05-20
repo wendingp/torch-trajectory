@@ -17,7 +17,6 @@ public abstract class Formatter {
     final static Gson gson = new Gson();
 
     public static String toMapVJSON(QueryResult queryResult, int maximum) {
-
         QueryRetJsonModel queryRetJsonModel = new QueryRetJsonModel(queryResult, maximum);
         return gson.toJson(queryRetJsonModel);
     }
