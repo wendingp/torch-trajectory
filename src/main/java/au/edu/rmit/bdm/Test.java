@@ -34,7 +34,7 @@ public class Test {
 //        Engine engine = Engine.getBuilder().baseDir("Torch_Porto").build();
         Engine engine = Engine.getBuilder().baseDir("Torch").build();
         List<List<TrajEntry>> queries = read();
-        QueryResult result = engine.findOnPath(queries.get(0));
+//        QueryResult result = engine.findOnPath(queries.get(0));
         QueryResult topK = engine.findTopK(queries.get(0), 15);
         System.out.println(topK.toJSON(1));
 //        System.out.println((result.toJSON(10)));
